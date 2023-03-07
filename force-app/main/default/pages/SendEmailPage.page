@@ -29,34 +29,9 @@
             caseId = caseId.slice(0, -3);
         var cc_field_id = 'cc_'+caseId+'_textarea';
         var bcc_field_id = 'bcc_'+caseId+'_textarea';
-        
-        var bcc = document.getElementById('bcc_'+'5001900000A51OKAAZ'+'_textarea');
-        var cc = document.getElementById('cc_'+'5001900000A51OKAAZ'+'_textarea');
         var bcc = document.getElementById(bcc_field_id);
         var cc = document.getElementById('cc_'+caseId+'_textarea');
         bcc.value='{!BccAddresses}';
         cc.value='{!CcAddresses}';
-        // bcc.value='vishwasb.n@discounttire.com';
-        // cc.value='vishwasb.n@discounttire.com';
     </script>
 </apex:page>
-
-<!--<apex:page standardController="Case" showHeader="true">
-                <apex:emailPublisher id="myEmailPublisher" 
-                    entityId="{!case.id}" 
-                    width="600px"
-                    title="Send an Email"
-                    expandableHeader="false"
-                    autoCollapseBody="false"
-                    showAdditionalFields="false"
-                    fromVisibility="selectable"
-                    toVisibility="editable"
-                    bccVisibility="hidden" 
-                    ccVisibility="hidden"
-                    emailBody=""
-                    subject=""
-                    toAddresses=""
-                    onSubmitFailure="alert('failed');"
-                    fromAddresses="customerrelations@discounttire.com"
-                />  
-</apex:page>-->
