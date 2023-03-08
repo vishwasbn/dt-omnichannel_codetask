@@ -1,0 +1,766 @@
+<apex:component controller="Appt_VFEmailController" access="global">
+<apex:attribute name="notification" type="Notification__c" description="Notification Reference" assignTo="{!NotificationRef}" />
+
+<head>
+    <meta content="width=device-width,initial-scale=1" name="viewport" />  
+</head>
+
+      <div role="article" aria-roledescription="email" lang="en">
+            <div align="left" style="padding-bottom:15px;">
+                <apex:image id="imgLogoDT" url="{!dtLogo}" width="180" style="margin-top: 20px; margin-bottom: 20px;" alt="Discount Tire logo" rendered="{!!IsAT}"/><apex:image id="imgLogoAT" url="{!atLogo}" width="180" style="margin-top: 20px; margin-bottom: 20px;" alt="America Tire logo" rendered="{!IsAT}"/>
+            </div>
+            <b style="{!heading1};">{!EmailTitle}</b>
+            <div style="{!defaultText};"><br/></div>
+            <div style="{!defaultText}">{!relatedTo.Customer_Name__c},</div>
+            <div style="{!defaultText}"><br/></div>
+            <apex:outputPanel rendered="{!IsConfirmed}">
+                <div style="{!defaultText};">Your appointment has been confirmed for&nbsp;<b>{!relatedTo.Appointment_Date__c}, {!relatedTo.Appointment_Year__c} at {!relatedTo.Appointment_Time__c}</b></div>
+                <div style="{!defaultText};"><br/></div>
+                <div style="{!defaultText};">Find your order details and store location contact info below. Call your store with any questions about your appointment.</div>
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!IsScheduled}">
+                <div style="{!defaultText};">Your appointment has been confirmed for&nbsp;<b>{!relatedTo.Appointment_Date__c}, {!relatedTo.Appointment_Year__c} at {!relatedTo.Appointment_Time__c}</b></div>
+                <div style="{!defaultText};"><br/></div>
+                <div style="{!defaultText};">Find your order details and store location contact info below. Call your store with any questions about your appointment.</div>
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!IsRescheduled}">
+                <div style="{!defaultText};">Your appointment has been confirmed for&nbsp;<b>{!relatedTo.Appointment_Date__c}, {!relatedTo.Appointment_Year__c} at {!relatedTo.Appointment_Time__c}</b></div>
+                <div style="{!defaultText};"><br/></div>
+                <div style="{!defaultText};">Find your order details and store location contact info below. Call your store with any questions about your appointment.</div>
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!IsCancelled}">
+                <div style="{!defaultText};">Your appointment has been successfully cancelled, <span style="font-weight: 550">however your items are still available for pickup at your selected store location</span></div>
+                <div style="{!defaultText};"><br/></div>
+                <div style="{!defaultText};">For additional information please Contact Customer Service</div>
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!IsReminder}">
+                <div style="{!defaultText};">Your appointment for&nbsp;<b>{!relatedTo.Appointment_Date__c}, {!relatedTo.Appointment_Year__c} at {!relatedTo.Appointment_Time__c}</b> is almost here.</div>
+                <div style="{!defaultText};"><br/></div>
+                <div style="{!defaultText};">Find your order details and store location contact info below. Call your store with any questions about your appointment.</div>
+            </apex:outputPanel>
+
+            <div style="{!defaultText};"><br/><br/></div>
+            <div style="{!defaultText};"><b>Order No.<!--{!relatedTo.Email_Template_Number_Label__c}--></b> {!relatedTo.Order_Number__c}</div>
+            <div style="{!defaultText};"><b>Order Placed:<!--{!relatedTo.Email_Template_Date_Label__c}--></b> {!relatedTo.Order_Date__c}</div>
+            <div style="{!defaultText};"><br/></div>
+
+
+            <table role="presentation" style="width: 100%; border-bottom: 1px solid {!borderColor}; padding-bottom: 10px;">
+  
+                <tr>
+                  
+                  <td>
+                    
+                    <table align="left" style="width: 50%; min-width: 350px;" >
+                      <tr>
+                        <td>
+
+                            <apex:outputPanel rendered="{!!IsCancelled}">
+                            <div style="{!defaultText} margin-left: -5px;"><b>My Store/Appointment Details</b></div>
+                            <table>
+                                <tr >
+                                    <td>
+                                        <apex:image style="margin-left: -8px; width: 15px;" width="15" id="calIcon" url="{!calendarImg}" alt="Calendar Logo"/>
+                                    </td>
+                                    <td>
+                                        <div style="{!defaultText};">{!relatedTo.Appointment_Day_of_Week__c}, {!relatedTo.Appointment_Date__c} - {!relatedTo.Appointment_Time__c}</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </apex:outputPanel> 
+                        <apex:outputPanel rendered="{!IsCancelled}">
+                            <div style="{!defaultText};"><b>My Store</b></div>
+                        </apex:outputPanel>     
+                       <table>
+                            <tr>
+                                <td>
+                                    <apex:image style="margin-left: -8px; width: 15px;" width="15" id="imgRedMarker" url="{!redMarker}" alt="Red Marker"/>
+                                </td>
+                                <td>
+                                    <div style="{!defaultText};">{!relatedTo.Store_Street__c}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                </td>
+                                <td>
+                                    <div style="{!defaultText};">{!relatedTo.Store_City__c}, {!relatedTo.Store_State__c} {!relatedTo.Store_Zip__c}</div>
+                                </td>                                
+                            </tr>
+                            <tr>
+                                <td>
+                                </td>
+                                <td>
+                                    <div style="{!phoneNumber}"><a href="tel:{!relatedTo.Store_Phone_Number__c}" target="_blank"><span style="color:#3483de;text-decoration:none">{!relatedTo.Store_Phone_Number__c}</span></a></div>
+                                </td>
+                            </tr>
+                        </table>   
+                        <div style="{!defaultText};"><br/></div>
+
+
+                         
+                        
+                        
+
+                        <table align="left" style="border-top: 1px solid {!borderColor}; width:375px;">
+                            <tr>
+                                <td align="center" style="border-right: 1px solid {!borderColor}; width: 100px;" >
+                                    <apex:outputLink value="{!GoogleMapUrl}" >
+                                         <apex:image style="{!linkImageSize}" height="35" url="{!directions}"/ >
+                                    </apex:outputLink>
+                                </td>
+
+                                <td align="center" style=" width: 100px;">
+                                    <a href="{!RescheduleUrl}"><apex:image id="imgReschedules" style="{!linkImageSize}" height="35" url="{!reschedule}" alt="Reschedule"/></a>       
+                                </td>
+
+                                <apex:outputPanel rendered="{!DisaplyCancel}">                          
+                                    <td align="center" style="border-left: 1px solid {!borderColor}; padding-top:2px; width: 100px;">
+                                        <a href="{!CancelUrl}"><apex:image id="imgCancels" style="{!linkImageSize}" height="35" url="{!cancel}" alt="Cancel"/></a>       
+                                    </td>
+                                </apex:outputPanel> 
+
+                                
+                            </tr>
+                        </table>
+            
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <table align="left" style="width: 50%; min-width: 350px;" >
+                      <tr>
+                        <td>
+                            
+                        <div style="{!defaultText};padding-bottom: 5px;"><b>My Information</b></div>
+                        <div style="{!defaultText};padding-bottom: 5px;">{!relatedTo.Customer_Name__c}</div>
+                        <div style="{!defaultText};padding-bottom: 5px;">{!relatedTo.Customer_Street__c}</div>
+                        <div style="{!defaultText};padding-bottom: 5px;">{!customerCity} {!relatedTo.Customer_State__c} {!relatedTo.Customer_Zip__c}</div>
+                        <div style="{!defaultText};"><br/></div>
+                        <div style="{!defaultText};padding-bottom: 5px;">{!relatedTo.Customer_Email__c}</div>
+                        <div style="{!phoneNumber};"><a href="tel:{!customerPhoneNumber}" target="_blank"><span style="color:#3483de;text-decoration:none">{!customerPhoneNumber}</span></a></div>                      
+                        
+                        </td>
+                      </tr>
+                    </table>
+                    
+                  </td>
+                  
+                </tr>        
+                
+              </table>
+    
+            
+            <div style="{!defaultText};"><br/></div>
+            <b style="{!heading2};">What to Expect:</b>     
+
+            <p style="{!heading3};">                        
+                You must pick up or have your order installed within 10 days for it to remain active in our system. Your <b>identification</b> (or your designated Alternated Pick-Up) <b>will be required</b> when you arrive to install your items.
+            </p>
+            
+            <table style="margin: 0 auto; background: white;" class="main-table">
+  
+                <tr>
+                  
+                  <td>
+                    
+                    <table align="left" style="width: 50%;" class="chunk">
+                      <tr>
+                        <td style="padding: 5px;">
+                            <table align="left" style="{!boxTiles}">
+                                <tr>
+                                    <td>
+                                        <apex:image id="imgClockScheduled" style="{!tileImageSize}" height="80" url="{!clock}" alt="Clock"/>
+                                    </td>
+                                    <td>
+                                        <div style="{!heading3}; padding:10px;">Arrive <b>10 minutes</b> before your appointment <br/>(with ID).</div>                  
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <table align="left" style="width: 50%;" class="chunk">
+                      <tr>
+                        <td style="padding: 5px;">
+                            <table align="left" style="{!boxTiles}">
+                                <tr>
+                                    <td>
+                                        <apex:image id="idWelcomeSign" url="{!pilotCheckiSign}" height="92" style="max-height: 92px; padding-right: 20px; padding-left: 20px;" alt="Welcome Sign"/>
+                                    </td>
+                                    <td>
+                                        <div style="{!heading3}; padding:10px;"><b>Find the welcome sign</b> <br/>under the curbside tent.</div>                    
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                  </td>
+                  
+                </tr>
+            
+                <tr>
+                  
+                    <td>
+                      
+                      <table align="left" style="width: 50%;" class="chunk">
+                        <tr>
+                          <td style="padding: 5px;">
+                            <table align="left" style="{!boxTiles}">
+                                <tr>
+                                    <td>
+                                        <apex:image id="personClock" style="{!tileImageSize}" height="80" url="{!personClock}" alt="Person Clock"/>
+                                    </td>
+                                    <td>
+                                        <div style="{!heading3}; padding:10px;"><b>We'll check you in</b> and <br/> confirm your wait time.</div>                    
+                                    </td>
+                                </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <table align="left" style="width: 50%;" class="chunk">
+                        <tr>
+                          <td style="padding: 5px;">
+                            <table align="left" style="{!boxTiles}">
+                                <tr>
+                                    <td>
+                                        <apex:image id="car" style="{!tileImageSize}" height="80" url="{!car}" alt="Car"/>
+                                    </td>
+                                    <td>
+                                        <div style="{!heading3}; padding:10px;"><b>For safety,</b> you can stay <br/>in your vehicle for the <br/>entire service</div>                  
+                                    </td>
+                                </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                    </td>
+                    
+                  </tr>        
+                
+              </table>
+
+            <!--
+            <apex:outputPanel rendered="{!IF(relatedTo.Notification_Type__c == 'APPT_CANCELLED', false, true)}">
+
+                <apex:outputPanel rendered="{!IF(relatedTo.Email_Template_Number_Label__c == 'Consultation No.', true, false)}">
+                    <p style="{!heading3};">                        
+                        The products in your session <b>will not be reserved</b> at the time of your service; an employee will help you find what you are looking for at the time of your appointment.  Your appointment time is active in our system for <b>10 days</b>, and your confirmation info will be required upon arrival.
+                    </p>
+                </apex:outputPanel>
+    
+                <apex:outputPanel rendered="{!IF(relatedTo.Email_Template_Number_Label__c == 'Order No.', true, false)}">
+                    <p style="{!heading3};">                        
+                        You must pick up or have your order installed within 10 days for it to remain active in our system. Your <b>identification</b> (or your designated Alternated Pick-Up) <b>will be required</b> when you arrive to install your items.
+                    </p>
+                </apex:outputPanel>
+                
+            </apex:outputPanel>
+
+            <apex:outputPanel rendered="{!IF(relatedTo.Notification_Type__c == 'APPT_CANCELLED', true, false)}">
+               
+                <p style="{!heading3};">                        
+                    You must pick up or have your order installed within 10 days for it to remain active in our system. Your <b>identification</b> (or your designated Alternate Pick-Up) <b>will be required</b> when you arrive to install your items.
+                </p>                              
+                
+            </apex:outputPanel>
+            -->
+
+            
+
+            <!-- Image tiles for Scheduled appointments -->
+            <!--
+            <apex:outputPanel rendered="{!IsScheduled}">
+
+                <table style="margin: 0 auto; background: white;" class="main-table">
+  
+                    <tr>
+                      
+                      <td>
+                        
+                        <table align="left" style="width: 50%;" class="chunk">
+                          <tr>
+                            <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="imgClockScheduled" style="{!tileImageSize}" url="{!clock}" alt="Clock"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;">Arrive <b>10 minutes</b> before scheduled time</div>                  
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                        <table align="left" style="width: 50%;" class="chunk">
+                          <tr>
+                            <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="idImageScheduled" url="{!idImage}" style="{!tileImageSize}" alt="Id Image"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;"><b>Bring Id</b> and order confirmation</div>                    
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                      </td>
+                      
+                    </tr>
+                
+                    <tr>
+                      
+                        <td>
+                          
+                          <table align="left" style="width: 50%;" class="chunk">
+                            <tr>
+                              <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="welcomeSignScheduled" style="height: 92px; padding-right: 20px; padding-left: 20px;" url="{!welcomeSign}" alt="Welcome Sign"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;">Locate the <b>welcome sign outside</b> with your name listed</div>                    
+                                        </td>
+                                    </tr>
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
+                          
+                          <table align="left" style="width: 50%;" class="chunk">
+                            <tr>
+                              <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="handshakeScheduled" style="{!tileImageSize}" url="{!handshake}" alt="Handshake"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;">Our <b>trusted expert</b> will get your checked in</div>                  
+                                        </td>
+                                    </tr>
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
+                          
+                        </td>
+                        
+                      </tr>        
+                    
+                  </table>
+                
+            </apex:outputPanel>
+        -->
+
+            <!-- Image tiles for Re-scheduled appointments -->
+            <!--
+            <apex:outputPanel rendered="{!IsRescheduled}">
+
+                <table style="margin: 0 auto; background: white;" class="main-table">
+  
+                    <tr>
+                      
+                      <td>
+                        
+                        <table align="left" style="width: 50%;" class="chunk">
+                          <tr>
+                            <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="imgClockRescheduled" style="{!tileImageSize}" url="{!clock}" alt="Clock"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;">Arrive <b>10 minutes</b> before scheduled time</div>                  
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                        <table align="left" style="width: 50%;" class="chunk">
+                          <tr>
+                            <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="idImageRescheduled" url="{!idImage}" style="{!tileImageSize}" alt="Id Image"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;"><b>Bring Id</b> and order confirmation</div>                    
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                      </td>
+                      
+                    </tr>
+                
+                    <tr>
+                      
+                        <td>
+                          
+                          <table align="left" style="width: 50%;" class="chunk">
+                            <tr>
+                              <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="welcomeSignRescheduled" style="height: 92px; padding-right: 20px; padding-left: 20px;" url="{!welcomeSign}" alt="Welcome Sign"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;">Locate the <b>welcome sign outside</b> with your name listed</div>                    
+                                        </td>
+                                    </tr>
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
+                          
+                          <table align="left" style="width: 50%;" class="chunk">
+                            <tr>
+                              <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="handshakeRescheduled" style="{!tileImageSize}" url="{!handshake}" alt="Handshake"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;">Our <b>trusted expert</b> will get your checked in</div>                  
+                                        </td>
+                                    </tr>
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
+                          
+                        </td>
+                        
+                      </tr>        
+                    
+                  </table>
+                
+            </apex:outputPanel>
+        -->
+            <!-- Image tiles for Canceled appointments -->
+            <!--
+            <apex:outputPanel rendered="{!IsCancelled}">
+
+                <table style="margin: 0 auto; background: white;" class="main-table">
+  
+                    <tr>
+                      
+                      <td>
+                        
+                        <table align="left" style="width: 50%;" class="chunk">
+                          <tr>
+                            <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="imgBringIdCancelled" style="{!tileImageSize}" url="{!idImage}" alt="Bring Id"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;"><b>Bring ID</b> and order confirmation</div>                  
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                        <table align="left" style="width: 50%;" class="chunk">
+                          <tr>
+                            <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="calLogoCancelled" url="{!onlineCheckIn}" style="height: 92px;" alt="Calendar Logo"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;">Find the <b>Online Customers</b> sign inside the showroom to begin check in</div>                    
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                      </td>
+                      
+                    </tr>
+                    
+                  </table>
+                
+            </apex:outputPanel>
+        -->
+            <!-- Image tiles for Reminder appointments -->
+            <!--
+            <apex:outputPanel rendered="{!IsReminder}">
+
+                <table style="margin: 0 auto; background: white;" class="main-table">
+  
+                    <tr>
+                      
+                      <td>
+                        
+                        <table align="left" style="width: 33.33%;" class="chunk">
+                          <tr>
+                            <td style="padding: 5px;">
+                                <table align="left" style="{!boxTiles}">
+                                    <tr>
+                                        <td>
+                                            <apex:image id="imgClockReminder" style="{!tileImageSize}" url="{!clock}" alt="Clock"/>
+                                        </td>
+                                        <td>
+                                            <div style="{!heading3}; padding:10px;">Arrive <b>10 minutes</b> before your scheduled time</div>                  
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                        <table align="left" style="width: 33.33%;" class="chunk">
+                            <tr>
+                              <td style="padding: 5px;">
+                                  <table align="left" style="{!boxTiles}">
+                                      <tr>
+                                          <td>
+                                              <apex:image id="imgBringIdReminder" style="{!tileImageSize}" url="{!idImage}" alt="Bring Id"/>
+                                          </td>
+                                          <td>
+                                              <div style="{!heading3}; padding:10px;"><b>Bring ID</b> and order confirmation</div>                  
+                                          </td>
+                                      </tr>
+                                  </table>
+                              </td>
+                            </tr>
+                          </table>
+                          
+                          <table align="left" style="width: 33.33%;" class="chunk">
+                            <tr>
+                              <td style="padding: 5px;">
+                                  <table align="left" style="{!boxTiles}">
+                                      <tr>
+                                          <td>
+                                              <apex:image id="calLogoReminder" url="{!onlineCheckIn}" style="height: 92px;" alt="Calendar Logo"/>
+                                          </td>
+                                          <td>
+                                              <div style="{!heading3}; padding:10px;">Find the <b>Online Customers</b> sign inside the showroom to begin check in</div>                    
+                                          </td>
+                                      </tr>
+                                  </table>
+                              </td>
+                            </tr>
+                          </table>
+                        
+                      </td>
+                      
+                    </tr>                
+                          
+                    
+                  </table>
+                
+            </apex:outputPanel>
+            -->
+
+            
+            
+            <div style="{!defaultText};"><br/></div>
+            <table role="presentation" style="width:100%;border-top: 1px solid {!borderColor};;border-bottom: 1px solid {!borderColor};;border-spacing:0;">
+                <tr align="center">
+
+                    <apex:outputPanel rendered="{!HasWaitList}">
+                        <td style="width:30%; border-right: 1px solid {!borderColor};;">
+                            <div style="{!heading2};"><b>Check yourself in!</b></div>                              
+                            <div style="{!defaultText};"><br/></div>
+                            <div style="font-family: arial; font-size: 12pt;"><span style="color: rgb(91, 91, 91);">Got the app?</span><a href="{!CheckInUrl}" style="color: rgb(72, 131, 215);"><b> Check in</b></a></div>                                    
+                        </td>
+                    </apex:outputPanel>                    
+                    <td>
+                        <table align="center" >
+                            <tr>
+                                <td colspan="2">
+                                    <div style="color: rgb(91, 91, 91); font-family: arial; font-size: 10pt;">Save time and see your place in line with the Discount Tire app.</div>                                            
+                                </td>
+                            </tr>
+                            <tr align="center">
+                                <td>
+                                    <a href="{!AppleStoreUrl}"><apex:image id="imgAppStore" url="{!appstore}" alt="Apple Store Icon"/></a>
+                                </td>
+                                <td>
+                                    <a href="{!GoogleStoreUrl}"><apex:image id="imgPlayStore" url="{!googlePlay}" alt="Android Play Store"/></a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>    
+            <div style="{!defaultText};"><br/></div>
+            <div style="{!defaultText};"><br/></div>
+            <div style="{!defaultText};"><br/></div>
+
+            <apex:outputPanel rendered="{!ShowMyOrder}">
+                <div style="{!heading2};"><b>MY ORDER</b></div>
+                <hr/>
+                <apex:outputPanel rendered="{!relatedTo.Email_Template_Number_Label__c=='Consultation No.'}">
+                    Note: A consultation appointment does not reserve or guarantee product availability in-store.
+                    <hr/>
+                </apex:outputPanel>
+                <table role="presentation" style="width:100%;border:none;border-spacing:0;">
+                    <tr>
+
+                        <td style="width: 20px; padding-right: 15px; position: relative; ">
+                            <apex:image id="carAlt" style="width: 20px; position: sticky; top:0;" width="20" url="{!carAlt}" alt="car"/>
+                        </td>
+                        
+
+                        <td align="left" style="padding:0;">
+                            
+                            <apex:outputLabel value="{!VehicleLine1}" style="min-height: 29px;
+                            width: 160px;
+                            color: #333333;
+                            font-family: Avenir;
+                            font-size: 18px;
+                            font-weight: 900;
+                            letter-spacing: -0.05px;
+                            line-height: 29px;" />
+                        </td>
+                    </tr>
+
+                    <tr>
+
+                        <td style="width: 20px; padding-right: 15px; position: relative; ">
+                            
+                        </td>
+                        
+
+                        <td align="left" style="padding:0;">
+                            
+                            <apex:outputLabel value="{!VehicleLine2}" style="min-height: 19px;
+                            width: 199px;
+                            color: #333333;
+                            font-family: Avenir;
+                            font-size: 14px;
+                            font-weight: 500;
+                            letter-spacing: -0.04px;
+                            line-height: 19px;" />
+                        </td>
+                    </tr>                            
+
+                    <tr>
+                        <td></td>
+                        <td align="left" style="padding:0;">
+                            <br/>
+                            <apex:repeat value="{!ProductList}" var="rProduct">
+                                <div>
+                                    <apex:outputLabel value="{!rProduct.ArticleName}" 
+                                     style="height: 36px;
+                                            width: 297px;
+                                            color: #333333;
+                                            font-family: Avenir;
+                                            font-size: 18px;
+                                            font-weight: 900;
+                                            letter-spacing: 0;
+                                            line-height: 18px;" />
+                                    <br/>
+                                    <apex:outputLabel value="{!rProduct.Description}" 
+                                        style="height: 19px;
+                                            width: 297px;
+                                            color: #666666;
+                                            font-family: Avenir;
+                                            font-size: 14px;
+                                            font-weight: 900;
+                                            letter-spacing: -0.06px;
+                                            line-height: 19px;" />
+                                    <br/>
+                                    <apex:outputLabel value="Item #: {!rProduct.ItemNumber}" 
+                                        style="height: 20px;
+                                            width: 102px;
+                                            color: #666666;
+                                            font-family: Avenir;
+                                            font-size: 15px;
+                                            font-weight: 500;
+                                            letter-spacing: -0.07px;
+                                            line-height: 20px;" />
+                                    &nbsp;&nbsp;<apex:outputLabel value="Qty: {!rProduct.Quantity}" 
+                                        style="height: 19px;
+                                            width: 102px;
+                                            color: #333333;
+                                            font-family: Avenir;
+                                            font-size: 14px;
+                                            font-weight: 500;
+                                            letter-spacing: -0.06px;
+                                            line-height: 19px;" />
+                                    <br/><br/>
+                                </div>
+                            </apex:repeat>                                                 
+                        </td>
+                    </tr>
+                </table>
+            </apex:outputPanel>
+        </div>
+        <div style="{!defaultText};"><br/></div>
+        <div>
+            <table style="width: 100%;table-layout: auto;background-color: rgb(244, 244, 244);">
+                <tr>
+                    <td>
+                        <a href="{!FacebookUrl}"><apex:image id="imgFace" style="{!socialStyles}" height="25" url="{!facebook}" alt="Facebook"/></a>
+                    </td>
+                    <td>
+                        <a href="{!TwitterUrl}"><apex:image id="imgTwitter" style="{!socialStyles}" height="25" url="{!twitter}" alt="Twitter"/></a>
+                    </td>
+                    
+                    <td>
+                        <a href="{!PinterestUrl}"><apex:image id="imgPinterest" style="{!socialStyles}" height="25" url="{!pinterest}" alt="Pinterest"/></a>
+                    </td>
+
+                    <td>
+                        <a href="{!InstagramUrl}"><apex:image id="imgInstagram" style="{!socialStyles}" height="25" url="{!instagram}" alt="Instagram"/></a>
+                    </td>
+                    <td>
+                        <a href="{!YouTubeUrl}"><apex:image id="imgYouTube" style="{!socialStyles}" height="25" url="{!youTube}" alt="You Tube"/></a>
+                    </td>
+                    <!--<td>
+                        <a href="{!UnsubscribeUrl}">unsubscribe</a>
+                    </td>-->
+                    <td>
+                        <a href="{!ContactUsUrl}">contact us</a>
+                    </td>
+                    <!--<td>
+                        <a href="{!PreferencesUrl}">edit email preferences</a>
+                    </td>-->
+                    <td>
+                        <a href="{!PrivacyPolicyUrl}">privacy policy</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="{!defaultText};"><br/></div>
+        <div style="color: rgb(142, 142, 142); font-family: arial; font-size: 10pt;">
+            <p>This email was sent to {!relatedTo.Customer_Email__c}</p>
+            <p>by {!DTName} {!relatedTo.Store_Street__c}, {!relatedTo.Store_City__c}, {!relatedTo.Store_State__c} {!relatedTo.Store_Zip__c} USA. &#169; 2021 Discount Tire</p>
+        </div>
+</apex:component>

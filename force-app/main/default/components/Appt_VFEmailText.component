@@ -1,0 +1,16 @@
+<apex:component controller="Appt_VFEmailController" access="global">
+    <apex:attribute name="notification" type="Notification__c" description="Notification Reference" assignTo="{!NotificationRef}" />
+
+    Your appointment is scheduled for {!relatedTo.Appointment_Date__c}, {!relatedTo.Appointment_Year__c} at {!relatedTo.Appointment_Time__c}
+    Your order and store contact info is below. Please call this store with any questions about appointment.
+ 
+    Your appointment is scheduled for {!relatedTo.Appointment_Date__c}, {!relatedTo.Appointment_Year__c} at {!relatedTo.Appointment_Time__c}
+    Your order and store contact info is below. Please call this store with any questions about appointment.
+
+    Your appointment was successfully cancelled. However, your items are still available for pickup at this location.
+    For additional information please Contact Customer Service
+
+    Your appointment is scheduled for{!relatedTo.Appointment_Date__c}, {!relatedTo.Appointment_Year__c} at {!relatedTo.Appointment_Time__c}
+    Your order and store contact info is below. Please call this store with any questions about appointment.
+
+</apex:component>
