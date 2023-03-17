@@ -1,0 +1,8 @@
+<apex:page docType="html-5.0" applyHtmlTag="false" applyBodyTag="false"
+           showHeader="false" sidebar="false" standardStylesheets="false"
+           title="Unused Title">
+
+ <style> body { font-family: 'Arial Unicode MS'; } </style>
+    <h1>Please close your window and try XYZ</h1>
+
+</apex:page>
