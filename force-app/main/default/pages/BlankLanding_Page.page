@@ -3,6 +3,6 @@
            title="Unused Title">
 
  <style> body { font-family: 'Arial Unicode MS'; } </style>
-    <h1>Please close your window and try XYZ</h1>
+    <h3>If this window does not automatically close, please close it.</h3>
 
 </apex:page>
