@@ -1,5 +1,7 @@
 global class LightningSelfRegisterController {
 
+    private static Logger logInstance = Logger.getInstance();
+
     public LightningSelfRegisterController() {
 
     }
@@ -98,6 +100,7 @@ global class LightningSelfRegisterController {
             return null;
         }
         catch (Exception ex) {
+            logInstance.log('Community', LightningSelfRegisterController.class.getName(), ex);
             Database.rollback(sp);
             return ex.getMessage();            
         }
@@ -131,6 +134,7 @@ global class LightningSelfRegisterController {
             }
             return null; 
         } catch (Exception ex) {
+            logInstance.log('Community', LightningSelfRegisterController.class.getName(), ex);
             return ex.getMessage();            
         }        
     }  

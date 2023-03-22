@@ -2,8 +2,8 @@
 <ApexClass xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>35.0</apiVersion>
     <packageVersions>
-        <majorNumber>7</majorNumber>
-        <minorNumber>17</minorNumber>
+        <majorNumber>6</majorNumber>
+        <minorNumber>46</minorNumber>
         <namespace>E2CP</namespace>
     </packageVersions>
     <status>Active</status>
