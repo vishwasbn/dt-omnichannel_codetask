@@ -25,7 +25,14 @@ public class AccountOwnerUpdateBatch implements Database.Batchable<sObject>, Sch
                 accountUpdateList.add(accRecord);
             }
         }
-        update accountUpdateList;
+        try{
+            update accountUpdateList;
+        }
+        catch(Exception ex){
+            Logger logInstance = Logger.getInstance();
+            logInstance.log('Account_updates', 'AccountOwnerUpdateBatch', 'Account', ex, JSON.serialize(accountUpdateList));
+        }
+        
     }
     public void finish(Database.batchablecontext bc)
     {

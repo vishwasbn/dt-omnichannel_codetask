@@ -18,6 +18,13 @@ public class AccountOwnerUpdateSch implements Schedulable{
                 accountUpdateList.add(accRecord);
             }
         }
-        update accountUpdateList;
+        try{
+            update accountUpdateList;
+        }
+        catch(Exception ex){
+            Logger logInstance = Logger.getInstance();
+            logInstance.log('Account_updates', 'AccountOwnerUpdateSch', 'Account', ex, JSON.serialize(accountUpdateList));
+        }
+        
     }
 }

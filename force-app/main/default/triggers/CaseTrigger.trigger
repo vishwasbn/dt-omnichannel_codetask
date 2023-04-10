@@ -6,14 +6,22 @@
  */
 trigger CaseTrigger on Case (after insert, after update,before insert) {
 
-    if(Trigger.isInsert && Trigger.isAfter){
-        CaseTriggerHandler.OnAfterInsert(Trigger.new);
-    } 
-    if(Trigger.isInsert && Trigger.isBefore){
-        CaseTriggerHandler.OnBeforeInsert(Trigger.new);
+    try{
+        if(Trigger.isInsert && Trigger.isAfter){
+            CaseTriggerHandler.OnAfterInsert(Trigger.new);
+        } 
+        if(Trigger.isInsert && Trigger.isBefore){
+            CaseTriggerHandler.OnBeforeInsert(Trigger.new);
+        }
+        else if (Trigger.isUpdate && Trigger.isAfter) {
+            CaseTriggerHandler.OnAfterUpdate(Trigger.new, Trigger.oldMap);
+        }
     }
-    else if (Trigger.isUpdate && Trigger.isAfter) {
-        CaseTriggerHandler.OnAfterUpdate(Trigger.new, Trigger.oldMap);
+    catch(Exception ex){
+        Logger logInstance = Logger.getInstance();
+        logInstance.log('Case_trigger', 'CaseTrigger', ex);
     }
+
+    
 
 }

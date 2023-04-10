@@ -27,10 +27,16 @@ global class ChangeLeadOwnerBatch implements Database.Batchable <sObject>,Databa
         
         
               
-        
-        if(!leadLst.isEmpty())
+        try{
+            if(!leadLst.isEmpty())
             update leadLst;
-        System.debug('== Updated Lead List=='+leadLst);    
+            System.debug('== Updated Lead List=='+leadLst);  
+        }
+        catch(Exception ex){
+            Logger logInstance = Logger.getInstance();
+            logInstance.log('Lead', 'ChangeLeadOwnerBatch', 'Lead', ex, JSON.serialize(leadLst));
+        }
+          
     }
     
     global void finish(Database.BatchableContext bc) {
