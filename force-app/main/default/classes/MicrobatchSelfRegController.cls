@@ -38,6 +38,8 @@ public class MicrobatchSelfRegController {
         try {
             UUID =  Network.createExternalUserAsync(u, c,acc);
         } catch(Site.ExternalUserCreateException ex) {
+            Logger logInstance = Logger.getInstance();
+            logInstance.log('Community', MicrobatchSelfRegController.class.getName(), ex);
             List<String> errors = ex.getDisplayMessages();
             for (String error : errors)  {
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, error));
