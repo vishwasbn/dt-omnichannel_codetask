@@ -21,6 +21,7 @@ public class PIIDataCleanseTest {
             newLead.Phone='222222123';
             newLead.Email='sandbox@sandbox.com';
             newLead.MobilePhone='22222222';
+            newLead.State__c = 'Texas';
             leadList.add(newLead);
         }
         

@@ -7,7 +7,6 @@
  User Story Number : Salesforce-464.
  */
 global without sharing class CommunitiesLoginController {
-    private static Logger logInstance = Logger.getInstance();
 
     global CommunitiesLoginController () {}
     
@@ -36,7 +35,6 @@ global without sharing class CommunitiesLoginController {
         }
         catch(Exception ex){
             system.debug('Exception: ' + ex.getMessage());
-            logInstance.log('Community', CommunitiesLoginController.class.getName(), ex);
             AuraHandledException ahe = new AuraHandledException('Username or password is incorrect');
             ahe.setMessage('Username or password is incorrect');
             throw ahe;
@@ -69,7 +67,6 @@ global without sharing class CommunitiesLoginController {
         }
         catch(Exception ex){
             system.debug('Exception: ' + ex.getMessage());
-            logInstance.log('Community', CommunitiesLoginController.class.getName(), ex);
             AuraHandledException ahe = new AuraHandledException('Username or password is incorrect');
             ahe.setMessage('Username or password is incorrect');
             throw ahe;
@@ -86,7 +83,6 @@ global without sharing class CommunitiesLoginController {
         }
         catch (Exception ex) {
             system.debug('Exception: ' + ex.getMessage());
-            logInstance.log('Community', CommunitiesLoginController.class.getName(), ex);
             AuraHandledException ahe = new AuraHandledException('Cannot find a user with that username.');
             ahe.setMessage('Cannot find a user with that username.');
             throw ahe;

@@ -20,6 +20,7 @@ global class ChangeLeadOwnerBatch implements Database.Batchable <sObject>,Databa
           }
          
          if(leadLst.size()>0 && leadLst!= null){
+             system.debug('going in RR handler');
          LeadAssignmentRRHandler.assigntofleetspecialist(leadLst);
          }
       
@@ -27,16 +28,10 @@ global class ChangeLeadOwnerBatch implements Database.Batchable <sObject>,Databa
         
         
               
-        try{
-            if(!leadLst.isEmpty())
+        
+        if(!leadLst.isEmpty())
             update leadLst;
-            System.debug('== Updated Lead List=='+leadLst);  
-        }
-        catch(Exception ex){
-            Logger logInstance = Logger.getInstance();
-            logInstance.log('Lead', 'ChangeLeadOwnerBatch', 'Lead', ex, JSON.serialize(leadLst));
-        }
-          
+        System.debug('== Updated Lead List=='+leadLst);    
     }
     
     global void finish(Database.BatchableContext bc) {

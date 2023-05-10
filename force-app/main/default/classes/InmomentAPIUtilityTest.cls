@@ -61,7 +61,13 @@ public class InmomentAPIUtilityTest{
         insert con;
         
         Test.startTest();
-        String jobId = System.schedule('testBasicScheduledApex', '0 0 0 3 9 ? 2023', new InmomentAccessTokenScheduler());
+    
+        // Get the current year
+        Integer currentYear = Date.today().year();
+        
+        // Schedule the job
+        String jobId = System.schedule('testBasicScheduledApex', '0 0 0 3 9 ? ' + currentYear, new InmomentAccessTokenScheduler());
+        
         Test.stopTest();
         
         Contact cont = [SELECT FirstName from Contact WHERE Id=:con.id];
