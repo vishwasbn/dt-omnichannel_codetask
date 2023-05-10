@@ -21,7 +21,6 @@ trigger CaseTrigger on Case (after insert, after update,before insert) {
         Logger logInstance = Logger.getInstance();
         logInstance.log('Case_trigger', 'CaseTrigger', ex);
     }
-
     
 
 }
