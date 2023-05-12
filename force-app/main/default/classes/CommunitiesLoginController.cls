@@ -3,11 +3,10 @@
  Creatted Dated : 10/29/2020, 6:08 AM
  Description : An apex page controller that exposes the site login functionality
  Modified By : Krishna Murty Sastry
- Modified Date :  8/22/2022, 1:38 AM
- User Story Number : Salesforce-464.
+ Modified Date :  8/22/2022, 28/03/2023,20-04-2023
+ User Story Number : Salesforce-464,Salesforce-897,-Salesforce-897,Salesforce-1051,Salesforce-1082.
  */
 global without sharing class CommunitiesLoginController {
-    private static Logger logInstance = Logger.getInstance();
 
     global CommunitiesLoginController () {}
     
@@ -36,7 +35,6 @@ global without sharing class CommunitiesLoginController {
         }
         catch(Exception ex){
             system.debug('Exception: ' + ex.getMessage());
-            logInstance.log('Community', CommunitiesLoginController.class.getName(), ex);
             AuraHandledException ahe = new AuraHandledException('Username or password is incorrect');
             ahe.setMessage('Username or password is incorrect');
             throw ahe;
@@ -61,6 +59,26 @@ global without sharing class CommunitiesLoginController {
                 system.debug('in Mobile services');
                 pageName=System.Label.Fleet_MobileServices;
             }
+            // The below if condition redirects to Mobile Auto Repair sub-tab under Mobile services Page.
+            if(redirect=='Nubrakes'){
+                system.debug('in Nubrakes');
+                pageName=System.Label.Fleet_NubrakesURL;
+            }
+            // The below if condition redirects to RoadSide Assistance sub-tab under Fleet services Page.
+            if(redirect=='rsa'){
+                system.debug('in RoadSideAssistance');
+                pageName=System.Label.Fleet_RSATabsetURL;
+            }
+            // The below if condition redirects to Fuel sub-tab under Fleet services Page.
+            if(redirect=='coast'){
+                system.debug('in Coast');
+                pageName=System.Label.Fleet_CoastTabsetURL;
+            }
+             // The below if condition redirects to DT Mobile Services sub-tab under Mobile services Page.
+            if(redirect=='MobileVan'){
+                system.debug('in MobileVan');
+                pageName=System.Label.Fleet_MobileVanTabURL;
+            }
             PageReference redirectPage = Site.login(username, password, pageName);
             // Pass a string back out to controller to allow it to redirect
             String redirectUrl = redirectPage.getUrl(); return redirectUrl;
@@ -69,7 +87,6 @@ global without sharing class CommunitiesLoginController {
         }
         catch(Exception ex){
             system.debug('Exception: ' + ex.getMessage());
-            logInstance.log('Community', CommunitiesLoginController.class.getName(), ex);
             AuraHandledException ahe = new AuraHandledException('Username or password is incorrect');
             ahe.setMessage('Username or password is incorrect');
             throw ahe;
@@ -86,7 +103,6 @@ global without sharing class CommunitiesLoginController {
         }
         catch (Exception ex) {
             system.debug('Exception: ' + ex.getMessage());
-            logInstance.log('Community', CommunitiesLoginController.class.getName(), ex);
             AuraHandledException ahe = new AuraHandledException('Cannot find a user with that username.');
             ahe.setMessage('Cannot find a user with that username.');
             throw ahe;
