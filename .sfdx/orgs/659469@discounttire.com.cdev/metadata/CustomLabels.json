@@ -1,0 +1,18 @@
+{
+  "status": 0,
+  "result": [
+    {
+      "createdById": "00559000001fc7lAAA",
+      "createdByName": "Vishwas B N",
+      "createdDate": "1970-01-01T00:00:00.000Z",
+      "fileName": "labels/CustomLabels.labels",
+      "fullName": "CustomLabels",
+      "id": "",
+      "lastModifiedById": "00559000001fc7lAAA",
+      "lastModifiedByName": "Vishwas B N",
+      "lastModifiedDate": "1970-01-01T00:00:00.000Z",
+      "namespacePrefix": "",
+      "type": "CustomLabels"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Fleet_NubrakesURL</members>
+        <members>Fleet_RSATabsetURL</members>
+        <members>Fleet_CoastTabsetURL</members>
+        <members>Fleet_MobileVanTabURL</members>
+        <name>CustomLabels</name>
+    </types>
+    <version>58.0</version>
+</Package>
