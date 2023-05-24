@@ -12,7 +12,7 @@ public with sharing class LightningSelfRegisterControllerTest {
 
  @IsTest
  static void testSiteAsContainerEnabled() {
-  System.assertNotEquals(null, LightningSelfRegisterController.siteAsContainerEnabled('https://portaleu1-developer-edition.eu11.force.com'));
+  System.assertNotEquals(null, LightningSelfRegisterController.siteAsContainerEnabled(System.Label.Fleet_SiteAsContainer));
  }
 
  /* Verifies the selfRegistration method flow with various invalid inputs */
@@ -70,11 +70,13 @@ public with sharing class LightningSelfRegisterControllerTest {
   System.assertNotEquals(null, LightningSelfRegisterController.selfRegister(paramsMap.get('firstName'), paramsMap.get('lastName'), paramsMap.get('email'), paramsMap.get('password'), paramsMap.get('confirmPasswordCorrect'), null, paramsMap.get('regConfirmUrl'), extraFields, paramsMap.get('startUrl'), true));
  }
 
- @IsTest
+@IsTest
  static void LightningSelfRegisterControllerInstantiation() {
   LightningSelfRegisterController controller = new LightningSelfRegisterController();
+     LightningSelfRegisterController.setExperienceId('Test');
+     LightningSelfRegisterController.getExtraFields('Name');
   System.assertNotEquals(controller, null);
- }
+ }    
 
  /* Helper method to initialize the parameters required for SelfRegistration. */
  private static Map < String, String > initializeParams() {
@@ -86,8 +88,8 @@ public with sharing class LightningSelfRegisterControllerTest {
   String confirmPasswordCorrect = 'testuser123';
   String confirmPasswordWrong = 'wrongpassword';
   String accountId = 'testuser123';
-  String regConfirmUrl = 'http://registration-confirm.com';
-  String startUrl = 'http://my.company.salesforce.com';
+  String regConfirmUrl = System.Label.Fleet_RegistrationConfirm;
+  String startUrl = System.Label.Fleet_StartUrl;
   paramsMap.put('firstName', firstName);
   paramsMap.put('lastName', lastName);
   paramsMap.put('email', email);

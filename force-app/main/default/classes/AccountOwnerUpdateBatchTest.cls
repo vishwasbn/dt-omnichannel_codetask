@@ -23,8 +23,8 @@ public class AccountOwnerUpdateBatchTest {
         database.executeBatch(accOwner);
         test.stopTest();
         List<Account> accountsUpdated = [select id, Fleet_Account_Status__c, Account_Closure_Reason__c, ownerid, owner.name from account];
-        system.assert(accountsUpdated[0].owner.name=='Gautam Pai','Account owner not updated');
-        system.assert(accountsUpdated[2].owner.name=='Gautam Pai','Account owner not updated');
+        system.assert(accountsUpdated[0].owner.name=='Chelsey Lupeski','Account owner not updated');
+        system.assert(accountsUpdated[2].owner.name=='Chelsey Lupeski','Account owner not updated');
     }
     static testMethod void scheduleTest()
     {

@@ -14,7 +14,8 @@ public class AccountOwnerUpdateBatch implements Database.Batchable<sObject>, Sch
     {
         String status='Closed';
         String recordType='B2B';
-        return  Database.getQueryLocator('select id, Fleet_Account_Status__c, Account_Closure_Reason__c, ownerid, owner.name from account where Fleet_Account_Status__c=:status and Account_Closure_Reason__c!=null and recordtype.name=:recordType');
+        String ownername=System.Label.Fleet_Closed_Account_Owner; 
+        return  Database.getQueryLocator('select id, name, Fleet_Account_Status__c, Account_Closure_Reason__c, ownerid, owner.name from account where Fleet_Account_Status__c=:status and Account_Closure_Reason__c!=null and recordtype.name=:recordType  and owner.name!=: ownername');
     }
     public void execute(Database.batchablecontext bc, List<Account> accountList)
     {
@@ -24,41 +25,17 @@ public class AccountOwnerUpdateBatch implements Database.Batchable<sObject>, Sch
         //Salesforce-214 - Rohith.V
         
         User userRecord = [select id, username,email,federationIdentifier from user where name=:System.Label.Fleet_Closed_Account_Owner and federationIdentifier!=null];
-        //Contact conRecord = [select id,name, ownerid,owner.name from contact where owner.name='Chelsey Lupeski'and recordtype.developername='B2B_Contact' ];
-        //user fleetSpecialistRecord = [select id, username,federationIdentifier from user where name='Chelsey Lupeski' and federationIdentifier!=null];
         for(Account accRecord :accountList )
         {
             if(accRecord.ownerid!= userRecord.Id )
             {
                 accRecord.ownerid = userRecord.Id;
                 accRecord.Fleet_Specialist__c = userRecord.Id;
-                //accRecord.Fleet_Primary_Contact__c=conRecord.id; 
-                //accRecord.Fleet_Primary_Contact__r.ownerid = userRecord.Id;
-                
                 
                 accountUpdateList.add(accRecord);
             }
         }
-       /* list<contact> contactUpdateList= new list<contact>();
-        list<contact> contactList =[select id, name, ownerid from contact where contact.accountid IN: accountUpdateList];
-        for(contact conRecord :contactList )
-        {
-            if(conRecord.ownerid!= userRecord.Id )
-            {
-                 conRecord.ownerid=userRecord.Id;
-                 contactUpdateList.add(conRecord);
-            }
-        }
-       
-        update contactUpdateList;*/
-        try{
-            update accountUpdateList;
-        }
-        catch(Exception ex){
-            Logger logInstance = Logger.getInstance();
-            logInstance.log('Account_updates_batch', 'AccountOwnerUpdateBatch', 'Account', ex, JSON.serialize(accountUpdateList));
-        }
-        
+       update accountUpdateList;
     }
     public void finish(Database.batchablecontext bc)
     {

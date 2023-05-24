@@ -40,8 +40,7 @@ public with sharing class Appt_NotificationDelayedSendBatch implements Database.
         System.debug('Start ' + LPREFIX + ' execute');
 
         notifications = Appt_NotificationUtil.getUpdatedNotificaitonObject(notifications);
-
-        System.debug('notifications = ' +notifications);
+        
         // create a list of email notificaiton to update the order info
         List<Notification__c> updateEmail = new List<Notification__c>();
         // create a list of sms notifications to update

@@ -87,8 +87,9 @@ global class stateCityController {
             List<User> user = new List<User>();
                 List<User> userList = [select Fleet_Assignment_State__c , Fleet_Assignment_City_New__c from User where id = :recordId];
                 userList[0].Fleet_Assignment_State__c= State;
-            if(State == 'ALL'){  userList[0].Fleet_Assignment_City_New__c= '';   }             
-                                      
+                if(State == 'ALL'){                   
+                    userList[0].Fleet_Assignment_City_New__c= '';                   
+                }
                 
                 if(cities != ''){                                      
                     userList[0].Fleet_Assignment_City_New__c= cities;                   
@@ -97,8 +98,8 @@ global class stateCityController {
                 }
                 user.add(userList[0]);
                 //system.debug('@@@ user: '+ user);
-                if(!Test.isRunningTest()) update user;
-                                  
+                if(!Test.isRunningTest())
+                    update user;              
         } else{
             ApexPages.addmessage(new ApexPages.message(ApexPages.severity.ERROR,'Please select State and City Value to Proceed.'));
         }           
