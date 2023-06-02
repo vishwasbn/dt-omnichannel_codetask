@@ -100,7 +100,7 @@ public class CaseTriggerHandlerTest {
                // System.assert(false, 'fail the test if no exception thrown ');
             }
             catch (QueryException e) {
-                logInstance.log('Customer Care', CaseTriggerHandlerTest.class.getName(), e);
+                logInstance.log('case_trigger_handler', CaseTriggerHandlerTest.class.getName(), e);
                 System.assertEquals(e.getMessage(), 'Insufficient access to Case or User objects');         
             }   
        // }
@@ -117,7 +117,7 @@ public class CaseTriggerHandlerTest {
                 //System.assert(false, 'fail the test if no exception thrown ');
             }
             catch (QueryException e) {
-                logInstance.log('Customer Care', CaseTriggerHandlerTest.class.getName(), e);
+                logInstance.log('case_trigger_handler', CaseTriggerHandlerTest.class.getName(), e);
                 System.assertEquals(e.getMessage(), 'Insufficient access to Case Status Change or business hours objects');         
             }   
         //}
@@ -133,7 +133,7 @@ public class CaseTriggerHandlerTest {
                // System.assert(false, 'fail the test if no exception thrown ');
             }
             catch (DmlException e) {
-                logInstance.log('Customer Care', CaseTriggerHandlerTest.class.getName(), e);
+                logInstance.log('case_trigger_handler', CaseTriggerHandlerTest.class.getName(), e);
                 System.assertEquals(e.getMessage(), 'Insufficient permissions to create Case Status Change');         
             }    
      //   }
@@ -144,7 +144,7 @@ public class CaseTriggerHandlerTest {
                 //System.assert(false, 'fail the test if no exception thrown ');
             }
             catch (DmlException e) {
-                logInstance.log('Customer Care', CaseTriggerHandlerTest.class.getName(), e);
+                logInstance.log('case_trigger_handler', CaseTriggerHandlerTest.class.getName(), e);
                 System.assertEquals(e.getMessage(), 'Insufficient permissions to create Case Status Change');         
             }    
         //}     
@@ -160,7 +160,7 @@ public class CaseTriggerHandlerTest {
                 //System.assert(false, 'fail the test if no exception thrown ');
             }
             catch (DmlException e) {
-                logInstance.log('Customer Care', CaseTriggerHandlerTest.class.getName(), e);
+                logInstance.log('case_trigger_handler', CaseTriggerHandlerTest.class.getName(), e);
                 System.assertEquals(e.getMessage(), 'Insufficient permissions to update Case Status Change');         
             }
             

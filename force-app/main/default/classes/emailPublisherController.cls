@@ -133,7 +133,7 @@ public class emailPublisherController {
         } catch (Exception e) {
             system.debug(e.getMessage());
             Logger logInstance = Logger.getInstance();
-            logInstance.log('Customer Care', emailPublisherController.class.getName(), e);
+            logInstance.log('Email_Publisher', emailPublisherController.class.getName(), e);
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error Sending BCC'));
         }
     }

@@ -18,7 +18,7 @@ global class LightningForgotPasswordController {
             return null;
         }
         catch (Exception ex) {
-            logInstance.log('Customer Care', LightningForgotPasswordController.class.getName(), ex);
+            logInstance.log('Community', LightningForgotPasswordController.class.getName(), ex);
             return ex.getMessage();
         }
     }
@@ -32,7 +32,7 @@ global class LightningForgotPasswordController {
             }
             return null; 
         } catch (Exception ex) {
-            logInstance.log('Customer Care', LightningForgotPasswordController.class.getName(), ex);
+            logInstance.log('Community', LightningForgotPasswordController.class.getName(), ex);
             return ex.getMessage();            
         }        
     } 
