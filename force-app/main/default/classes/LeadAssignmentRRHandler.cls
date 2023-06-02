@@ -7,7 +7,7 @@
  User Story Number : Salesforce-798.
  */
 
- global class LeadAssignmentRRHandler{
+global class LeadAssignmentRRHandler{
 
     private static Logger logInstance = Logger.getInstance();
 
@@ -186,7 +186,7 @@
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Lead_assignment', LeadAssignmentRRHandler.class.getName(), 'User', e);
+                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -330,7 +330,7 @@
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Lead_assignment', LeadAssignmentRRHandler.class.getName(), 'User', e);
+                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -450,7 +450,7 @@
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Lead_assignment', LeadAssignmentRRHandler.class.getName(), 'User', e);
+                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -550,7 +550,7 @@
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Lead_assignment', LeadAssignmentRRHandler.class.getName(), 'User', e);
+                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -648,7 +648,7 @@
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Lead_assignment', LeadAssignmentRRHandler.class.getName(), 'User', e);
+                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -719,7 +719,7 @@
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Lead_assignment', LeadAssignmentRRHandler.class.getName(), 'User', e);
+                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             

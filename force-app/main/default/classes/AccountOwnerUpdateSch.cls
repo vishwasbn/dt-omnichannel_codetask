@@ -25,7 +25,7 @@ public class AccountOwnerUpdateSch implements Schedulable{
         }
         catch(Exception ex){
             Logger logInstance = Logger.getInstance();
-            logInstance.log('Account_updates', 'AccountOwnerUpdateSch', 'Account', ex, JSON.serialize(accountUpdateList));
+            logInstance.log('Fleet', 'AccountOwnerUpdateSch', 'Account', ex, JSON.serialize(accountUpdateList));
         }
         
     }

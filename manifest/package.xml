@@ -38,8 +38,18 @@
         <name>StaticResource</name>
     </types>-->
     <types>
-        <members>System Administrator</members>
-        <name>Profile</name>
+        <members>AccountOwnerUpdateBatch</members>
+        <members>AccountOwnerUpdateSch</members>
+        <members>CaseTriggerHandlerTest</members>
+        <members>ChangeLeadOwnerBatch</members>
+        <members>CommunitiesLoginController</members>
+        <members>CommunitiesLoginControllerTest</members>
+        <members>emailPublisherController</members>
+        <members>LeadAssignmentRRHandler</members>
+        <members>LightningForgotPasswordController</members>
+        <members>LightningSelfRegisterController</members>
+        <members>MicrobatchSelfRegController</members>                                                                                    
+        <name>ApexClass</name>
     </types>
     <version>56.0</version>
 </Package>

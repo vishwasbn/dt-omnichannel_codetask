@@ -100,7 +100,7 @@ global class LightningSelfRegisterController {
             return null;
         }
         catch (Exception ex) {
-            logInstance.log('Community', LightningSelfRegisterController.class.getName(), ex);
+            logInstance.log('Customer Care', LightningSelfRegisterController.class.getName(), ex);
             Database.rollback(sp);
             return ex.getMessage();            
         }
@@ -134,7 +134,7 @@ global class LightningSelfRegisterController {
             }
             return null; 
         } catch (Exception ex) {
-            logInstance.log('Community', LightningSelfRegisterController.class.getName(), ex);
+            logInstance.log('Customer Care', LightningSelfRegisterController.class.getName(), ex);
             return ex.getMessage();            
         }        
     }  

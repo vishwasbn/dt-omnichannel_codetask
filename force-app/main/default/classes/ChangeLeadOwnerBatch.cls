@@ -35,7 +35,7 @@ global class ChangeLeadOwnerBatch implements Database.Batchable <sObject>,Databa
         }
         catch(Exception ex){
             Logger logInstance = Logger.getInstance();
-            logInstance.log('Lead', 'ChangeLeadOwnerBatch', 'Lead', ex, JSON.serialize(leadLst));
+            logInstance.log('Fleet', 'ChangeLeadOwnerBatch', 'Lead', ex, JSON.serialize(leadLst));
         }
           
     }
