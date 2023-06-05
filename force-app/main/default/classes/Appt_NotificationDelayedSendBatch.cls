@@ -68,8 +68,7 @@ public with sharing class Appt_NotificationDelayedSendBatch implements Database.
         // trigger the order data to be updated so the email can be sent out.
 
         //---06.09.22.SS - Switch to new SFMC Email System
-        //Boolean useSFMCEmail = Test.isRunningTest() ? false : Appt_SettingUtil.getSettingBooleanValue( 'Use_SFMC_Email');
-        Boolean useSFMCEmail = Appt_SettingUtil.getSettingBooleanValue( 'Use_SFMC_Email');
+        Boolean useSFMCEmail = Test.isRunningTest() ? false : Appt_SettingUtil.getSettingBooleanValue( 'Use_SFMC_Email');
         if (useSFMCEmail)
         {
             System.debug(LPREFIX + 'Using new SFMC Email, no need for this processing');

@@ -8,9 +8,6 @@
  */
 
 global class LeadAssignmentRRHandler{
-
-    private static Logger logInstance = Logger.getInstance();
-
     //assignFleetSpecialist is used to assing the Fleet Specialist as the Lead Owner 
     public static void assigntoFleetSpecialist(List<Lead> newList){
     
@@ -186,7 +183,6 @@ global class LeadAssignmentRRHandler{
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -330,7 +326,6 @@ global class LeadAssignmentRRHandler{
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -450,7 +445,6 @@ global class LeadAssignmentRRHandler{
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -550,7 +544,6 @@ global class LeadAssignmentRRHandler{
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -648,7 +641,6 @@ global class LeadAssignmentRRHandler{
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             
@@ -719,7 +711,6 @@ global class LeadAssignmentRRHandler{
             try{
                 update ul;    
             }catch(DmlException e) {
-                logInstance.log('Fleet', LeadAssignmentRRHandler.class.getName(), 'User', e);
                 System.debug('The following exception has occurred: ' + e.getMessage());
             }
             

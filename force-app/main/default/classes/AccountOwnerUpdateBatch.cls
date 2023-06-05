@@ -35,14 +35,7 @@ public class AccountOwnerUpdateBatch implements Database.Batchable<sObject>, Sch
                 accountUpdateList.add(accRecord);
             }
         }
-        try{
-            update accountUpdateList;
-        }
-        catch(Exception ex){
-            Logger logInstance = Logger.getInstance();
-            logInstance.log('Fleet', 'AccountOwnerUpdateBatch', 'Account', ex, JSON.serialize(accountUpdateList));
-        }
-        
+       update accountUpdateList;
     }
     public void finish(Database.batchablecontext bc)
     {
