@@ -48,7 +48,8 @@
         <members>LeadAssignmentRRHandler</members>
         <members>LightningForgotPasswordController</members>
         <members>LightningSelfRegisterController</members>
-        <members>MicrobatchSelfRegController</members>                                                                                    
+        <members>MicrobatchSelfRegController</members>   
+        <members>LightningForgotPasswordControllerTest</members>                                                                                 
         <name>ApexClass</name>
     </types>
     <version>56.0</version>

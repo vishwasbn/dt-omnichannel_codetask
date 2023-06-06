@@ -20,6 +20,7 @@ global class ChangeLeadOwnerBatch implements Database.Batchable <sObject>,Databa
           }
          
          if(leadLst.size()>0 && leadLst!= null){
+             system.debug('going in RR handler');
          LeadAssignmentRRHandler.assigntofleetspecialist(leadLst);
          }
       

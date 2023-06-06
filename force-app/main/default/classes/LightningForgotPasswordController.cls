@@ -1,7 +1,5 @@
 global class LightningForgotPasswordController {
 
-    private static Logger logInstance = Logger.getInstance();
-
     public LightningForgotPasswordController() {
 
     }
@@ -18,7 +16,6 @@ global class LightningForgotPasswordController {
             return null;
         }
         catch (Exception ex) {
-            logInstance.log('Community', LightningForgotPasswordController.class.getName(), ex);
             return ex.getMessage();
         }
     }
@@ -32,7 +29,6 @@ global class LightningForgotPasswordController {
             }
             return null; 
         } catch (Exception ex) {
-            logInstance.log('Community', LightningForgotPasswordController.class.getName(), ex);
             return ex.getMessage();            
         }        
     } 
