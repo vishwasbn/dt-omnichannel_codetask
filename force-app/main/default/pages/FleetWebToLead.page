@@ -1,0 +1,15 @@
+<apex:page >
+<apex:includeLightning />
+<div id="lightning" />
+<script type="text/javascript">
+        //---Create LWC to render in 'lightning' tag
+        $Lightning.use("c:FleetWebToLeadContainer", function() {
+            $Lightning.createComponent("c:fleetWebToLead",{},
+                "lightning",
+                function(cmp) {
+                console.log("component was created");
+                }
+            );
+        });
+    </script>
+</apex:page>

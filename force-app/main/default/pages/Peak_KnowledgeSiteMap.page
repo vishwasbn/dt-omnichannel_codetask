@@ -1,0 +1,12 @@
+<!--Copyright © 2016-2018 7Summits, Inc. All rights reserved.-->
+<apex:page showHeader="false" controller="Peak_KnowledgeSiteMapController" contentType="text/plain" cache="false" readOnly="true">
+<apex:variable var="total" value="{!0}" />
+<!-- Outer loop (remember there's a limit of 1000 for a repeat, so we repeat within a repeat! -->
+<apex:repeat value="{!listOfAllArticles}" var="allList">
+<apex:variable var="total" value="{!total + allList.size}" />
+<!-- Inner loop -->
+<apex:repeat value="{!allList}" var="article">
+{!siteUrl}/articles/<!-- {!article.Language}/{!SUBSTITUTE(article.ArticleType, "__kav", "")}/-->{!article.UrlName}
+</apex:repeat>
+</apex:repeat>
+</apex:page>

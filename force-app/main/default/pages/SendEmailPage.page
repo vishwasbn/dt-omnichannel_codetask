@@ -3,7 +3,7 @@
     <apex:emailPublisher id="caseEmailPublisher" 
         entityId="{!case.id}" 
         fromVisibility="selectable"
-        fromAddresses="vishwasb.n@discounttire.com"
+        fromAddresses="customerrelations@discounttire.com"
         subjectvisibility="editable"
         subject="{!case.Subject}"
         toVisibility="editable"

@@ -1,0 +1,8 @@
+<!--Copyright © 2016-2018 7Summits, Inc. All rights reserved.-->
+<apex:page contentType="text/plain">
+   User-Agent: *
+   Allow: /
+<!-- Replace this path with your site's actual
+     path and sitemap name. -->
+   Sitemap: {!$Label.X7S_Sitemap_Link}
+</apex:page>
