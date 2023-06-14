@@ -37,7 +37,7 @@
         <members>*</members>
         <name>StaticResource</name>
     </types>-->
-    <types>
+    <!--<types>
         <members>LimitsMonitor_Controller</members>
         <members>MyProfilePageControllerTest</members>
         <members>CommunitiesLoginController</members>
@@ -250,11 +250,11 @@
         <members>Fleet_UserTrigger</members>
         <members>fleet_LeadTriggerHandler</members>
         <name>ApexTrigger</name>
-    </types>
+    </types>-->
     <types>
-        <members>CMTMigrator</members>
+        <!--<members>CMTMigrator</members>
         <members>CustomMetadataLoader</members>
-        <members>CustomMetadataRecordUploader</members>
+        <members>CustomMetadataRecordUploader</members>--><!--File not exists in the practice org-->
         <members>Mass_Delete_Account</members>
         <members>Mass_Delete_Asset</members>
         <members>Mass_Delete_Campaign</members>
