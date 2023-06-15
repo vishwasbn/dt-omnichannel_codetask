@@ -27,7 +27,7 @@ private class X7S_SiteRegistrationTest {
 
         User result = siteRegistration.generateNewUser();
 
-        result.ProfileId = [SELECT Id from Profile where Name='CCC Discount Tire Customer Login User' LIMIT 1].Id; //Label.Customer_Community_User_Default_Profile_Id;
+        result.ProfileId = Label.Customer_Community_User_Default_Profile_Id;
         result.ContactId = [SELECT Id, PersonContactId FROM Account WHERE Id =:tesPersonAccount.Id].PersonContactId;
 
 

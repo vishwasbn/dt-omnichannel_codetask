@@ -137,11 +137,5 @@
         <members>x7sDTCommunityThemeControllerTest</members>                                                                                
         <name>ApexClass</name>
     </types>
-    <types>
-        <members>CMTMigrator</members>
-        <members>CustomMetadataLoader</members>
-        <members>CustomMetadataRecordUploader</members>
-        <name>ApexPage</name>
-    </types>
     <version>58.0</version>
 </Package>
