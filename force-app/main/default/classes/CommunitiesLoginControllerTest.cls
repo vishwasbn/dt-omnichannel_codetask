@@ -60,6 +60,8 @@ public class CommunitiesLoginControllerTest
 
     static testmethod void testCommunitiesLoginController () 
     {
+        Logger logInstance = Logger.getInstance();
+
         System.currentPageReference().getParameters().put('startURL', 'testURL');
         System.currentPageReference().getParameters().put('display', 'testDisplay');
 
@@ -74,6 +76,7 @@ public class CommunitiesLoginControllerTest
             System.assert(false, 'LoginUser failed to flag the username/password as bad');
             
         } catch (Exception ex) {
+            logInstance.log('Fleet', CommunitiesLoginControllerTest.class.getName(), ex);
             System.debug('loginUser bad pwd: ' + ex.getMessage());            
             System.debug('loginUser bad pwd: ' + ex.getStackTraceString());            
             System.assertEquals('Username or password is incorrect', ex.getMessage(), 'loginUser failure message is wrong');         
@@ -84,6 +87,7 @@ public class CommunitiesLoginControllerTest
             System.assert(false, 'LoginUser failed to flag the username/password as bad');
             
         } catch (Exception ex) {
+            logInstance.log('Fleet', CommunitiesLoginControllerTest.class.getName(), ex);
             System.debug('loginUser bad pwd: ' + ex.getMessage());            
             System.debug('loginUser bad pwd: ' + ex.getStackTraceString());            
             System.assertEquals('Username or password is incorrect', ex.getMessage(), 'loginUser failure message is wrong');         
@@ -94,6 +98,7 @@ public class CommunitiesLoginControllerTest
             System.assert(false, 'LoginUser failed to flag the username/password as bad');
             
         } catch (Exception ex) {
+            logInstance.log('Fleet', CommunitiesLoginControllerTest.class.getName(), ex);
             System.debug('loginUser bad pwd: ' + ex.getMessage());            
             System.debug('loginUser bad pwd: ' + ex.getStackTraceString());            
             System.assertEquals('Username or password is incorrect', ex.getMessage(), 'loginUser failure message is wrong');         
@@ -104,6 +109,7 @@ public class CommunitiesLoginControllerTest
             System.assert(false, 'LoginUser failed to flag the username/password as bad');
             
         } catch (Exception ex) {
+            logInstance.log('Fleet', CommunitiesLoginControllerTest.class.getName(), ex);
             System.debug('loginUser bad pwd: ' + ex.getMessage());            
             System.debug('loginUser bad pwd: ' + ex.getStackTraceString());            
             System.assertEquals('Username or password is incorrect', ex.getMessage(), 'loginUser failure message is wrong');         
@@ -114,6 +120,7 @@ public class CommunitiesLoginControllerTest
             System.assert(false, 'LoginUser failed to flag the username/password as bad');
             
         } catch (Exception ex) {
+            logInstance.log('Fleet', CommunitiesLoginControllerTest.class.getName(), ex);
             System.debug('loginUser bad pwd: ' + ex.getMessage());            
             System.debug('loginUser bad pwd: ' + ex.getStackTraceString());            
             System.assertEquals('Username or password is incorrect', ex.getMessage(), 'loginUser failure message is wrong');         
@@ -124,6 +131,7 @@ public class CommunitiesLoginControllerTest
             System.assert(false, 'LoginUser failed to flag the username/password as bad');
             
         } catch (Exception ex) {
+            logInstance.log('Fleet', CommunitiesLoginControllerTest.class.getName(), ex);
             System.debug('loginUser bad pwd: ' + ex.getMessage());            
             System.debug('loginUser bad pwd: ' + ex.getStackTraceString());            
             System.assertEquals('Username or password is incorrect', ex.getMessage(), 'loginUser failure message is wrong');         
@@ -134,6 +142,7 @@ public class CommunitiesLoginControllerTest
             System.assert(false, 'LoginUser failed to flag the username/password as bad');
             
         } catch (Exception ex) {
+            logInstance.log('Fleet', CommunitiesLoginControllerTest.class.getName(), ex);
             System.debug('loginUser bad pwd: ' + ex.getMessage());            
             System.debug('loginUser bad pwd: ' + ex.getStackTraceString());            
             System.assertEquals('Username or password is incorrect', ex.getMessage(), 'loginUser failure message is wrong');         
@@ -149,6 +158,7 @@ public class CommunitiesLoginControllerTest
             System.assert(false, 'ResetUserPwd failed to flag the username as bad');
                 
         } catch (Exception ex) {
+            logInstance.log('Fleet', CommunitiesLoginControllerTest.class.getName(), ex);
             System.debug('loginReset bad usrNme: ' + ex.getMessage());            
             System.debug('loginReset bad usrNme: ' + ex.getStackTraceString());
             System.assertEquals('Cannot find a user with that username.', ex.getMessage(), 'ResetUserPwd failure message is wrong');         
