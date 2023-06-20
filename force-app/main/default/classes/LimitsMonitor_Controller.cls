@@ -56,7 +56,7 @@ public with sharing class LimitsMonitor_Controller {
         
         if(!limitsMap.isEmpty()){
             allLimits.dailyApiLimit = new LimitData(limitsMap.get('DailyApiRequests'), 'Daily API Request', 0, 0);
-            allLimits.dailyBulkApiLimit = new LimitData(limitsMap.get('DailyBulkApiRequests'), 'Daily Bulk API Request', 0, 0);
+            allLimits.dailyBulkApiLimit = new LimitData(limitsMap.get('DailyBulkApiBatches'), 'Daily Bulk API Request', 0, 0);
             allLimits.storageLimit = new LimitData(limitsMap.get('DataStorageMB'), 'Data Storage MB', 0, 0);
             allLimits.fileStorageLimit = new LimitData(limitsMap.get('FileStorageMB'), 'File Storage MB', 0, 0);
         }
