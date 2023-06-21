@@ -4,3 +4,6 @@ declare module "@salesforce/apex/Appt_ScheduleTableController.getAppointments" {
 declare module "@salesforce/apex/Appt_ScheduleTableController.getStoreHours" {
   export default function getStoreHours(param: {siteId: any}): Promise<any>;
 }
+declare module "@salesforce/apex/Appt_ScheduleTableController.getFunctionalDates" {
+  export default function getFunctionalDates(param: {siteId: any, startDate: any}): Promise<any>;
+}

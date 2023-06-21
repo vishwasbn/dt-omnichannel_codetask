@@ -59,6 +59,14 @@ public class Appt_UpdateAppointmentRequest {
 	public String recipientEmail;
 	public String recipientPhone;
 	public String comments;
+    
+    //Appt3.0 Changes Start - Fields for Hybris -User Story# APPT3-78
+    public String customerId;
+    public String salesOrderId;
+    public String companyName;
+    public String fleetNumber;
+    public String customerVehicleId;
+    //Appt3.0 Changes End - Fields for Hybris -User Story# APPT3-78
 
 	public class Articles {
 		public String requestType;

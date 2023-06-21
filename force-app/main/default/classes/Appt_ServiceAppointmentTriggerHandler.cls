@@ -1,5 +1,7 @@
 public class Appt_ServiceAppointmentTriggerHandler {
     public static String lprefix = 'LOG_ServApptTH:';
+    //PT change
+    Public static String version_check= 'APPT3.0';
 
     //---Primary ServiceAppointment Trigger Handler for Appointment
     public static void handle(Map<Id, ServiceAppointment> oldMap, Map<Id, ServiceAppointment> newMap, System.TriggerOperation triggerEvent )
@@ -10,14 +12,22 @@ public class Appt_ServiceAppointmentTriggerHandler {
         {
             when AFTER_INSERT {
                 createApptTimeSpotAfterCreateAppointment(oldMap, newMap);
+                //               PT-Change begins here
+                PT_AppointmentEventService.createServiceAppointmentPlatformEvents(oldMap,newMap,triggerEvent);
+				//               PT-Change ends
                 createAppointmentNotifications(oldMap, newMap);
+                
             }
             when BEFORE_UPDATE {
                 updateApptReminderFlagIfReschedule(oldMap, newMap);
             }
             when AFTER_UPDATE {
                 updateApptTimeSpotAfterUpdateAppointment(oldMap, newMap);
-                updateAppointmentNotifications(oldMap, newMap);
+                //               PT-Change begins here
+                PT_AppointmentEventService.createServiceAppointmentPlatformEvents(oldMap,newMap,triggerEvent);
+                //               PT-Change ends
+				updateAppointmentNotifications(oldMap, newMap);
+                
             }
             when BEFORE_DELETE{
                 deleteApptTimeSpotBeforeDeleteAppointment(oldMap, newMap);
@@ -128,7 +138,25 @@ public class Appt_ServiceAppointmentTriggerHandler {
                         if (endTime == null) {
                             endTime = newAppt.Back_Office_End_Time__c;
                         }
-
+                        
+                        //PT change- Executed only when Custom label(PT_VersionController) is APPT3.0
+                        if(system.label.PT_VersionController==version_check){
+                            // Appt 3.0 Changes - Start TO Check the Time slot Dates during Reschedule	
+                            if(Appt_ConstantValues.isVisionFeature && !String.isBlank(newAppt.Selected_Slot_Start_Time_String__c)) {	
+                                
+                                if(newAppt.Back_Office_Start_Time__c > newAppt.Selected_Slot_Start_Time_String__c.trim()) {                                	
+                                    startTime = newAppt.Back_Office_Start_Time__c;	
+                                } else {	
+                                    startTime = newAppt.Selected_Slot_Start_Time_String__c.trim();	
+                                }	
+                                endTime = newAppt.Back_Office_End_Time__c;	
+                            } else if (Appt_ConstantValues.isVisionFeature && String.isBlank(newAppt.Selected_Slot_Start_Time_String__c)){	
+                                startTime = newAppt.Back_Office_Start_Time__c;	
+                                endTime = newAppt.Back_Office_End_Time__c;     	
+                            }	
+                            // Appt 3.0 Changes - End   
+                        }
+                        
                         //-- convert times to store's timezone
                         apptStartDateTime = Appt_AppointmentUtil.convertTime(newAppt.Date_String__c, startTime, Integer.valueOf(newAppt.Timezone_Offset__c));
                         apptEndDateTime = Appt_AppointmentUtil.convertTime(newAppt.Date_String__c, endTime, Integer.valueOf(newAppt.Timezone_Offset__c));
@@ -234,7 +262,23 @@ public class Appt_ServiceAppointmentTriggerHandler {
                     if (endTime == null) {
                         endTime = newAppt.Back_Office_End_Time__c;
                     }
-
+                    //PT change- Executed only when Custom label(PT_VersionController) is APPT3.0
+                    if(system.label.PT_VersionController==version_check){
+                        // Appt 3.0 Changes - Start - To Check Time slot selected during create	
+                        if(Appt_ConstantValues.isVisionFeature && !String.isBlank(newAppt.Selected_Slot_Start_Time_String__c)) {	
+                            if(newAppt.Back_Office_Start_Time__c > newAppt.Selected_Slot_Start_Time_String__c.trim()) {	
+                                startTime = newAppt.Back_Office_Start_Time__c;	
+                            } else {	
+                                startTime = newAppt.Selected_Slot_Start_Time_String__c.trim();	
+                            }	
+                            endTime = newAppt.Back_Office_End_Time__c;	
+                        } else if (Appt_ConstantValues.isVisionFeature && String.isBlank(newAppt.Selected_Slot_Start_Time_String__c)){	
+                            startTime = newAppt.Back_Office_Start_Time__c;	
+                            endTime = newAppt.Back_Office_End_Time__c;     	
+                        }	
+                        // Appt 3.0 Changes - End	
+                    }
+                   
                     apptStartDateTime = Appt_AppointmentUtil.convertTime(newAppt.Date_String__c, startTime, Integer.valueOf(newAppt.Timezone_Offset__c));
                     apptEndDateTime = Appt_AppointmentUtil.convertTime(newAppt.Date_String__c, endTime, Integer.valueOf(newAppt.Timezone_Offset__c));
 
@@ -257,11 +301,9 @@ public class Appt_ServiceAppointmentTriggerHandler {
                 }
             }
         }
-
         insert spotsToBeUpdatedList;
-
     }
-
+        
     private static String getBucket(ServiceAppointment appt) {
         String frontBackChar;
         String sourceChar;

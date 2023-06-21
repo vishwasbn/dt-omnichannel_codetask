@@ -39,6 +39,8 @@ public with sharing class Appt_NotificationEmailPayload {
         public String vehicleAssemblyId;
         public String clientId;
         public String customerKey;
+    	//APPT3-364 - Indicator that tells whether this appointment is generated with unviersal SalesOrderId or not
+    	public Boolean isUniversalOrderId;
   
     public static String compose(Appt_NotificationEmailPayload payload){
         return System.JSON.serializePretty(payload);

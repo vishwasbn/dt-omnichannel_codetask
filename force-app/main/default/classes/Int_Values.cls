@@ -20,6 +20,10 @@ public class Int_Values
     public static final String TYPE_INVOICE_DETAIL_HYBRIS_NUMBER = 'INVOICE_DETAIL_HYBRIS_ORD_NUM';
     public static final String TYPE_INVOICE_DETAIL_INVOICE_NUMBER = 'INVOICE_DETAIL_INVOICE_NUM';
     public static final String TYPE_INVENTORY = 'INVENTORY';
+    //Appt 3.0 - Variable added for tracking consolidated invetories call
+    public static final String TYPE_INVENTORIES = 'INVENTORIES';
+    //Appt 3.0 - Variable added for tracking order histories call
+    public static final String TYPE_ORDER_HISTORIES = 'ORDER_HISTORIES';
 
     public static String createGUID() {
         Blob b = Crypto.GenerateAESKey(128);
@@ -30,26 +34,26 @@ public class Int_Values
     }
 
     //---Create static list of timings to be available across a user context
-    public static List<Int_Timing> TimingList {get; set;}
+    public static List<Int_Timing> timingList {get; set;}
 
     //---Create an object for timings
     public class Int_Timing
     {
-        public String Name {get; set;}
-        public Decimal Timing {get; set;}
+        public String name {get; set;}
+        public Decimal timing {get; set;}
 
         public Int_Timing(String inpName, Decimal inpTiming)
         {
-            Name = inpName;
-            Timing = inpTiming;
+            name = inpName;
+            timing = inpTiming;
         }
     }
 
     //---Quick add to timings
     public static void addTiming(String name, Decimal timing)
     {
-        if (TimingList == null) TimingList = new List<Int_Timing>();
-        TimingList.add( new Int_Timing(name, timing));
+        if (timingList == null) timingList = new List<Int_Timing>();
+        timingList.add( new Int_Timing(name, timing));
     }
 
     //---Quick add to timings
@@ -75,12 +79,12 @@ public class Int_Values
     {
         String returnVal = '';
 
-        if (TimingList != null)
+        if (timingList != null)
         {
-            for(Int_Timing row : TimingList)
+            for(Int_Timing row : timingList)
             {
                 if (returnVal != '') returnVal += '\n';
-                returnVal += row.Name + ': ' + row.Timing;
+                returnVal += row.name + ': ' + row.timing;
             } 
         }
         

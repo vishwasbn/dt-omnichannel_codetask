@@ -48,12 +48,20 @@ public class Appt_CreateAppointmentRequest {
 	public String model;
 	public String vehicleId;
 	public String trimId;
-	public String assemblyId;
-	public String recipientFirstName;
-	public String recipientLastName;
-	public String recipientEmail;
-	public String recipientPhone;
-	public String comments;
+    public String assemblyId;
+    public String recipientFirstName;
+    public String recipientLastName;
+    public String recipientEmail;
+    public String recipientPhone;
+    public String comments;
+    //Appt3.0 Changes Start - Fields for Hybris -User Story# APPT3-78
+    public String customerId;
+    public String salesOrderId;
+    public String companyName;
+    public String fleetNumber;
+    public String customerVehicleId;
+    //Appt3.0 Changes End - Fields for Hybris -User Story# APPT3-78
+
 	public List<Articles> articles;
 
 	public class Articles {

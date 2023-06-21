@@ -3,6 +3,114 @@ public without sharing class Appt_TestUtil
 {
     
     final static string lprefix = 'LOG Appt_TestUtil: ';
+        
+    @IsTest
+    public static String  createPayload(){
+        
+        String posString = '{"action": "CRT",'
+        +'"appointmentStatus": "Pending",'   
+        +'"companyName": "",'
+        +'"companyName2": "",'   
+        +'"fleetNumber": "",'
+        +'"firstName": "John",'
+        +'"lastName": "Johnson",'
+        +'"emailAddress": "JOHN@DT.TEST.com",'
+        +'"address1": "1015PricklyPearLane",'
+        +'"address2": "Apt#450",'
+        +'"city": "Phoenix",'
+        +'"state": "AZ",'
+        +'"country": "United States",'
+        +'"zipCode": "85250",'
+        +'"customerType": "Retail",'
+        +'"businessPrimaryPurchasingPhoneCollection":[{'
+        	+'"businessPhoneType": "Mobile",'
+        	+'"businessPhoneNumber": "1234567890",'
+        	+'"businessPhoneExtension": null},'
+   	    +'{"businessPhoneType": "Home",'
+        +'"businessPhoneNumber": "123456789",'
+        +'"businessPhoneExtension": "123"},'
+        +'{"businessPhoneType": null,'
+        +'"businessPhoneNumber": null,'
+        +'"businessPhoneExtension": null}],'
+        +'"phoneDetails":[{'
+        	+'"phoneType": "Mobile",'
+        	+'"phoneNumber": "1234567890"},'
+    		+'{"phoneType": "Home","phoneNumber": "1234567891"},'
+    		+'{"phoneType": "Work","phoneNumber": "1234567898"}],'
+        +'"myAccount":true,'
+        +'"aaaMembershipNumber": "55555",'
+        +'"privateLabelCardholder": "Yes",'
+        +'"military": "Yes",'
+        +'"customerId": "111102",'
+        +'"trimId": "555501",'
+        +'"assemblyId": "A",'
+        +'"year": "2016",'
+        +'"make": "CHEVROLET",'
+        +'"model": "CORVETTE",'
+        +'"fitmentLiftId": "",'
+        +'"frontTireSize": "245/35R19",'
+        +'"rearTireSize": "285/30R20",'
+        +'"frontTireDiameter": "19",'
+        +'"rearTireDiameter": "20",'
+        +'"assemblyType": "O.E.",'
+        +'"color": "Black",'
+        +'"licensePlate": "TYD8270",'
+        +'"vehicleImage": "https://cdn.discounttire.com/sys-master/images/hec/h7c/8910181105694/201810100833_10722_21253.png_dt-vehicle-default-format_dt-vehicle-thumbNail",'
+        +'"vehicleType": "Fitment",'
+        +'"genericVehicleCategory": null,'
+        +'"genericVehicleSubCategory": null,'
+        +'"customerVehicleId": "22201",'
+        +'"orderType": "BOPIS",'
+        +'"salesOrderId": "33301",'
+        +'"siteId": "1284",'
+        +'"articles":[{'
+        	+'"articleId": "000000000000084838",'
+        	+'"articleSize": "",'
+        	+'"articleType": "",'
+        	+'"quantity": "1",'
+        	+'"articleDescription": "FreeFlatRepair,Rotation,Inspection",'
+        	+'"tredWell": false},'
+        +'{"articleId": "000000000000084800",'
+        +'"articleSize": null,'
+        +'"articleType": "",'
+        +'"quantity": "1",'
+        +'"articleDescription": "FreeRotationandRebalance",'
+        +'"tredWell":false},'
+        +'{"articleId": "000000000000080219",'
+        +'"articleSize": "",'
+        +'"articleType": null,'
+        +'"quantity": "3",'
+        +'"articleDescription": "Installation&LifeofTireMaintenance",'
+        +'"tredWell": false},'
+        +'{"articleId": "000000000000041848",'
+        +'"articleSize": "265/70R17115TSLOWL",'
+        +'"articleType": "",'
+        +'"quantity": "3",'
+        +'"articleDescription": "PathfinderHT",'
+        +'"tredWell": true},'
+    	+'{"articleId": "000000000000080017",'
+        +'"articleSize": null,'
+        +'"articleType": "",'
+        +'"quantity": "3",'
+        +'"articleDescription": "CertsforRefund,Replacement",'
+        +'"tredWell": false},'
+    	+'{"articleId": "000000000000080075",'
+        +'"articleSize": "",'
+        +'"articleType": null,'
+        +'"quantity": "3",'
+        +'"articleDescription": "StateRequiredEnvironmentalFee",'
+        +'"tredWell": false},'
+    	+'{"articleId": "000000000000080224",'
+        +'"articleSize": "",'
+        +'"articleType": "",'
+        +'"quantity": "4",'
+        +'"articleDescription": "WasteTireDisposalFee",'
+        +'"tredWell": false}],'
+        +'"unPaid": true,'
+        +'"comments": "test Comment"}';
+        return posString;
+    }
+    
     @IsTest
     public static List<ServiceAppointment> basicAppointment_StoreConfiguration ()
     {
@@ -136,7 +244,83 @@ public without sharing class Appt_TestUtil
 
         return servAppts;
     }
+    //Appt3.0
+   public static void createTimeSlots(ServiceTerritory servTerr){
+         // Store hours... open(startTime)... close(endTime) ...close Saturday (endTimeSaturday)
+        Time startTime = Time.newInstance(8,0,0,0);
+        Time endTime = Time.newInstance(18,0,0,0);
+        Time endTimeSaturday = Time.newInstance(17,0,0,0);
+        OperatingHours operHours =  Appt_TestUtil.getOperatingHours('EST 8-6 Store Hours', 'America/New_York', 'Store Hours');
+        OperatingHours fbTmeSltConfig =  Appt_TestUtil.getOperatingHours('20 Minute Time Slots', 'America/Phoenix', 'Bucket Capacity');
+		//List<TimeSlot> lstTimeslot = new List<TimeSlot>();
+        TimeSlot tsMonday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Monday', 'Normal', startTime, endTime);
+        TimeSlot tsTuesday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Tuesday', 'Normal', startTime, endTime);
+        TimeSlot tsWednesday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Wednesday', 'Normal', startTime, endTime);
+        TimeSlot tsThursday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Thursday', 'Normal', startTime, endTime);
+        TimeSlot tsFriday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Friday', 'Normal', startTime, endTime);
+        TimeSlot tsSaturday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Saturday', 'Normal', startTime, endTimeSaturday);
+        /*lstTimeslot.add(tsMonday);
+        lstTimeslot.add(tsTuesday);
+        lstTimeslot.add(tsWednesday);
+        lstTimeslot.add(tsThursday);
+        lstTimeslot.add(tsFriday);
+        lstTimeslot.add(tsSaturday);
+        Insert lstTimeslot; */
+        // System.debug(lprefix + 'Weekday Time Slots: complete');
 
+        // Time Slots Begin (stEnd) and End (stEnd) slot time
+        Time stEnd = startTime;
+        List<TimeSlot> dailyTimeSlots = new List<TimeSlot>();
+        For (Time stStart = startTime; stStart < endTime; stStart = stStart.addMinutes(20)) 
+        {
+            stEnd = stEnd.addMinutes(20);
+            // System.debug(lprefix + 'Daily: Time Slot, start: ' + stStart + ' end: ' + stEnd);
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Monday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Tuesday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Wednesday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Thursday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Friday', 'Normal', stStart, stEnd, 4));
+            if (stStart < endTimeSaturday){
+                dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Saturday', 'Normal', stStart, stEnd, 4));
+            }
+        }
+        insert dailyTimeSlots;
+
+        // Monthly generated Appt Time Slots... Begin (atsStart) ... End  (atsEnd) slot time
+        // move up the date if it is sunday
+        Date currentDate = (  Datetime.now().format('u') == '7' ) ? Date.today().addDays(1) : Date.today();
+        Datetime atsEnd = Datetime.newInstance(currentDate, startTime); // setup the single slot end datetime
+        Datetime endDateTime = Datetime.newInstance(currentDate.addDays(27), endTime); // setup the month end datetime
+        System.debug(lprefix + 'Weekday: ' + currentDate + ' End: ' + atsEnd + ' MonthEnd: ' + endDateTime + ' StartTime: ' + startTime + ' EndTime: ' + endTime);
+
+        List<Appt_Time_Slot__c> apptTimeSlots = new List<Appt_Time_Slot__c>();
+        For (Datetime atsStart = Datetime.newInstance(currentDate, startTime); atsStart < endDateTime; atsStart = atsStart.addMinutes(20))
+        {
+            // jump over sunday, saturday early close
+            // at close time, jump to open the next day...
+            String weekDay = atsStart.format('u');
+            // System.debug(lprefix + 'Weekday: ' + weekDay + ' : ' + atsStart);
+            if ( ( weekDay == '6' ) && ( atsStart.time() >= endTimeSaturday ) ) {
+                // System.debug(lprefix + 'Weekday - Saturday');
+                atsStart = Datetime.newInstance( atsStart.date().addDays(2), startTime); // jump to monday
+            } else if ( atsStart.time() >= endTime ) {
+                // System.debug(lprefix + 'Weekday - next day');
+                atsStart = Datetime.newInstance( atsStart.date().addDays(1), startTime); // jump to next workday
+            }
+
+            atsEnd = atsStart.addMinutes(20);
+            // System.debug(lprefix + ' StartTime: ' + atsStart + ' EndTime: ' + atsEnd);
+            Appt_Time_Slot__c nextTimeSlot = Appt_TestUtil.createApptTimeSlot(servTerr.Id, atsStart.date(), atsStart, atsEnd, 'Front Room');
+            apptTimeSlots.add(nextTimeSlot);
+            nextTimeSlot = Appt_TestUtil.createApptTimeSlot(servTerr.Id, atsStart.date(), atsStart, atsEnd, 'Back Room');
+            apptTimeSlots.add(nextTimeSlot);
+            // System.debug(lprefix + 'ApptTimeSlot: ' + nextTimeSlot.Start_Time__c + ' to ' + nextTimeSlot.End_Time__c);
+        }
+        insert apptTimeSlots;
+        System.debug('TimeSlotsApt3'+ apptTimeSlots ); 
+
+    }
+//    Appt3.0 
 
     // public static void bulkAppointments()
     // {
@@ -227,6 +411,12 @@ public without sharing class Appt_TestUtil
     {
         return getUser('System Administrator', firstName, lastName);
     }
+    //Appt3.0 changes for POS Store Terminal Profile (Run as user in test class)
+     public static User getPosTerminalUser(String firstName, String lastName)
+    {
+        return getUser('POS Store Terminal', firstName, lastName);
+    }  
+    // chnages Appt3.0 END
 
     /**
     * @Description This method will get a test user that has the Standard User profile.
@@ -355,6 +545,7 @@ public without sharing class Appt_TestUtil
             Is_Notify_AR_Application_Received__c = false,
             Legal_Name__c = null,
             PO_Required__c = true,
+            
             Payment_Key_Terms__c = null,
             Payment_Type__c = null,
             Preferred_Store__c = null,

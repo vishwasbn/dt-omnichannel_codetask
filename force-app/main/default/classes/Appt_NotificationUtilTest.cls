@@ -377,7 +377,9 @@ public class Appt_NotificationUtilTest {
                                     Work_Order__r.Alternate_Contact__r.FirstName,
                                     Work_Order__r.Alternate_Contact__r.LastName, 
                                     Work_Order__r.Alternate_Contact__r.Phone, 
-                                    Work_Order__r.Alternate_Contact__r.Email
+                                    Work_Order__r.Alternate_Contact__r.Email,
+                                    Last_Error_Message__c,
+                                    Appt3_Valid_Universal_Order_Id__c
                                     FROM Notification__c WHERE id= :newNoti.Id];
 
         newNoti = Appt_NotificationUtil.buildEmailPayload(testNoti);
@@ -460,13 +462,16 @@ public class Appt_NotificationUtilTest {
                                     Work_Order__r.Alternate_Contact__r.FirstName,
                                     Work_Order__r.Alternate_Contact__r.LastName, 
                                     Work_Order__r.Alternate_Contact__r.Phone, 
-                                    Work_Order__r.Alternate_Contact__r.Email
+                                    Work_Order__r.Alternate_Contact__r.Email,
+                                    Last_Error_Message__c,
+                                    Appt3_Valid_Universal_Order_Id__c
                                     FROM Notification__c WHERE id= :newNoti.Id];
 
         newNoti = Appt_NotificationUtil.buildEmailPayload(testNoti);
         Test.stopTest();    
         
-        Appt_NotificationEmailPayload emailPayload = new Appt_NotificationEmailPayload();        
+        Appt_NotificationEmailPayload emailPayload = new Appt_NotificationEmailPayload();
+        
         emailPayload.subscriberKey= testNoti.Work_Order__c;
         emailPayload.emailAddress=testNoti.Customer_Email__c;
         emailPayload.communicationType='A';
@@ -507,6 +512,7 @@ public class Appt_NotificationUtilTest {
         emailPayload.vehicleAssemblyId=testNoti.Vehicle_Assembly_Id__c;   
  		emailPayload.clientId = 'DT';          
         emailPayload.customerKey='OrderConfirmationTSDv2';
+        emailPayload.isUniversalOrderId = false;
         
  		string payLoad= Appt_NotificationEmailPayload.compose(emailPayload);
 

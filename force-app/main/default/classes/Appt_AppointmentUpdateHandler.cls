@@ -95,12 +95,39 @@ public without sharing class Appt_AppointmentUpdateHandler {
             toUpdateModel.vehicleId = updateParamsModel.vehicleId;
             toUpdateModel.trimId = updateParamsModel.trimId;
             toUpdateModel.vehicleClass = updateParamsModel.vehicleClass;
+            //Appt 3.0 Changes - Map attributes from update model to toUpdateModel	
+            toUpdateModel.customerVehicleId = updateParamsModel.customerVehicleId;	
+            toUpdateModel.customerId = updateParamsModel.customerId;	
+            toUpdateModel.salesOrderId = updateParamsModel.salesOrderId;	
+            toUpdateModel.fitmentLiftId = updateParamsModel.fitmentLiftId;	
+            toUpdateModel.frontTireSize = updateParamsModel.frontTireSize;	
+            toUpdateModel.rearTireSize = updateParamsModel.rearTireSize;	
+            toUpdateModel.frontTireDiameter = updateParamsModel.frontTireDiameter;	
+            toUpdateModel.rearTireDiameter = updateParamsModel.rearTireDiameter;	
+            toUpdateModel.assemblyType = updateParamsModel.assemblyType;	
+            toUpdateModel.color = updateParamsModel.color;	
+            toUpdateModel.genericVehicleCategory = updateParamsModel.genericVehicleCategory;             	
+            toUpdateModel.genericVehicleSubCategory = updateParamsModel.genericVehicleSubCategory;	
+            toUpdateModel.licensePlate = updateParamsModel.licensePlate;	
+            toUpdateModel.vehicleType = updateParamsModel.vehicleType;	
+            toUpdateModel.imageURL = updateParamsModel.imageURL;        	
+            //Appt 3.0 Changes - End
 
             toUpdateModel = Appt_AppointmentDataProcessUtil.processVehicleData(toUpdateModel);
 
             //update Work Order
             // LIMIT NOTE - 1 DML Update
             updateWorkOrder(updateParamsModel, existingApptModel.appointmentStatus, toUpdateModel);
+                       // Appt 3.0 Changes - Remove and Add articles to WOLI for Hybris/GK/Alert Center during Service Appointment update	
+            if((toUpdateModel.isVisionFeature != null && toUpdateModel.isVisionFeature) || (toUpdateModel.salesOrderId != null) ||(toUpdateModel.source == Appt_ConstantValues.APPOINTMENT_SOURCE_WEB) )	
+                //if((toUpdateModel.isVisionFeature != null && toUpdateModel.isVisionFeature) )	
+            {	
+                Appt_AppointmentHandler.removeArticlesFromWOLI(updateParamsModel.appointmentId);	
+                if (updateParamsModel.articles != null && updateParamsModel.articles.size() > 0){	
+                    Appt_AppointmentHandler.addArticlesToWOLI(updateParamsModel.articles, updateParamsModel.appointmentId);    	
+                }	
+            }	
+            // Appt 3.0 Changes - End
             
             //update ServiceAppointments only if SA param fields are populated and different then existing SA
             // LIMIT NOTE - 1 DML Update
@@ -229,6 +256,11 @@ public without sharing class Appt_AppointmentUpdateHandler {
         toUpdateModel.customerType = updateParamsModel.customerType;
         toUpdateModel.emailAddressOptIn = updateParamsModel.emailAddressOptIn;
         toUpdateModel.textOptIn = updateParamsModel.textOptIn;
+        //Appt 3.0 Changes - Map vision feature flag to toUpdateModel	
+        toUpdateModel.isVisionFeature = updateParamsModel.isVisionFeature;	
+		toUpdateModel.companyName = updateParamsModel.companyName;
+        toUpdateModel.companyName2 = updateParamsModel.companyName2;
+        //Appt 3.0 Changes - End
 
         toUpdateModel = Appt_AppointmentDataProcessUtil.processAccountData(toUpdateModel);
     }
@@ -330,6 +362,11 @@ public without sharing class Appt_AppointmentUpdateHandler {
         //-- use smsPhoneNumber if populated, otherwise use mobile phone in WO SMS field (if  populated)
         if (!String.isBlank(updateParamsModel.smsPhoneNumber)) updateWO.SMS_Phone__c = updateParamsModel.smsPhoneNumber;
         else if (!String.isBlank(updateParamsModel.mobilePhoneNumber)) updateWO.SMS_Phone__c = updateParamsModel.mobilePhoneNumber;
+        
+        // Appt 3.0 Changes - Update Sales Order Id when it changes during service appointment update   
+        if (updateParamsModel.salesOrderId != null) updateWO.Appt3_Sales_Order_Id__c = updateParamsModel.salesOrderId;  
+        // Appt 3.0 Changes - End
+        
 
         System.debug(lprefix+'     about to update existing WorkOrder:'+updateWO);
         update updateWO;
@@ -527,6 +564,7 @@ public without sharing class Appt_AppointmentUpdateHandler {
                     saList.add(fsa);
                 }
 
+
             } else {
 
                 //Since not updating the canceled front appt, Update response model from existing model
@@ -562,7 +600,9 @@ public without sharing class Appt_AppointmentUpdateHandler {
             saList.add(bsa);
 
         }
-
+                     // Appt 3.0 Changes - On the fly flag enabled during Service Appointment update. This will be used in SA trigger to enable the consumption of multiple time slots for Vision	
+        if (updateParamsModel.isVisionFeature != null && updateParamsModel.isVisionFeature) {Appt_ConstantValues.isVisionFeature = true;}	
+        // Appt 3.0 Changes - End
 
         //-- Upset of List of ServiceAppointments. Using Upsert because SAs could be new (requiring insert) or existing (requiring update)
         try {
@@ -643,15 +683,16 @@ public without sharing class Appt_AppointmentUpdateHandler {
         System.debug(lprefix+'getAppointmentRecords() ENTRY - apptModel:'+apptModel);
 
         Appt_UpdateAppointmentServiceModel returnModel = new Appt_UpdateAppointmentServiceModel();
+        // Appt 3.0 - Added Sales_Order_Id__c to the query.
 
         List<ServiceAppointment> appts = [SELECT id, Status, Activity_Type__c, SchedStartTime, SchedEndTime, Start_Time_String__c, End_Time_String__c, Date_String__c, 
             Work_Order__r.Status, Duration, Work_Order__c, WorkType.DurationInMinutes, Work_Order__r.AccountId, Work_Order__r.ContactId, Work_Order__r.Account.PersonContactId, Work_Order__r.Source__c,  
             Work_Order__r.Appointment_Comments__c, Work_Order__r.Order_Type__c, Work_Order__r.Form_Type__c, Work_Order__r.Form_Number__c, Work_Order__r.Form_Date__c, 
             Work_Order__r.Hybris_Order_Id__c, Work_Order__r.POS_Web_Order_Id__c, Work_Order__r.Layaway_Number__c, Work_Order__r.Quote_Number__c, Work_Order__r.Invoice_Number__c, 
-            Work_Order__r.Order_Date__c, Work_Order__r.Vehicle__c, Work_Order__r.Vehicle__r.POS_Customer_Vehicle_Id__c, Work_Order__r.Vehicle__r.Hybris_Customer_Vehicle_Id__c, 
+            Work_Order__r.Order_Date__c, Work_Order__r.Vehicle__c, Work_Order__r.Vehicle__r.POS_Customer_Vehicle_Id__c, Work_Order__r.Vehicle__r.Hybris_Customer_Vehicle_Id__c,Work_Order__r.Account.Appt3_Customer_Id__c,Work_Order__r.Vehicle__r.Appt3_Customer_Vehicle_Id__c, 
             Work_Order__r.Vehicle__r.Vehicle_Manufacture_Year__c,  Work_Order__r.Vehicle__r.Vehicle_Make__c, Work_Order__r.Vehicle__r.Vehicle_Model__c, Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c, 
             Work_Order__r.Vehicle__r.Assembly_Id__c, Work_Order__r.Vehicle__r.Vehicle_Id__c, Work_Order__r.Vehicle__r.Trim_Id__c, Work_Order__r.Account.POS_Customer_Id__c, 
-            Work_Order__r.Account.Hybris_Customer_Id__c, Work_Order__r.Account.GUID__c, Work_Order__r.Cancel_Reason__c, Account.PersonContactId, FSL__Scheduling_Policy_Used__c, Notification_Appointment__c 
+            Work_Order__r.Account.Hybris_Customer_Id__c, Work_Order__r.Account.GUID__c, Work_Order__r.Cancel_Reason__c, Account.PersonContactId, FSL__Scheduling_Policy_Used__c, Notification_Appointment__c,Work_Order__r.Appt3_Sales_Order_Id__c 
             FROM ServiceAppointment WHERE Work_Order__r.Id = :apptModel.appointmentId ORDER BY Activity_Type__c DESC];
         System.debug(lprefix+'       Retrieved Service Appointment/Work Order records:'+appts);
 
@@ -683,6 +724,11 @@ public without sharing class Appt_AppointmentUpdateHandler {
             returnModel.hybrisCustomerId = appts.get(0).Work_Order__r.Account.Hybris_Customer_Id__c;
             returnModel.posCustomerId = appts.get(0).Work_Order__r.Account.POS_Customer_Id__c;
             returnModel.customerGuid = appts.get(0).Work_Order__r.Account.GUID__c;
+            //Appt 3.0 Changes - Map new vision fields from database	
+            returnModel.salesOrderId = appts.get(0).Work_Order__r.Appt3_Sales_Order_Id__c;	
+            returnModel.customerVehicleId = appts.get(0).Work_Order__r.Vehicle__r.Appt3_Customer_Vehicle_Id__c;	
+            returnModel.customerId = appts.get(0).Work_Order__r.Account.Appt3_Customer_Id__c;	
+            //Appt 3.0 Changes - End
 
             
             for(ServiceAppointment sa: appts) {

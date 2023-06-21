@@ -1,11 +1,11 @@
 @isTest
-public with sharing class Appt_AvailabilityHandlerTest {
+public with sharing class  Appt_AvailabilityHandlerTest {
     @testSetup
     static void setupData() 
     {
         List<ServiceAppointment> createData = new List<ServiceAppointment>();
         createData = Appt_TestUtil.basicAppointment_StoreConfiguration();
-        //System.debug(createData);
+       //System.debug(createData);
     } 
 
     @isTest static void errorsTest()
@@ -18,6 +18,7 @@ public with sharing class Appt_AvailabilityHandlerTest {
         modelE1.orderType = 'ROPIS';
         modelE1.customerType = 'Retail';
         modelE1.source = 'WEB';
+        
 
         Appt_GetAvailabilityServiceModel modelE2 = new Appt_GetAvailabilityServiceModel();
         modelE2.siteId = '1235';
@@ -66,10 +67,9 @@ public with sharing class Appt_AvailabilityHandlerTest {
 
         //System.assertEquals(400, testException.errorCode);
        
-   
     } 
 
-    /*
+   /*
     @isTest static void calculateAvailableTimesTest() {
 
         Appt_GetAvailabilityServiceModel.Items item = new Appt_GetAvailabilityServiceModel.Items();
@@ -151,7 +151,8 @@ public with sharing class Appt_AvailabilityHandlerTest {
 
 
 
-    }*/
+    }
+  */
 
     @isTest static void workTypeArticlesTest() {  
         
@@ -233,4 +234,164 @@ public with sharing class Appt_AvailabilityHandlerTest {
         System.assertEquals('Success', results.status, 'Check for sucess');  
 
     }
+    //Apt 3 start
+     @isTest static void getSlotsFromStartToEndTimeTest() {  
+        
+        Appt_ConstantValues.isVisionFeature = true;
+        DateTime startDate= DateTime.newInstance(2023,01,06,15,15,0);
+        DateTime endDate = startDate.addMinutes(30);
+        Test.startTest();
+         
+         List<Appt_Time_Slot__c> slotsWithVisionTrue = Appt_AvailabilityHandler.getSlotsFromStartToEndTime('Back Room', 'WYO01', Date.newInstance(2023, 01, 06), startDate , endDate);
+         
+         System.debug('Slots for vision flag true'+slotsWithVisionTrue.size());
+         
+          Appt_ConstantValues.isVisionFeature = false;
+         
+         List<Appt_Time_Slot__c> slotsVisionFalse = Appt_AvailabilityHandler.getSlotsFromStartToEndTime('Back Room', 'WYO01', Date.newInstance(2023, 01, 06), startDate , endDate);
+         
+         System.debug('Slots for vision flag false'+slotsVisionFalse.size());
+        
+        Test.stopTest();    
+        // System.assertEquals('Success', results.status, 'Check for sucess');  
+
+    }
+     //Appt 3.0 Started Added test for WorkType  - Date - 12/29/2022
+    @IsTest
+    static void calculateWorkTypeTestForMissingModel(){
+        Test.startTest();        
+        Appt_workTypeModel model = Appt_AvailabilityHandler.calculateWorkType(null);            
+        Test.stopTest();
+        Assert.isTrue(model.isError(), 'Appt_workTypeModel has error message');
+    }
+    @IsTest
+    static void calculateWorkTypeTestForVisionFeature(){
+        Appt_GetAvailabilityServiceModel availModel = new Appt_GetAvailabilityServiceModel();
+        availModel.orderType='ROPIS';
+        availModel.source='POS';
+        availModel.consultStartTime ='0830';
+        availModel.consultEndTime ='0845';
+        availModel.isVisionFeature= true;               
+        Test.startTest();        
+        Appt_workTypeModel model = Appt_AvailabilityHandler.calculateWorkType(availModel);            
+        Test.stopTest();
+        Assert.areEqual(Appt_ConstantValues.WORK_TYPE_TYPE_BACK, model.type, 'Type for vision Feature');
+    }
+    //Appt 3.0 End Added test for WorkType  - Date - 12/29/2022
+
+    @IsTest
+    static void validateModelParamsTest(){
+        Appt_GetAvailabilityServiceModel availModel = new Appt_GetAvailabilityServiceModel();
+        Test.startTest();        
+        Assert.isFalse(Appt_AvailabilityHandler.validateModelParams(availModel), 'False for empty siteId on availability Model');
+        availModel.siteId='1222';
+        Assert.isFalse(Appt_AvailabilityHandler.validateModelParams(availModel), 'False for empty startDate, endDate on availability Model');
+        Test.stopTest();
+    }    
+    @IsTest
+    static void checkAvailabilityTestForExceptionScenario(){
+        Appt_GetAvailabilityServiceModel availModel = new Appt_GetAvailabilityServiceModel();
+        availModel.appointmentDate=Date.newInstance(2022,12,10);       
+        
+        Appt_workTypeModel wrkTypModel = new Appt_workTypeModel();
+        wrkTypModel.type = Appt_ConstantValues.WORK_TYPE_TYPE_FRONT;
+        Test.startTest();   
+        
+        try{
+            availModel.siteId='323232';
+            Appt_AvailabilityHandler.checkAvailability(availModel,wrkTypModel);
+            Assert.fail('Expected exception');
+        } catch( Appt_AppointmentException e){
+            Assert.isTrue(e.getmessage().contains('BAD REQUEST - could not retrieve timeZoneOffset'), 'timezoneOffset missing');            
+        }
+        
+        try{
+            availModel.timeZoneOffset=1;
+            Appt_AvailabilityHandler.checkAvailability(availModel,wrkTypModel);
+            Assert.fail('Expected exception');
+        } catch( Appt_AppointmentException e){
+            Assert.isTrue(e.getmessage().contains('BAD REQUEST - consultStartTime'), 'consultStartTime missing');            
+        }
+        
+        
+        try{
+            availModel.consultStartTime ='0830';
+            Appt_AvailabilityHandler.checkAvailability(availModel,wrkTypModel);
+            Assert.fail('Expected exception');
+        } catch( Appt_AppointmentException e){
+            Assert.isTrue(e.getmessage().contains('BAD REQUEST - Appointment start time'), 'Appointment start time in past');            
+        }
+        Test.stopTest();
+    }
+    
+    @IsTest
+    static void getAvailabilitySlotsTestInCutOffTime(){
+        
+        DateTime startDate= DateTime.newInstance(2023,01,06,15,15,0);
+        
+        Appt_Time_Slot__c slotFront = new Appt_Time_Slot__c();
+        slotFront.Type__c = Appt_ConstantValues.APPT_TIME_SLOT_TYPE_FRONT;
+        slotFront.Start_Time__c = DateTime.newInstance(2023,01,05,09,30,0);       
+        
+        List<Appt_Time_Slot__c> frontSlots = new List<Appt_Time_Slot__c>();
+        frontSlots.add(slotFront);
+        
+        Appt_Time_Slot__c slotBack = new Appt_Time_Slot__c();
+        slotBack.Type__c = Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK;
+        slotBack.Start_Time__c = DateTime.newInstance(2023,01,05,09,30,0);  
+        
+        List<Appt_Time_Slot__c> backSlots = new List<Appt_Time_Slot__c>();
+        backSlots.add(slotBack);
+        
+        //Appt_AppointmentUtil.isInWebCutoffTime(slot.Start_Time__c);
+        Test.startTest();
+        List<Appt_Time_Slot__c> slotsFoundForBackend = Appt_AvailabilityHandler.getAvailableSlots(backSlots,'B','S','F',startDate,2,new Appt_SiteAvailabilityModel());
+        Assert.isTrue(slotsFoundForBackend.isEmpty(),'Empty slots received.');
+        List<Appt_Time_Slot__c> slotsFoundForFront = Appt_AvailabilityHandler.getAvailableSlots(frontSlots,'F','S','F',startDate,2,new Appt_SiteAvailabilityModel());
+        Assert.isTrue(slotsFoundForFront.isEmpty(),'Empty slots received.');
+        List<Appt_Time_Slot__c> slotsFoundForFrontFleetR = Appt_AvailabilityHandler.getAvailableSlots(frontSlots,'F','S','R',startDate,2,new Appt_SiteAvailabilityModel());        
+        Assert.isTrue(slotsFoundForFrontFleetR.isEmpty(),'Empty slots received.');
+        
+        Test.stopTest();
+    }
+    
+    @IsTest
+    static void getAvailabilitySlotsTestOutOfCutOffTime(){
+        
+        DateTime startDate= DateTime.newInstance(2023,01,06,15,15,0);
+        
+        Appt_Time_Slot__c slotFront = new Appt_Time_Slot__c();
+        slotFront.Type__c = Appt_ConstantValues.APPT_TIME_SLOT_TYPE_FRONT;
+        slotFront.Start_Time__c = DateTime.now().addDays(2);    
+        
+        List<Appt_Time_Slot__c> frontSlots = new List<Appt_Time_Slot__c>();
+        frontSlots.add(slotFront);
+        
+        Appt_Time_Slot__c slotBack = new Appt_Time_Slot__c();
+        slotBack.Type__c = Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK;
+        slotBack.Start_Time__c =  DateTime.now().addDays(2);     
+        
+        List<Appt_Time_Slot__c> backSlots = new List<Appt_Time_Slot__c>();
+        backSlots.add(slotBack);        
+        
+        Test.startTest();
+        List<Appt_Time_Slot__c> slotsFoundForBackendR = Appt_AvailabilityHandler.getAvailableSlots(backSlots,'B','S','R',startDate,2,new Appt_SiteAvailabilityModel());
+        Assert.isTrue(slotsFoundForBackendR.isEmpty(),'Empty slots received.');
+        List<Appt_Time_Slot__c> slotsFoundForBackend = Appt_AvailabilityHandler.getAvailableSlots(backSlots,'B','S','F',startDate,2,new Appt_SiteAvailabilityModel());
+        Assert.isTrue(slotsFoundForBackend.isEmpty(),'Empty slots received.');
+        List<Appt_Time_Slot__c> slotsFoundForFront = Appt_AvailabilityHandler.getAvailableSlots(frontSlots,'F','S','F',startDate,2,new Appt_SiteAvailabilityModel());
+        Assert.isTrue(slotsFoundForFront.isEmpty(),'Empty slots received.');
+        List<Appt_Time_Slot__c> slotsFoundForFrontFleetR = Appt_AvailabilityHandler.getAvailableSlots(frontSlots,'F','S','R',startDate,2,new Appt_SiteAvailabilityModel());
+        Assert.isTrue(slotsFoundForFrontFleetR.isEmpty(),'Empty slots received.');     
+        try{
+            Appt_AvailabilityHandler.getAvailableSlots(frontSlots,'F','S','X',startDate,2,new Appt_SiteAvailabilityModel());
+            Assert.fail('Exception steps, should go in catch.');
+        } catch(Appt_AppointmentException e){
+            Assert.isTrue(e.getMessage().contains('System Error - Unable to check slot availability'), 'No matching field, exception occured');
+         
+        }
+        
+        Test.stopTest();
+    } 
+    //Appt3.0 test coverage END  
 }

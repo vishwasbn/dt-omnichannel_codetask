@@ -4,78 +4,159 @@
 
 @IsTest
 public class Appt_ArchivePayloadModelTest {
-	
-	static testMethod void testParse() {
-		String json = '{'+
-		'            \"storageType\": null,'+
-		'            \"appointmentId\": \"0WO55000000yFdHGAU\",'+
-		'            \"appointmentStatus\": \"Pending\",'+
-		'            \"relatedAppointmentId\": null,'+
-		'            \"salesforceAppointmentId\": \"08p55000000Km0lAAC\",'+
-		'            \"salesforceAcccountId\": null,'+
-		'            \"posCustomerId\": null,'+
-		'            \"hybrisCustomerId\": null,'+
-		'            \"siteId\": \"1235\",'+
-		'            \"source\": \"WEB\",'+
-		'            \"orderType\": \"ROPIS\",'+
-		'            \"appointmentDate\": \"2021-02-15\",'+
-		'            \"consultStartTime\": null,'+
-		'            \"consultEndTime\": null,'+
-		'            \"backOfficeStartTime\": \"0920\",'+
-		'            \"backOfficeEndTime\": \"0940\",'+
-		'            \"originalDateString\": \"2021-02-15\",'+
-		'            \"originalEndTimeString\": \"0920\",'+
-		'            \"originalStartTimeString\": \"0900\",'+
-		'            \"formType\": null,'+
-		'            \"formNumber\": \"546884\",'+
-		'            \"formDate\": \"2021-01-02\",'+
-		'            \"hybrisOrderId\": null,'+
-		'            \"posWebOrderId\": null,'+
-		'            \"layawayNumber\": null,'+
-		'            \"quoteNumber\": null,'+
-		'            \"invoiceNumber\": null,'+
-		'            \"orderDate\": \"2020-12-31\",'+
-		'            \"customerGuid\": null,'+
-		'            \"customerType\": \"Retail\",'+
-		'            \"salesforceContactId\": null,'+
-		'            \"firstName\": null,'+
-		'            \"lastName\": null,'+
-		'            \"emailAddress\": null,'+
-		'            \"mobilePhoneNumber\": null,'+
-		'            \"homePhoneNumber\": null,'+
-		'            \"workPhoneNumber\": null,'+
-		'            \"address1\": \"123 Right Here Ln\",'+
-		'            \"address2\": null,'+
-		'            \"zipCode\": \"85310\",'+
-		'            \"city\": \"Glendale\",'+
-		'            \"state\": \"Arizona\",'+
-		'            \"country\": \"US\",'+
-		'            \"textOptIn\": null,'+
-		'            \"emailOptIn\": null,'+
-		'            \"posCustomerVehicleId\": null,'+
-		'            \"hybrisCustomerVehicleId\": null,'+
-		'            \"vehicleType\": null,'+
-		'            \"year\": \"2016\",'+
-		'            \"make\": \"Ford\",'+
-		'            \"model\": \"Escape\",'+
-		'            \"vehicleId\": \"10382\",'+
-		'            \"trimId\": \"1470\",'+
-		'            \"assemblyId\": \"C\",'+
-		'            \"recipientContactId\": \"0035500001A1GEyAAN\",'+
-		'            \"recipientFirstName\": \"Jack\",'+
-		'            \"recipientLastName\": \"Thomas\",'+
-		'            \"recipientEmail\": \"jackthomas@none.com\",'+
-		'            \"recipientPhone\": \"602-555-5555\",'+
-		'            \"comments\": \"Some comments about the order or appointment\",'+
-		'            \"cancelReason\": null,'+
-		'            \"cancelreasonText\": null,'+
-		'            \"lastModifiedByName\": \"Mulesoft user\",'+
-		'            \"lastModifiedDate\": \"2021-02-08T18:45:06.000Z\",'+
-		'            \"cancelReasonCode\": null,'+
+    
+    //setting up data 
+    @TestSetup
+    public static void setupTestData(){
+        // PosUser set up Appt3.0
+        User pOSUser = Appt_TestUtil.getPosTerminalUser('TestPos' ,'TerminalTestUser'); 
+        pOSUser.User_Store_Id__c = 'RIP05';  
+        update pOSUser;
+        //Appt3.0 end
+        List<ServiceAppointment> servAppts =  Appt_TestUtil.basicAppointment_StoreConfiguration();
+   
+    }
+    
+  // testing parse method
+  static testMethod void testParse() {
+    String json = '{'+
+    '            \"storageType\": null,'+
+    '            \"appointmentId\": \"0WO55000000yFdHGAU\",'+
+    '            \"appointmentStatus\": \"Pending\",'+
+    '            \"relatedAppointmentId\": null,'+
+    '            \"salesforceAppointmentId\": \"08p55000000Km0lAAC\",'+
+    '            \"salesforceAcccountId\": null,'+
+    '            \"posCustomerId\": null,'+
+    '            \"hybrisCustomerId\": null,'+
+    '            \"siteId\": \"1235\",'+
+    '            \"source\": \"WEB\",'+
+    '            \"orderType\": \"ROPIS\",'+
+    '            \"appointmentDate\": \"2021-02-15\",'+
+    '            \"consultStartTime\": null,'+
+    '            \"consultEndTime\": null,'+
+    '            \"backOfficeStartTime\": \"0920\",'+
+    '            \"backOfficeEndTime\": \"0940\",'+
+    '            \"originalDateString\": \"2021-02-15\",'+
+    '            \"originalEndTimeString\": \"0920\",'+
+    '            \"originalStartTimeString\": \"0900\",'+
+    '            \"formType\": null,'+
+    '            \"formNumber\": \"546884\",'+
+    '            \"formDate\": \"2021-01-02\",'+
+    '            \"hybrisOrderId\": null,'+
+    '            \"posWebOrderId\": null,'+
+    '            \"layawayNumber\": null,'+
+    '            \"quoteNumber\": null,'+
+    '            \"invoiceNumber\": null,'+
+    '            \"orderDate\": \"2020-12-31\",'+
+    '            \"customerGuid\": null,'+
+    '            \"customerType\": \"Retail\",'+
+    '            \"salesforceContactId\": null,'+
+    '            \"firstName\": null,'+
+    '            \"lastName\": null,'+
+    '            \"emailAddress\": null,'+
+    '            \"mobilePhoneNumber\": null,'+
+    '            \"homePhoneNumber\": null,'+
+    '            \"workPhoneNumber\": null,'+
+    '            \"address1\": \"123 Right Here Ln\",'+
+    '            \"address2\": null,'+
+    '            \"zipCode\": \"85310\",'+
+    '            \"city\": \"Glendale\",'+
+    '            \"state\": \"Arizona\",'+
+    '            \"country\": \"US\",'+
+    '            \"textOptIn\": null,'+
+    '            \"emailOptIn\": null,'+
+    '            \"posCustomerVehicleId\": null,'+
+    '            \"hybrisCustomerVehicleId\": null,'+
+    '            \"vehicleType\": null,'+
+    '            \"year\": \"2016\",'+
+    '            \"make\": \"Ford\",'+
+    '            \"model\": \"Escape\",'+
+    '            \"vehicleId\": \"10382\",'+
+    '            \"trimId\": \"1470\",'+
+    '            \"assemblyId\": \"C\",'+
+    '            \"recipientContactId\": \"0035500001A1GEyAAN\",'+
+    '            \"recipientFirstName\": \"Jack\",'+
+    '            \"recipientLastName\": \"Thomas\",'+
+    '            \"recipientEmail\": \"jackthomas@none.com\",'+
+    '            \"recipientPhone\": \"602-555-5555\",'+
+    '            \"comments\": \"Some comments about the order or appointment\",'+
+    '            \"cancelReason\": null,'+
+    '            \"cancelreasonText\": null,'+
+    '            \"lastModifiedByName\": \"Mulesoft user\",'+
+    '            \"lastModifiedDate\": \"2021-02-08T18:45:06.000Z\",'+
+    '            \"cancelReasonCode\": null,'+
         '            \"apptLastModifiedBy\": \"Mulesoft user\",'+
-		'            \"apptLastModifiedDate\": \"2021-02-08T18:45:06.000Z\"'+
-		'        }';
-		Appt_ArchivePayloadModel obj = Appt_ArchivePayloadModel.parse(json);
-		System.assert(obj != null);
-	}
+    '            \"apptLastModifiedDate\": \"2021-02-08T18:45:06.000Z\"'+
+    '        }';
+    Appt_ArchivePayloadModel obj = Appt_ArchivePayloadModel.parse(json);
+    System.assert(obj != null);
+        System.assertEquals('0WO55000000yFdHGAU', obj.appointmentId, 'id of appointment does not match');
+  }
+    // appt 3.0 change --start
+    // testing model class with woli items
+    @isTest
+    static void apptArchivePayloadModelTest(){ 
+        user currentUser = [Select id,username ,LastName,User_Store_Id__c from user where LastName = 'TerminalTestUser'and FirstName = 'TestPos' LIMIT 1 ];
+        WorkType orderWorkType=[select id from WorkType limit 1];
+        List<Contact> custContacts = [SELECT Id,AccountId FROM Contact WHERE AccountId !=null];
+        Account acc=[select id,SAP_STORE_ID__c from Account where id =:custContacts[0].AccountId ];
+        ServiceTerritory servTerr=[select id from ServiceTerritory limit 1];
+        FSL__Scheduling_Policy__c schedulePolicy=[select id from FSL__Scheduling_Policy__c limit 1];  
+        Asset vehicleAsset = [select id from asset limit 1 ] ;
+        Date currentDate = (  Datetime.now().format('u') == '7' ) ? Date.today().addDays(1) : Date.today();  
+        
+        system.runAs(currentUser){
+            Time apptStartTime = Time.newInstance(11,0,0,0);
+            Time apptEndTime = Time.newInstance(11,20,0,0);
+            Datetime apptStartDateTime = Datetime.newInstance(currentDate, apptStartTime);
+            Datetime apptEndDateTime = Datetime.newInstance(currentDate, apptEndTime);
+            Integer localTimeZoneOffset = -7;
+            Integer appointmentDuration = 20;
+                         
+            System.debug('***********START TEST NEW ***************');
+            Workorder work = Appt_TestUtil.getWorkOrder(currentUser.Id,acc.Id,custContacts[0].Id, 'Two tire change', orderWorkType.Id, servTerr.Id, 'ROPIS', 'WEB', Date.valueOf('2021-01-14'), Date.valueOf('2021-01-14'), vehicleAsset.Id);
+            ServiceAppointment bckServiceAppt = Appt_TestUtil.getServiceAppointment( currentUser.Id, work.Id, acc.Id, orderWorkType.Id, custContacts[0].Id, servTerr.Id, '1235', apptStartDateTime.addMinutes(20), apptEndDateTime.addMinutes(20), localTimeZoneOffset, appointmentDuration, 'Back Room', schedulePolicy.Id);
+            system.debug('bckServiceAppt Id'+bckServiceAppt.id);
+            
+            ServiceAppointment sa = [SELECT id, Archive_Status__c, Archive_Try_Count__c, Status, Work_Order__c, Related_Appointment__c, Work_Order__r.Appt3_Sales_Order_Id__c, Work_Order__r.Account.Appt3_Fleet_Number__c, 
+                                     Work_Order__r.Account.Appt3_Customer_Id__c, Work_Order__r.Account.Appt3_AAA_Membership__c, Work_Order__r.Account.Appt3_Military__c, Work_Order__r.Account.Appt3_Private_Label_Cardholder__c, 
+                                     Work_Order__r.Vehicle__r.Appt3_Fitment_Lift_Id__c, Work_Order__r.Vehicle__r.Appt3_Front_Tire_Size__c, Work_Order__r.Vehicle__r.Appt3_Rear_Tire_Size__c, 
+                                     Work_Order__r.Vehicle__r.Appt3_Front_Tire_Diameter__c, Work_Order__r.Vehicle__r.Appt3_Rear_Tire_Diameter__c, Work_Order__r.Vehicle__r.Appt3_Assembly_Type__c, 
+                                     Work_Order__r.Vehicle__r.Appt3_Color__c, Work_Order__r.Vehicle__r.Appt3_Generic_Vehicle_Category__c, Work_Order__r.Vehicle__r.Appt3_Generic_Vehicle_SubCategory__c, 
+                                     Work_Order__r.Vehicle__r.Appt3_Customer_Vehicle_Id__c, Work_Order__r.Vehicle__r.Appt3_Type_Of_Vehicle__c, Date_String__c, SchedStartTime, 
+                                     Consult_Start_Time__c, Consult_End_Time__c, Back_Office_Start_Time__c, Back_Office_End_Time__c, Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c, 
+                                     Appt_Appointment_Last_Modified_By__c, Appt_Appointment_Last_Modified_Date__c, Appointment_Rescheduled__c, Original_Date_String__c, Original_End_Time_String__c, Original_Start_Time_String__c, 
+                                     Work_Order__r.Account.Appt_Customer_Type__c, Work_Order__r.AccountId, Work_Order__r.Account.POS_Customer_Id__c, Work_Order__r.Account.Hybris_Customer_Id__c, 
+                                     Work_Order__r.Account.GUID__c, Work_Order__r.Source__c, Work_Order__r.Order_Type__c, Work_Order__r.Form_Type__c, Work_Order__r.Form_Number__c, Work_Order__r.Form_Date__c, Work_Order__r.Hybris_Order_Id__c, 
+                                     Work_Order__r.POS_Web_Order_Id__c, Work_Order__r.Layaway_Number__c, Work_Order__r.Quote_Number__c, Work_Order__r.Invoice_Number__c, Work_Order__r.Order_Date__c, 
+                                     Work_Order__r.Appointment_Comments__c, Work_Order__r.Cancel_Reason__c, Work_Order__r.Cancel_Reason_Code__c, Work_Order__r.Vehicle__r.POS_Customer_Vehicle_Id__c, 
+                                     Work_Order__r.Vehicle__r.Hybris_Customer_Vehicle_Id__c, Work_Order__r.Vehicle__r.Vehicle_Type_Other__c, Work_Order__r.Vehicle__r.Vehicle_Manufacture_Year__c, 
+                                     Work_Order__r.Vehicle__r.Vehicle_Make__c, Work_Order__r.Vehicle__r.Vehicle_Model__c, Work_Order__r.Vehicle__r.Vehicle_Id__c, Work_Order__r.Vehicle__r.Trim_Id__c, Work_Order__r.Vehicle__r.Assembly_Id__c from ServiceAppointment limit 1];
+            
+            System.debug('ServiceAppointments:-' +sa);
+            //System.assertEquals(true, sa.size() != 0, 'There are no service appts in sf');
+            string workOrderId = sa.Work_Order__r.Id;
+            string apptId = sa.Id; 
+            
+            WorkOrderLineItem lineItem = new WorkOrderLineItem(); 
+            lineItem.WorkOrderId = workOrderId;
+            lineItem.WOM_Article_Number__c = '0000011111' ;
+            lineItem.WOM_Article_Quantity__c = 5 ;
+            lineItem.WOM_ArticleSize__c = 'Sample Size' ;
+            lineItem.Appt3_Article_Type__c = 'Electronics';
+            lineItem.Appt3_Treadwell__c= false;
+            insert lineItem;
+            system.debug('lineItem' +lineItem);
+            
+            List<WorkOrderLineItem> woli= [SELECT Id, WOM_Article_Number__c, Appt3_Article_Type__c, WOM_Article_Quantity__c, WOM_ArticleSize__c,Appt3_Treadwell__c,WOM_Article_Description__c FROM WorkOrderLineItem];
+            
+            Test.startTest();
+            Appt_ArchivePayloadModel saArchiveModel = new Appt_ArchivePayloadModel(sa,woli);      
+            Test.stopTest();
+            system.assertEquals(apptId, saArchiveModel.appointmentId, 'both appointment id do not match');
+            system.assertEquals('0000011111', saArchiveModel.articles[0].articleId, 'both Article Number do not match');
+            
+      }
+        
+  }// appt 3.0 change --end
 }

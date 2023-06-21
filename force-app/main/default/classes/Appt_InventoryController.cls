@@ -8,4 +8,11 @@ public class Appt_InventoryController {
 
         return Appt_InventoryService.getInventory(siteId, articleId);
     }    
+    
+    //Appt 3.0 - Pass through method that calls another method to fetch on hand inventory details from CAR  
+    public static Appt3_InventoriesModelResponse getInventoryItems(Appt3_InventoriesModelRequest inventoryLineItems)
+    {
+        System.debug(lprefix+'Appt_InvoiceDetailModel():ENTRY inventoryLineItems' + inventoryLineItems);
+        return Appt_InventoryService.getInventoryDetails(inventoryLineItems);
+    }        
 }

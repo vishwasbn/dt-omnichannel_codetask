@@ -66,6 +66,7 @@ public class Appt_InvoiceService extends Appt_BaseIntegrationService {
         returnDetailModel.status = Appt_ConstantValues.RESPONSE_STATUS_SUCCESS;
 
         System.debug(lprefix+'getInvoiceDetail():EXIT - return Appt_InvoiceDetailModel:' + returnDetailModel);
+        System.debug(lprefix+'getInvoiceDetail():EXIT - serialized:' + JSON.serialize(returnDetailModel));
         return returnDetailModel;
     }
 
@@ -90,6 +91,7 @@ public class Appt_InvoiceService extends Appt_BaseIntegrationService {
         String idParamName;
 
         //-- determine name of ID parameter from idType  
+        //Appt 3.0 - Added condition for MDM Sales Order Id at the end
         if (idType == Appt_ConstantValues.INVOICE_ID_TYPE_HYBRIS_ORDER_NUMBER) idParamName = Appt_ConstantValues.INVOICE_ID_TYPE_HYBRIS_ORDER_NUMBER_PARAM_NAME;
         else if (idType == Appt_ConstantValues.INVOICE_ID_TYPE_LEGACY_ORDER_NUMBER) idParamName = Appt_ConstantValues.INVOICE_ID_TYPE_LEGACY_ORDER_NUMBER_PARAM_NAME;
         else if (idType == Appt_ConstantValues.INVOICE_ID_TYPE_LAYAWAY_NUMBER) idParamName = Appt_ConstantValues.INVOICE_ID_TYPE_LAYAWAY_NUMBER_PARAM_NAME;
@@ -282,5 +284,68 @@ public class Appt_InvoiceService extends Appt_BaseIntegrationService {
         System.debug(lprefix+'getInvoiceDetail():EXIT - return Appt_InvoiceDetailModel:' + returnDetailModel);
         return returnDetailModel;
     }
+    
+    //Appt 3.0 - Get the order history details based on the universal sales order id
+    public static Appt_InvoiceDetailModel getOrderHistoryDetails(String siteId, String salesOrderId, String orderType) {	
+        System.debug( lprefix + 'getOrderHistoryDetails() ENTRY -  siteId='+siteId+ ' salesOrderId='+salesOrderId);
+        String body = '';
+        Appt_InvoiceDetailModel.OrderHistoryDetails orderHistoryDetails = new Appt_InvoiceDetailModel.OrderHistoryDetails();
+        Appt_InvoiceDetailModel.ResponseDetail responseDetail = new Appt_InvoiceDetailModel.ResponseDetail();
+        orderHistoryDetails.lineItems = new List<Appt_InvoiceDetailModel.LineItems>();
+        responseDetail.orderHistoryDetails = new List<Appt_InvoiceDetailModel.OrderHistoryDetails>();        
+        Appt3_OrderHistoriesModelRequest orderHistoriesRequest = new Appt3_OrderHistoriesModelRequest();
+        Appt_InvoiceDetailModel returnDetailModel = new Appt_InvoiceDetailModel();
+        orderHistoriesRequest.orderCollection = new List<Appt3_OrderHistoriesModelRequest.OrderCollection>();
+        Appt3_OrderHistoriesModelResponse orderHistoriesResponse = new Appt3_OrderHistoriesModelResponse();
+        List<Appt_InvoiceDetailModel.LineItems> lineItemResponse = new List<Appt_InvoiceDetailModel.LineItems>();
+        Appt3_OrderHistoriesModelRequest.OrderItem oItem = new Appt3_OrderHistoriesModelRequest.OrderItem();
+        Appt3_OrderHistoriesModelRequest.OrderCollection oCollection = new Appt3_OrderHistoriesModelRequest.OrderCollection();
+        String endUrl = BaseIntegrationUtil.getSettingValue( Appt_ConstantValues.INTEGRATION_SETTING_ORDER_HISTORIES_URL, Appt_ConstantValues.INTEGRATION_SETTING_SYSTEM_APPOINTMENT);
+        System.debug( lprefix + 'APPT Consolidated Order Histories Integration endUrl: ' + endUrl);
+        Int_Message__c intMsg = new Int_Message__c(Type__c=Int_Values.TYPE_ORDER_HISTORIES, Status__c=Int_Values.STATUS_PENDING, Url__c=endUrl);
+        //Form the request body
+        oItem.orderId = salesOrderId;
+        oCollection.orderItem = oItem;
+        orderHistoriesRequest.siteId = siteId;
+        orderHistoriesRequest.orderType = orderType;
+        orderHistoriesRequest.orderCollection.add(oCollection);
+        if (isTest) {
+            body = testPayload;
+        } else {
+            HttpRequest req = buildAppointmentHttpReq(endUrl);
+            req.setMethod('POST');
+            req.setHeader('Content-Type', 'application/json');
+            body = JSON.serialize(orderHistoriesRequest);
+            System.debug( lprefix + 'request Body: '+body);
+            req.setBody(body);
+            body = BaseIntegrationUtil.getRequestBody(req, intMsg);
+            System.debug( lprefix + 'Response Body: '+body);
+            upsert intMsg;
+            
+            if (body == null || body == '') {
+                returnDetailModel.setError(Appt_ConstantValues.RESPONSE_ERROR_STATUSCODE_SYSTEM_ERROR, 'Request for getting invoices in a order history call FAILED' + orderHistoriesRequest);
+                return returnDetailModel;
+            }
+        }
 
+        orderHistoriesResponse = Appt3_OrderHistoriesModelResponse.parse(body);
+        //Convert universal sales order id response to keep it consistent with other sales order response model
+        if (orderHistoriesResponse != null && orderHistoriesResponse.orderDetailCollection.size() > 0) {
+            for (Appt3_OrderHistoriesModelResponse.OrderDetailCollection oh : orderHistoriesResponse.orderDetailCollection) {
+                Appt_InvoiceDetailModel.LineItems lineItem = new Appt_InvoiceDetailModel.LineItems();
+                lineItem.articleType = oh.orderDetailItem.typeCodeDescription;
+                lineItem.articleNumber = oh.orderDetailItem.articleNumber;
+                lineItem.storeSize = oh.orderDetailItem.storeSize;
+                lineItem.storeDescription = oh.orderDetailItem.storeDescription;
+                lineItem.retailQuantity = oh.orderDetailItem.retailQuantity;
+                orderHistoryDetails.lineItems.add(lineItem);
+            }
+            if(!orderHistoryDetails.lineItems.isEmpty()) {
+                responseDetail.orderHistoryDetails.add(orderHistoryDetails);
+                returnDetailModel.responseDetail = responseDetail;
+            }
+        }
+        returnDetailModel.status = Appt_ConstantValues.RESPONSE_STATUS_SUCCESS;
+        return returnDetailModel;
+    }
 }

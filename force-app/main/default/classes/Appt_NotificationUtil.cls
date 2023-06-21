@@ -121,6 +121,7 @@ public without sharing class Appt_NotificationUtil {
 
     public static List<Notification__c>  getUpdatedNotificaitonObject(List<Notification__c> notificaitons){  
         System.debug( LPREFIX + 'getUpdatedNotificaitonObject - Start');
+        // APPT3-364 - Appt3_Valid_Universal_Order_Id__c added to the SOQL query.
         List<Notification__c> updatedNotificationObjects = [SELECT  id, 
                                                                     Appointment_First__c, 
                                                                     Appointment_Date_String__c, 
@@ -185,7 +186,8 @@ public without sharing class Appt_NotificationUtil {
                                                                     Work_Order__r.Alternate_Contact__r.FirstName,
                                                                     Work_Order__r.Alternate_Contact__r.LastName, 
                                                                     Work_Order__r.Alternate_Contact__r.Phone, 
-                                                                    Work_Order__r.Alternate_Contact__r.Email
+                                                                    Work_Order__r.Alternate_Contact__r.Email,
+                                                            		Appt3_Valid_Universal_Order_Id__c
                                                             FROM Notification__c WHERE id IN :notificaitons];
         System.debug( LPREFIX + 'getUpdatedNotificaitonObject - End');
         System.debug(updatedNotificationObjects);
@@ -402,7 +404,19 @@ public without sharing class Appt_NotificationUtil {
             // Get the Order type from the Work Order and format it to all caps
             String workOrderType = notification.Work_Order__r.Order_Type__c?.toUppercase();
             if(String.isNotBlank(workOrderType)){
-                workOrderType = (workOrderType == 'SERVICEAPPOINTMENT' ? 'SERVICE_APPOINTMENT' : workOrderType); // Add underscore if it is SERVICEAPPOINTMENT
+                //APPT3-364 - Added STORE_ORDER conversion
+                //workOrderType = (workOrderType == 'SERVICEAPPOINTMENT' ? 'SERVICE_APPOINTMENT' : workOrderType); // Add underscore if it is SERVICEAPPOINTMENT
+                switch on workOrderType{
+                    when 'SERVICEAPPOINTMENT' {
+                        workOrderType = 'SERVICE_APPOINTMENT';
+                    }
+                    when 'STOREORDER' {
+                        workOrderType = 'STORE_ORDER';
+                    }                  
+                    when else {
+                        workOrderType = workOrderType;
+                    }
+                }
             }
 
             Appt_NotificationEmailPayload emailPayloadObj = new Appt_NotificationEmailPayload();
@@ -458,6 +472,8 @@ public without sharing class Appt_NotificationUtil {
                 emailPayloadObj.clientId = 'AT';
             }
             emailPayloadObj.customerKey = 'OrderConfirmationTSDv2';
+            //APPT3-364 - Mapping that tells whether this appointment is generated with unviersal SalesOrderId or not
+            emailPayloadObj.isUniversalOrderId = notification.Appt3_Valid_Universal_Order_Id__c;
             
             notification.Initial_PE_Email_Payload__c = Appt_NotificationEmailPayload.compose(emailPayloadObj);
             System.debug('@@ Notification: ' + notification.Initial_PE_Email_Payload__c);
@@ -465,7 +481,7 @@ public without sharing class Appt_NotificationUtil {
         }catch(Exception e){
             notification.Initial_Email_Send_Status__c = invalid;
             String errorMessage = 'Unexpected error creating Email Payload; '+e.getStackTraceString();
-        
+
             if(errorMessage.length() > 60){
                 errorMessage = errorMessage.substring(0, 60) + '...';
             }
@@ -495,6 +511,7 @@ public without sharing class Appt_NotificationUtil {
         List<Notification__c> notificaitonList = new List<Notification__c>();
 
         // get Notification object associate with the Appointment
+        // APPT3-364 - Appt3_Valid_Universal_Order_Id__c added to the SOQL query.
         notificaitonList = [SELECT  Id, 
                                     Appointment_First__c, 
                                     Appointment_Date_String__c, 
@@ -526,7 +543,8 @@ public without sharing class Appt_NotificationUtil {
                                     Work_Order__r.Source__c, 
                                     Work_Order__r.Alternate_Contact__c, 
                                     Work_Order__r.ContactId,
-                                    Work_Order__r.Order_Type__c
+                                    Work_Order__r.Order_Type__c,
+                            		Appt3_Valid_Universal_Order_Id__c
                                     FROM Notification__c WHERE Service_Appointment__r.Work_Order__c = :workOrderId AND Service_Appointment__r.Notification_Appointment__c = true AND (Channels__c Like '%EMAIL%' OR Channels__c Like '%SMS%') Order By CreatedDate DESC LIMIT 1];
         System.debug('*****START*****');
         // if there is Notificaiton object - resend it by setting the Status to Pending or failure for SMS
