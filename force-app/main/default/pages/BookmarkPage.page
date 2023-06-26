@@ -1,8 +1,0 @@
-<apex:page controller="bookmarkController">
-<apex:pageblock >
-    <apex:pageBlockTable value="{!weblinks}" var="item" columns="2" columnsWidth="20%,50%">
-        <apex:column headerValue="Name" value="{!item.MasterLabel}"/>
-        <apex:column headerValue="Link"><a href="{!item.Url}" target="_blank">Click Here</a></apex:column>
-    </apex:pageBlockTable>
-  </apex:pageblock>    
-</apex:page>
