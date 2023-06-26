@@ -1,0 +1,55 @@
+<!--Copyright © 2016-2018 7Summits, Inc. All rights reserved.-->
+<apex:page showHeader="false" sidebar="false" controller="Peak_SiteMapController" contentType="text/xml" cache="false"> <!-- #sitemap.xml -->
+
+    <apex:outputText value="{!XMLHeadingInformation}" escape="false"/>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://google.com/schemas/sitemap-image/1.1" xmlns:html="http://www.w3.org/1999/xhmtl">
+        <apex:repeat value="{!navigationMenuItemsWrapper.peakResults}" var="sitemapItem" id="navigationMenuItems">
+            <url>
+                <loc>{!baseURL}{!sitemapItem.url}</loc>
+                <priority>1</priority>
+                <lastmod><apex:outputText value="{0, date, yyyy'-'M'-'d}"><apex:param value="{!sitemapItem.dateTimeField}" /></apex:outputText></lastmod>
+                <changefreq>monthly</changefreq>
+
+                <PageMap xmlns="http://www.google.com/schemas/sitemap-pagemap/1.0">
+                    <DataObject type="sws_metadata">
+                        <Attribute name="nl-sws-domain">community</Attribute>
+                        <Attribute name="nl-sws-locale">{!orgLocale}</Attribute>
+                    </DataObject>
+                </PageMap>
+            </url>
+        </apex:repeat>
+
+        <apex:repeat value="{!feedItemsForAllTopicsCurrentCommunity.peakResults}" var="sitemapItem" id="feedItems">
+            <url>
+                <loc>{!baseURL}{!sitemapItem.url}</loc>
+                <priority>1</priority>
+                <lastmod><apex:outputText value="{0, date, yyyy'-'M'-'d}"><apex:param value="{!sitemapItem.dateTimeField}" /></apex:outputText></lastmod>
+                <changefreq>monthly</changefreq>
+
+                <PageMap xmlns="http://www.google.com/schemas/sitemap-pagemap/1.0">
+                    <DataObject type="sws_metadata">
+                        <Attribute name="nl-sws-domain">community</Attribute>
+                        <Attribute name="nl-sws-locale">{!orgLocale}</Attribute>
+                    </DataObject>
+                </PageMap>
+            </url>
+        </apex:repeat>
+
+        <knowledge:articleList articleVar="article" pageSize="200" articleTypes="Documentation__kav" language="en_US">
+            <url>
+                <loc>{!baseURL}/article/{!article.UrlName}</loc>
+                <priority>1</priority>
+                <lastmod><apex:outputText value="{0, date, yyyy'-'M'-'d}"><apex:param value="{!article.LastModifiedDate}" /></apex:outputText></lastmod>
+                <changefreq>monthly</changefreq>
+
+                <PageMap xmlns="http://www.google.com/schemas/sitemap-pagemap/1.0">
+                    <DataObject type="sws_metadata">
+                        <Attribute name="nl-sws-domain">community</Attribute>
+                        <Attribute name="nl-sws-locale">{!orgLocale}</Attribute>
+                    </DataObject>
+                </PageMap>
+            </url>
+        </knowledge:articleList>
+    </urlset>
+
+</apex:page>
