@@ -15,7 +15,7 @@
         <members>ChangePasswordController</members>
         <members>ChangePasswordControllerTest</members>
         <members>CommunitiesLandingControllerTest</members>
-        <members>CommunitiesLoginController</members>
+        
         <members>CommunitiesLoginControllerTest</members>
         <members>CommunitiesSelfRegConfirmController</members>
         <members>CommunitiesSelfRegConfirmControllerTest</members>
@@ -118,6 +118,12 @@
         <members>X7S_SiteRegistrationTest</members>
         <name>ApexClass</name>
     </types>
+    <version>57.0</version>
+</Package>
+
+<!--
+    <members>CommunitiesLoginController</members>
+
     <types>
         <members>BookmarkPage</members>
         <members>Mass_Delete_Account</members>
@@ -141,5 +147,4 @@
         <members>Peak_KnowledgeFileSharingTrigger</members>
         <name>ApexTrigger</name>
     </types>
-    <version>56.0</version>
-</Package>
+-->

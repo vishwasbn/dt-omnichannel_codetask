@@ -19,7 +19,7 @@ public with sharing class Peak_RSS {
         @AuraEnabled
         public String author {get;set;}
 
-        public Peak_RSS.RSSWrapper (){
+        public RSSWrapper (){
             title = '';
             link = '';
             description = '';
