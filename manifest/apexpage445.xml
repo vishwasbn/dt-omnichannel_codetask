@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>BookmarkPage</members>
+        <members>Mass_Delete_Account</members>
+        <members>Mass_Delete_Asset</members>
+        <members>Mass_Delete_Campaign</members>
+        <members>Mass_Delete_Case</members>
+        <members>Mass_Delete_Contact</members>
+        <members>Mass_Delete_Contract</members>
+        <members>Mass_Delete_Lead</members>
+        <members>Mass_Delete_Opportunity</members>
+        <members>Mass_Delete_Product2</members>
+        <members>Mass_Delete_Solution</members>
+        <members>NoticeHomePage</members>
+        <members>Peak_KnowledgeSiteMap</members>
+        <members>Peak_Robots</members>
+        <members>Peak_Sitemap</members>
+        <members>SendEmailPage</members>
+        <name>ApexPage</name>
+    </types>
+    <version>58.0</version>
+</Package>
