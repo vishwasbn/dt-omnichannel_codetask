@@ -22,7 +22,7 @@ const RBColumns = [
     { label: 'Store Timezone', fieldName: 'timeZone', hideDefaultActions: 'true' },
 ];
 const DELAY = 300;
-export default class ApptResourceAbsence extends LightningElement {
+export default class TestApptResourceAbsence extends LightningElement {
     isFirstScreen = true;
     isSecondScreen;
     isThirdScreen;

@@ -1,0 +1,15 @@
+.main-container{
+    background-color: white;
+    padding: 20px;
+    min-height: 73vh;
+    max-height: 73vh;
+    overflow-y: auto;
+}
+
+.searchBox-width{
+	width: 100% !important;
+}
+
+.slds-th__action-button{
+    display: none;
+}

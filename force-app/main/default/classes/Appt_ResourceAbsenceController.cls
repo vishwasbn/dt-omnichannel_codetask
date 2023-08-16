@@ -1,3 +1,15 @@
+/*========================================================================================================
+* @author: Ayna
+* @date: 07th Aug '23
+* @description: Helper class for Absence creation Lighnting component functionality
+
+Modification Log:
+------------------------------------------------------------------------------------
+Developer     Jira Number   Date                Description
+------------------------------------------------------------------------------------
+Ayna           SO-385       07th Aug '23        Created to accommodate all the controller method. 
+========================================================================================================== */
+
 public with sharing class Appt_ResourceAbsenceController {
 
 public static Logger logInstance = Logger.getInstance();
