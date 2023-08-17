@@ -117,7 +117,7 @@
                             </thead>
                             <tbody>
                                 <template for:each={recordsData} for:item="data" for:index="i">
-                                    <tr class="slds-hint-parent" key={data}>
+                                    <tr class="slds-hint-parent" key={data.id}>
                                         <th data-label="Store ID" scope="row">
                                             <div class="slds-truncate" title="Store-ID">
                                                 {data.StoreId}
@@ -125,22 +125,22 @@
                                         </th>
                                         <td data-label="Start Time">
                                             <div class="slds-col slds-size_2-of-3" title="Start-Time">
-                                                <lightning-input type="time" data-id={data.id} variant="label-hidden"
+                                                <lightning-input class="absencevalidation" required type="time" data-id={data.id} variant="label-hidden"
                                                     name={data.id} label="" value={data.StartTime}
                                                     onchange={handleStartTimeChange}></lightning-input>
                                             </div>
                                         </td>
                                         <td data-label="End Time">
                                             <div class="slds-col slds-size_2-of-3" title="End-Time">
-                                                <lightning-input type="time" data-id={data.id} variant="label-hidden"
-                                                    name={data.id} label="" value={data.EndTime}
+                                                <lightning-input class="absencevalidation" required type="time" data-id={data.id} variant="label-hidden"
+                                                    name={data.id} min={data.StartTime} label="" value={data.EndTime}
                                                     onchange={handleEndTimeChange}></lightning-input>
                                             </div>
                                         </td>
                                         <td data-label="Absence Date">
                                             <div class="slds-col slds-size_2-of-3" title="Absence-Date">
-                                                <lightning-input type="date" data-id={data.id} variant="label-hidden"
-                                                    name={data.id} label="" value={data.StoreDate}
+                                                <lightning-input class="absencevalidation" required type="date" data-id={data.id} variant="label-hidden"
+                                                    name={data.id} min={today} label="" value={data.StoreDate}
                                                     onchange={handleStoreDateChange}></lightning-input>
                                             </div>
                                         </td>

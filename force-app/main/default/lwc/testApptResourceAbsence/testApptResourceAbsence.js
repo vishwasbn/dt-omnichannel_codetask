@@ -36,8 +36,8 @@ export default class TestApptResourceAbsence extends LightningElement {
     @track
     allData = [];
     today = '';
-    dateParty = '';
-    checkedRows = [];
+    @track dateParty = '';
+    @track checkedRows = [];
     //data = [];
     recordsData = [];
     selectedRows = [];
@@ -49,7 +49,12 @@ export default class TestApptResourceAbsence extends LightningElement {
     disableButton = true;
     get disableButton() {
         return this.checkedRows.length > 0 ? false : true;
-    }
+    }//enable or disable but
+
+    /*get disableButton(){
+        console.log('Inside disableButton getter '+this.checkedRows+' '+this.dateParty);
+        return (!this.checkedRows.length > 0 && !this.dateParty != '');
+    }*/
     connectedCallback() {
         //today  = new Date().getFullYear() + '-' + (new Date().getMonth()+1) + '-' + new Date().getDate();
         this.today = new Date().toLocaleString();
@@ -65,7 +70,7 @@ export default class TestApptResourceAbsence extends LightningElement {
             this.disableButton = false;
         } else {
             this.disableButton = true;
-        }
+        }//enable or disable btn
     }
     getDateParty(event) {
 
@@ -74,7 +79,7 @@ export default class TestApptResourceAbsence extends LightningElement {
             this.disableButton = false;
         } else {
             this.disableButton = true;
-        }
+        }//enable or disable btn
         this.data = [];
         this.allData.forEach(currentItem => {
             if (this.checkedRows.indexOf(currentItem.id) === -1) {
@@ -208,69 +213,80 @@ export default class TestApptResourceAbsence extends LightningElement {
     }
     handleSecondScreen() {
 
-        this.insertableData = [];
-        this.recordsData.forEach(currentItem => {
+        const allValid = [...this.template.querySelectorAll('.absencevalidation')]
+            .reduce((validSoFar, inputCmp) => {
+                inputCmp.reportValidity();
+                return validSoFar && inputCmp.checkValidity();
+            }, true);
+
+            if(allValid){
+
+            this.insertableData = [];
+            this.recordsData.forEach(currentItem => {
 
 
-            if (typeof currentItem.StartTime === 'undefined' || currentItem.StartTime == null) {
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Some fields are missing.',
-                        message: 'Start Time,End Time,Store Date can not be empty, while creating absence records for selected stores.',
-                        variant: 'error'
-                    }),
-                );
-                this._isValidationError = true;
-            } else if (typeof currentItem.EndTime === 'undefined' || currentItem.EndTime == null) {
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Some fields are missing.',
-                        message: 'Start Time,End Time,Store Data can not be empty.',
-                        variant: 'error'
-                    }),
-                );
-                this._isValidationError = true;
-            } else if (typeof currentItem.StoreDate === 'undefined' || currentItem.StoreDate == null) {
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Please select corrrect Start Time and End Time.',
-                        message: 'Start Time,End Time,Store Data can not be empty.',
-                        variant: 'error'
-                    }),
-                );
-                this._isValidationError = true;
-            } else if (parseInt(currentItem.StartTime.substring(0, 5).replace(":", "")) > parseInt(currentItem.EndTime.substring(0, 5).replace(":", ""))) {
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Please select corrrect Start Time and End Time.',
-                        message: 'Start Time can not be greater then End Time.',
-                        variant: 'error'
-                    }),
-                );
-                this._isValidationError = true;
-            }
+                if (typeof currentItem.StartTime === 'undefined' || currentItem.StartTime == null) {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Some fields are missing.',
+                            message: 'Start Time,End Time,Store Date can not be empty, while creating absence records for selected stores.',
+                            variant: 'error'
+                        }),
+                    );
+                    this._isValidationError = true;
+                } else if (typeof currentItem.EndTime === 'undefined' || currentItem.EndTime == null) {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Some fields are missing.',
+                            message: 'Start Time,End Time,Store Data can not be empty.',
+                            variant: 'error'
+                        }),
+                    );
+                    this._isValidationError = true;
+                } else if (typeof currentItem.StoreDate === 'undefined' || currentItem.StoreDate == null) {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Please select corrrect Start Time and End Time.',
+                            message: 'Start Time,End Time,Store Data can not be empty.',
+                            variant: 'error'
+                        }),
+                    );
+                    this._isValidationError = true;
+                } else if (parseInt(currentItem.StartTime.substring(0, 5).replace(":", "")) > parseInt(currentItem.EndTime.substring(0, 5).replace(":", ""))) {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Please select corrrect Start Time and End Time.',
+                            message: 'Start Time can not be greater then End Time.',
+                            variant: 'error'
+                        }),
+                    );
+                    this._isValidationError = true;
+                }
+                if (this._isValidationError) {
+                    return;
+                }
+            });
+
             if (this._isValidationError) {
+                this._isValidationError = false;
                 return;
             }
-        });
+            createAbsence({ requestData: JSON.stringify(this.recordsData) })
+                .then(result => {
+                    this.isSuccess = true;
+                    this.isSecondScreen = false;
+                    this.isThirdScreen = true;
+                })
+                .catch(error => {
 
-        if (this._isValidationError) {
-            this._isValidationError = false;
-            return;
+
+                    this.isSuccess = false;
+                    this.isSecondScreen = false;
+                    this.isThirdScreen = true;
+                })
         }
-        createAbsence({ requestData: JSON.stringify(this.recordsData) })
-            .then(result => {
-                this.isSuccess = true;
-                this.isSecondScreen = false;
-                this.isThirdScreen = true;
-            })
-            .catch(error => {
 
 
-                this.isSuccess = false;
-                this.isSecondScreen = false;
-                this.isThirdScreen = true;
-            })
     }
 
     handleStartTimeChange(event) {
