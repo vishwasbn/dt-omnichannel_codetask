@@ -166,11 +166,6 @@ export default class ApptResourceAbsence extends LightningElement {
         }
     }
 
-    get todaysDate() {
-        var today = new Date();
-        return today.toISOString();
-    }
-
     handleFirstScreen() {
 
         /*this.recordsData = this.template.querySelector("lightning-datatable").getSelectedRows();

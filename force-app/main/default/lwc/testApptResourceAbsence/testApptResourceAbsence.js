@@ -1,6 +1,6 @@
 import { LightningElement, wire, track } from 'lwc';
-import getAccounts from '@salesforce/apex/Appt_ResourceAbsenceController.getAllStores';
-import createAbsence from '@salesforce/apex/Appt_ResourceAbsenceController.createAbsenceRecords';
+import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllStores';
+import createAbsence from '@salesforce/apex/TestResourceAbsenceController.createAbsenceRecords';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 const columns = [
     { label: 'Name', fieldName: 'Name', hideDefaultActions: 'true' },
@@ -36,8 +36,8 @@ export default class TestApptResourceAbsence extends LightningElement {
     @track
     allData = [];
     today = '';
-    @track dateParty = '';
-    @track checkedRows = [];
+    dateParty = '';
+    checkedRows = [];
     //data = [];
     recordsData = [];
     selectedRows = [];
@@ -49,12 +49,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     disableButton = true;
     get disableButton() {
         return this.checkedRows.length > 0 ? false : true;
-    }//enable or disable but
-
-    /*get disableButton(){
-        console.log('Inside disableButton getter '+this.checkedRows+' '+this.dateParty);
-        return (!this.checkedRows.length > 0 && !this.dateParty != '');
-    }*/
+    }
     connectedCallback() {
         //today  = new Date().getFullYear() + '-' + (new Date().getMonth()+1) + '-' + new Date().getDate();
         this.today = new Date().toLocaleString();
@@ -70,7 +65,7 @@ export default class TestApptResourceAbsence extends LightningElement {
             this.disableButton = false;
         } else {
             this.disableButton = true;
-        }//enable or disable btn
+        }
     }
     getDateParty(event) {
 
@@ -79,7 +74,7 @@ export default class TestApptResourceAbsence extends LightningElement {
             this.disableButton = false;
         } else {
             this.disableButton = true;
-        }//enable or disable btn
+        }
         this.data = [];
         this.allData.forEach(currentItem => {
             if (this.checkedRows.indexOf(currentItem.id) === -1) {
@@ -169,11 +164,6 @@ export default class TestApptResourceAbsence extends LightningElement {
         if (isEnterKey) {
             this.queryTerm = evt.target.value;
         }
-    }
-
-    get todaysDate() {
-        var today = new Date();
-        return today.toISOString();
     }
 
     handleFirstScreen() {
