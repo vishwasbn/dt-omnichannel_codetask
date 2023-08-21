@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <decisions>
+        <name>CaseReasontoTypeGeneralInquiryCondition</name>
+        <label>CaseReasontoTypeGeneralInquiryCondition</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Status_is_new_and_general_Inquiry</name>
+            <conditionLogic>(1 AND 2 )AND (1 AND ( 3 OR 4))</conditionLogic>
+            <conditions>
+                <leftValueReference>UpdateCaseReasontoTypeGeneralInquiryCondition</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Isnew</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Origin</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>update_category</targetReference>
+            </connector>
+            <label>Status is new and general Inquiry</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>Isnew</name>
+        <dataType>Boolean</dataType>
+        <expression>Isnew()</expression>
+    </formulas>
+    <formulas>
+        <name>UpdateCaseReasontoTypeGeneralInquiryCondition</name>
+        <dataType>Boolean</dataType>
+        <expression>((ISPICKVAL( {!$Record.Status}, &apos;New&apos;)  || ISPICKVAL( {!$Record.Status}, &apos;Open&apos;)  )  &amp;&amp; ISPICKVAL( {!$Record.Origin}, &apos;General Inquiry&apos;))</expression>
+    </formulas>
+    <interviewLabel>case workflow to flow migration {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>case workflow migration</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>update_category</name>
+        <label>update category</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <inputAssignments>
+            <field>Category__c</field>
+            <value>
+                <stringValue>General Inquiry</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>CaseReasontoTypeGeneralInquiryCondition</targetReference>
+        </connector>
+        <filterFormula>((ISPICKVAL( {!$Record.Status} , &apos;New&apos;)  || ISPICKVAL( {!$Record.Status} , &apos;Open&apos;)  )  &amp;&amp; ISPICKVAL( {!$Record.Origin} , &apos;General Inquiry&apos;))</filterFormula>
+        <object>Case</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Draft</status>
+</Flow>

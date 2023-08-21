@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>After_Hours_email_alert</fullName>
+        <description>After Hours email alert</description>
+        <protected>false</protected>
+        <recipients>
+            <field>ContactEmail</field>
+            <type>email</type>
+        </recipients>
+        <recipients>
+            <field>SuppliedEmail</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>customerrelations@discounttire.com</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>unfiled$public/After_Hours_Response</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_Case_Auto_Response</fullName>
+        <description>Email Case Auto-Response</description>
+        <protected>false</protected>
+        <recipients>
+            <field>ContactEmail</field>
+            <type>email</type>
+        </recipients>
+        <recipients>
+            <field>SuppliedEmail</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>customerrelations@discounttire.com</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>E2CP__E2CP_Templates/E2CP__New_Case_Auto_Response_w_o_Markers</template>
+    </alerts>
+    <alerts>
+        <fullName>Fleet_Send_Case_Closed_Email</fullName>
+        <description>Fleet Send Case Closed Email</description>
+        <protected>false</protected>
+        <recipients>
+            <field>ContactEmail</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>apex+dt_fleet@ethos.com</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Fleet_Public_Email_Templates/Fleet_Case_Closed_Notification</template>
+    </alerts>
+    <fieldUpdates>
+        <fullName>Case_Priority_Medium</fullName>
+        <description>Updates the Case Priority to Medium</description>
+        <field>Priority</field>
+        <literalValue>Medium</literalValue>
+        <name>Case Priority: Medium</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Category_Customer_Info</fullName>
+        <field>Category__c</field>
+        <literalValue>Customer Info</literalValue>
+        <name>Category: Customer Info</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Category_General_Inquiry</fullName>
+        <field>Category__c</field>
+        <literalValue>General Inquiry</literalValue>
+        <name>Category: General Inquiry</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Category_Product_Inquiry</fullName>
+        <field>Category__c</field>
+        <literalValue>Product Inquiry</literalValue>
+        <name>Category: Product Inquiry</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Category_Rebate_Issues</fullName>
+        <field>Category__c</field>
+        <literalValue>Rebate Issues</literalValue>
+        <name>Category: Rebate Issues</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Close_Auto_Replies</fullName>
+        <field>Status</field>
+        <literalValue>Closed</literalValue>
+        <name>Close Auto Replies</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Close_Bounce_Back_Email</fullName>
+        <field>Status</field>
+        <literalValue>Closed</literalValue>
+        <name>Close Bounce Back Email</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Close_Email_Loop_Protection</fullName>
+        <description>Automatically closes [Email Loop Protection]</description>
+        <field>Status</field>
+        <literalValue>Spam Bulk Close (Auto)</literalValue>
+        <name>Close Email Loop Protection</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Close_Known_Spam_01</fullName>
+        <field>Status</field>
+        <literalValue>Closed</literalValue>
+        <name>Close Known Spam 01</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Close_Spam</fullName>
+        <description>Closes known spam account emails</description>
+        <field>Status</field>
+        <literalValue>Spam Bulk Close (Auto)</literalValue>
+        <name>Close Spam</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Escalate_Priority</fullName>
+        <field>Priority</field>
+        <literalValue>High</literalValue>
+        <name>Escalate Priority</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Fed_Ex_Overflow</fullName>
+        <description>Auto Close Fed Ex overflow emails</description>
+        <field>Status</field>
+        <literalValue>Closed</literalValue>
+        <name>Fed Ex Overflow</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Priority_Update</fullName>
+        <field>Priority</field>
+        <literalValue>High</literalValue>
+        <name>Priority Update</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Set_AutoResponse_Sent</fullName>
+        <field>Auto_Response_Sent__c</field>
+        <literalValue>1</literalValue>
+        <name>Set Auto-Response Sent</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Update_subject</fullName>
+        <field>Subject</field>
+        <formula>IF(ISBLANK( Subject ),&apos;&apos;,&apos; Request_Type__c &apos;)</formula>
+        <name>Update subject</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>no_reply_fsu_edu</fullName>
+        <description>Will close email from No-Reply email address at FSU.EDU</description>
+        <field>Status</field>
+        <literalValue>Spam Bulk Close (Auto)</literalValue>
+        <name>no-reply@fsu.edu</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>After Hours Email Case Auto-Response Rule</fullName>
+        <actions>
+            <name>After_Hours_email_alert</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>Set_AutoResponse_Sent</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <formula>AND( OR(MOD( DATEVALUE(CreatedDate) - DATE(1900, 1, 6), 7) =1, AND(MOD( DATEVALUE(CreatedDate) - DATE(1900, 1, 6), 7) =0, VALUE(MID(TEXT(CreatedDate),12,2))&lt; 10, VALUE(MID(TEXT(CreatedDate),12,2))&gt; 1), AND(MOD( DATEVALUE(CreatedDate) - DATE(1900, 1, 6), 7) &gt;= 2, VALUE(MID(TEXT(CreatedDate),12,2))&lt; 13, VALUE(MID(TEXT(CreatedDate),12,2))&gt; 1) ), NOT(CONTAINS(Subject, &apos;[Email Loop Protection]&apos;)),NOT($Permission.Bypass_Logic) )</formula>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Close Automatic Reply</fullName>
+        <actions>
+            <name>Close_Auto_Replies</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>(1 AND 2) OR 3 OR 4 OR 5</booleanFilter>
+        <criteriaItems>
+            <field>Case.Subject</field>
+            <operation>contains</operation>
+            <value>AUTO:,[Auto-Reply],Automatic reply:</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>notEqual</operation>
+            <value>Closed</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.LastName</field>
+            <operation>equals</operation>
+            <value>MerchantCircle,Phenom,hua (LinkedIn Groups)</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.PersonEmail</field>
+            <operation>contains</operation>
+            <value>info@ppeonline.ca,timothysetterfield@gmail.com,postmaster@ppd.com,team@epartrade.com,pc@gtglass.com,prithivirajms@sulekha.com</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Subject</field>
+            <operation>notContain</operation>
+            <value>There is a new question for your business</value>
+        </criteriaItems>
+        <description>Closes: Automatic reply from unavailable recipient</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+        <workflowTimeTriggers>
+            <offsetFromField>Case.CreatedDate</offsetFromField>
+            <timeLength>1</timeLength>
+            <workflowTimeTriggerUnit>Hours</workflowTimeTriggerUnit>
+        </workflowTimeTriggers>
+    </rules>
+    <rules>
+        <fullName>Close Bounce Back Email</fullName>
+        <actions>
+            <name>Close_Bounce_Back_Email</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <criteriaItems>
+            <field>Contact.Email</field>
+            <operation>equals</operation>
+            <value>jg@atlanticbb.net</value>
+        </criteriaItems>
+        <failedMigrationToolVersion>244.10.8</failedMigrationToolVersion>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+        <workflowTimeTriggers>
+            <offsetFromField>Case.CreatedDate</offsetFromField>
+            <timeLength>1</timeLength>
+            <workflowTimeTriggerUnit>Hours</workflowTimeTriggerUnit>
+        </workflowTimeTriggers>
+    </rules>
+    <rules>
+        <fullName>Close Email Loop Protection</fullName>
+        <actions>
+            <name>Close_Email_Loop_Protection</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <criteriaItems>
+            <field>Case.Subject</field>
+            <operation>contains</operation>
+            <value>[Email Loop Protection]</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>notEqual</operation>
+            <value>Closed</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Subject</field>
+            <operation>notContain</operation>
+            <value>Knowledge Center,You have a new message from the BBB</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.revue__Store_Number__c</field>
+            <operation>notEqual</operation>
+            <value>Tire Rack</value>
+        </criteriaItems>
+        <description>Closes: [Email Loop Protection]</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+        <workflowTimeTriggers>
+            <offsetFromField>Case.CreatedDate</offsetFromField>
+            <timeLength>1</timeLength>
+            <workflowTimeTriggerUnit>Hours</workflowTimeTriggerUnit>
+        </workflowTimeTriggers>
+    </rules>
+    <rules>
+        <fullName>Close Fed Ex Overflow</fullName>
+        <actions>
+            <name>Fed_Ex_Overflow</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <criteriaItems>
+            <field>Account.PersonEmail</field>
+            <operation>contains</operation>
+            <value>trackingmail@fedex.com</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>notEqual</operation>
+            <value>Closed</value>
+        </criteriaItems>
+        <description>Closes: Fed Ex Exception emails automatically</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+        <workflowTimeTriggers>
+            <timeLength>1</timeLength>
+            <workflowTimeTriggerUnit>Hours</workflowTimeTriggerUnit>
+        </workflowTimeTriggers>
+    </rules>
+    <rules>
+        <fullName>Closes Known Spam</fullName>
+        <actions>
+            <name>Close_Spam</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6 AND 7 AND 8 AND 9 AND 10 AND (11 OR 12)</booleanFilter>
+        <criteriaItems>
+            <field>Account.PersonEmail</field>
+            <operation>contains</operation>
+            <value>hello@broadly.com,jason@4wdsupply.ca,@sandsbrokerageinc.com,info@sxsadventurerally.com,alerts@relix.com,messages-noreply@linkedin.com,pc@gtglass.com,shippingsupply.com,seo-indexer.com,cp20.com,citylistings.net,updatelisting.net,easylink.com,99business.com</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.PersonEmail</field>
+            <operation>contains</operation>
+            <value>@bybirdeye.com,sales22@pacific-line.cn,team@epartrade.com,notifications-noreply@linkedin.com,marketing@scantron.com,Info@performancenc.ca,info@simpletire.com,@vfiber.com,@fsu.edu,@farmersagent.com</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.SuppliedEmail</field>
+            <operation>contains</operation>
+            <value>customercare@surveyclubmail.com,daily@relix.com,donotreply@easylink.com,enews@exoto.com,johnfeng111@126.com,leanne.sweeney@eddisonscjm.com,melissa@northwestruralwater.com,wrapidconcepts@gmail.com,trackingmail@fedex.com,pc@gtglass.com,@kpmg.com,@relix.com</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.SuppliedName</field>
+            <operation>contains</operation>
+            <value>Alerts@relix.com,fast funds,NAI Hanning &amp; Bean,enews@exoto.com,olga@641west.com,enews@exoto.com</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.SuppliedName</field>
+            <operation>contains</operation>
+            <value>Relix,mail@mycommunitynews.us,junkemail@impactbuildings.com,noreply,no-reply,dontreply</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Subject</field>
+            <operation>contains</operation>
+            <value>Child Labor,Will you clean up your supply chains,Will you clean up your supply chains,Whose hands made my stuff,Are children making</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Name</field>
+            <operation>contains</operation>
+            <value>BirdEye,Exoto,KFamous,Listing Dept,CJM,Relix,Trackingmail,Biz Cap,India Williams,Sulekha Jobs,Impact Buildings,Cyberlead</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.LastName</field>
+            <operation>equals</operation>
+            <value>from AutoLeap,MerchantCircle,Relix,at grandecom.net,Admins postmaster at ppd.com,MerchantCircle</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.PersonEmail</field>
+            <operation>notContain</operation>
+            <value>MerchantCircle,naveenkumarcbm@sulekha.com,noreply@surveygizmo.com</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>notEqual</operation>
+            <value>Closed</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Subject</field>
+            <operation>notContain</operation>
+            <value>Google Business Review</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Contact.Email</field>
+            <operation>notContain</operation>
+            <value>@discounttire.com</value>
+        </criteriaItems>
+        <description>Closes spam from specific email address</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+        <workflowTimeTriggers>
+            <timeLength>1</timeLength>
+            <workflowTimeTriggerUnit>Hours</workflowTimeTriggerUnit>
+        </workflowTimeTriggers>
+    </rules>
+    <rules>
+        <fullName>Closes Specific email address only</fullName>
+        <actions>
+            <name>no_reply_fsu_edu</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>(1 AND 2) OR 3 OR 4 OR 5 OR 6 OR 7</booleanFilter>
+        <criteriaItems>
+            <field>Contact.Email</field>
+            <operation>contains</operation>
+            <value>e.merchantcircle.com,naveenkumarcbm@sulekha.com,star@venwelling.net,auxiliurschool.com,covs5142@gmail.com,junkemail@impactbuildings.com,donotreply@kpmg.com,jg@atlanticbb.net,no-reply@fsu.edu,no-reply@yelp.com,jamie@spudsbaseball.com</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>notEqual</operation>
+            <value>Closed</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.FirstName</field>
+            <operation>equals</operation>
+            <value>Cyberlead,OZY,kokdirector</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.PersonTitle</field>
+            <operation>equals</operation>
+            <value>SPAM</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.PersonHasOptedOutOfEmail</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Type</field>
+            <operation>contains</operation>
+            <value>SPAM</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Contact.Phone</field>
+            <operation>contains</operation>
+            <value>SPAM,Spam,spam</value>
+        </criteriaItems>
+        <description>Rule # 2: Auto Close Spam</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+        <workflowTimeTriggers>
+            <timeLength>1</timeLength>
+            <workflowTimeTriggerUnit>Hours</workflowTimeTriggerUnit>
+        </workflowTimeTriggers>
+    </rules>
+    <rules>
+        <fullName>Email Case Auto-Response Rule</fullName>
+        <actions>
+            <name>Email_Case_Auto_Response</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>Set_AutoResponse_Sent</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>equals</operation>
+            <value>New</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Origin</field>
+            <operation>notEqual</operation>
+            <value>Social Network,Phone</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Subject</field>
+            <operation>notContain</operation>
+            <value>Email Loop Protection</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.ContactEmail</field>
+            <operation>notContain</operation>
+            <value>@discounttire.com,@service-now.com</value>
+        </criteriaItems>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Fleet Case Resolved</fullName>
+        <actions>
+            <name>Fleet_Send_Case_Closed_Email</name>
+            <type>Alert</type>
+        </actions>
+        <active>true</active>
+        <formula>AND(OR(ISPICKVAL( Status , &apos;Resolved&apos;),ISPICKVAL( Status , &apos;Closed&apos;)), (RecordType.Name =&apos;Fleet Community Case&apos;),!($Permission.Bypass_Logic))</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Request to Subject</fullName>
+        <actions>
+            <name>Update_subject</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <criteriaItems>
+            <field>Case.Subject</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </criteriaItems>
+        <description>If the subject field is empty this will populate with the the request type field.</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Update Case Reason to Type%3A Change My Information</fullName>
+        <actions>
+            <name>Category_Customer_Info</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>equals</operation>
+            <value>New,Open</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Type</field>
+            <operation>equals</operation>
+            <value>Change My Information</value>
+        </criteriaItems>
+        <description>Automatically updates the Category to Customer Info when the Case Type is set to Change My Information.</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Update Case Reason to Type%3A General Inquiry</fullName>
+        <actions>
+            <name>Category_General_Inquiry</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>equals</operation>
+            <value>New,Open</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Type</field>
+            <operation>equals</operation>
+            <value>General Inquiry</value>
+        </criteriaItems>
+        <description>Automatically updates the Category to General Inquiry when the Case Type is set to General Inquiry.</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Update Case Reason to Type%3A Rebates %2F Promotions</fullName>
+        <actions>
+            <name>Category_Rebate_Issues</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>equals</operation>
+            <value>New,Open</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Type</field>
+            <operation>equals</operation>
+            <value>Rebates / Promotions</value>
+        </criteriaItems>
+        <description>Automatically updates the Category to Rebate Issues when the Case Type is set to Rebates / Promotions.</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Update Case Reason to Type%3A Tire %2F Wheels Questions</fullName>
+        <actions>
+            <name>Category_Product_Inquiry</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>equals</operation>
+            <value>New,Open</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Type</field>
+            <operation>equals</operation>
+            <value>Tire / Wheel Questions</value>
+        </criteriaItems>
+        <description>Automatically updates the Category to Product Inquiry when the Case Type is set to Tire / Wheel Questions.</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Web Form Case Priority set to Medium</fullName>
+        <actions>
+            <name>Case_Priority_Medium</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>equals</operation>
+            <value>New</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Origin</field>
+            <operation>equals</operation>
+            <value>Contact Us Web Form</value>
+        </criteriaItems>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+</Workflow>

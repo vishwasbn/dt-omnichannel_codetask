@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Send an email alert</description>
+        <name>Send_AT_VF_Email</name>
+        <label>Send AT VF Email</label>
+        <locationX>2162</locationX>
+        <locationY>1535</locationY>
+        <actionName>Notification__c.Appointment_VF_Email_AT</actionName>
+        <actionType>emailAlert</actionType>
+        <connector>
+            <targetReference>Set_Status_0</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <description>Send the email via email alert</description>
+        <name>Send_DT_VF_Email</name>
+        <label>Send DT VF Email</label>
+        <locationX>1634</locationX>
+        <locationY>1415</locationY>
+        <actionName>Notification__c.Appointment_VF_Email_DT</actionName>
+        <actionType>emailAlert</actionType>
+        <connector>
+            <targetReference>Set_Status</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <name>Send_PE_0_0</name>
+        <label>Send PE</label>
+        <locationX>1370</locationX>
+        <locationY>1415</locationY>
+        <actionName>Appt_Send_Notification_Event</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Set_Status</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>notificationIds</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
+        <name>Send_PE_0_0_0</name>
+        <label>Send PE</label>
+        <locationX>1898</locationX>
+        <locationY>1535</locationY>
+        <actionName>Appt_Send_Notification_Event</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Set_Status_0</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>notificationIds</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
+        <name>Set_Status</name>
+        <label>Set Status</label>
+        <locationX>1502</locationX>
+        <locationY>1631</locationY>
+        <actionName>Appt_InvocableNotificationUpdate</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Update_Email_Override_to_false</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>nRecords</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <name>Set_Status_0</name>
+        <label>Set Status</label>
+        <locationX>2030</locationX>
+        <locationY>1751</locationY>
+        <actionName>Appt_InvocableNotificationUpdate</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Update_Email_Override_to_false_0</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>nRecords</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <apiVersion>55.0</apiVersion>
+    <assignments>
+        <name>Set_Error_Info</name>
+        <label>Set Error Info</label>
+        <locationX>50</locationX>
+        <locationY>695</locationY>
+        <assignmentItems>
+            <assignToReference>Error_Info</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Emails Notifications are Disabled</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Record_showing_email_can_t_be_sent</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Error_Info1</name>
+        <label>Set Error Info</label>
+        <locationX>314</locationX>
+        <locationY>815</locationY>
+        <assignmentItems>
+            <assignToReference>Error_Info</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Customer is is not opted in for emails</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Record_Status</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Error_Info2</name>
+        <label>Set Error Info</label>
+        <locationX>1106</locationX>
+        <locationY>1175</locationY>
+        <assignmentItems>
+            <assignToReference>Error_Info</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Email not eligible to send</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Set_Failure_Status</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Check_for_Email_opt_in</name>
+        <label>Check for Email opt in</label>
+        <locationX>592</locationX>
+        <locationY>695</locationY>
+        <defaultConnector>
+            <targetReference>Not_Valid_Order_Number</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Check_for_Email_opt_in_is_False</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Appointment_Email_Opt_In__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Error_Info1</targetReference>
+            </connector>
+            <label>Check for Email opt in is False</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Check_for_global_send_email_setting</name>
+        <label>Check for global send email setting</label>
+        <locationX>321</locationX>
+        <locationY>575</locationY>
+        <defaultConnector>
+            <targetReference>Check_for_Email_opt_in</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Email_Disable_Notifications_Value_Does_Not_Equal_False</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Appt_Appointment_Setting.Value__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>FALSE</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Error_Info</targetReference>
+            </connector>
+            <label>Email_Disable_Notifications.Value Does Not Equal False</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Check_for_valid_notification_type</name>
+        <label>Check for valid notification type</label>
+        <locationX>1485</locationX>
+        <locationY>1055</locationY>
+        <defaultConnector>
+            <targetReference>Send_DT_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Valid_Email_Notification_Is_False</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Valid_Email_Notification__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Error_Info2</targetReference>
+            </connector>
+            <label>Valid Email Notification Is False</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Missing_Data</name>
+        <label>Missing Data</label>
+        <locationX>1163</locationX>
+        <locationY>935</locationY>
+        <defaultConnector>
+            <targetReference>Check_for_valid_notification_type</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Missing_Data_Is_True</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>IsMissingData</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Status_Failure</targetReference>
+            </connector>
+            <label>Missing Data Is True</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Not_Valid_Order_Number</name>
+        <label>Not Valid Order Number</label>
+        <locationX>870</locationX>
+        <locationY>815</locationY>
+        <defaultConnector>
+            <targetReference>Missing_Data</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Has_Valid_Order_Number_Is_False</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Has_Valid_Order_Number__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Initial_Email_Status</targetReference>
+            </connector>
+            <label>Has Valid Order Number Is False</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Send_AT_Email</name>
+        <label>Send AT Email</label>
+        <locationX>2228</locationX>
+        <locationY>1295</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Is_Able_To_Send_AT_Email</name>
+            <conditionLogic>1 AND 2 AND 3</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Store_DBA_Name__c</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>AMERICA</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Initial_Email_Send_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Pending</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Channels__c</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>EMAIL</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Platform_Event_0</targetReference>
+            </connector>
+            <label>Is Able To Send AT Email</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Send_DT_Email</name>
+        <label>Send DT Email</label>
+        <locationX>1865</locationX>
+        <locationY>1175</locationY>
+        <defaultConnector>
+            <targetReference>Send_AT_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Able_To_Send_DT_Email</name>
+            <conditionLogic>1 AND 2 AND 3</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Initial_Email_Send_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Pending</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Channels__c</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>EMAIL</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Store_DBA_Name__c</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>DISCOUNT</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Platform_Event</targetReference>
+            </connector>
+            <label>Able To Send DT Email</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check the Use_SFMC_Email variable to decide whether we are sending a platform event or an email alert</description>
+        <name>Send_Platform_Event</name>
+        <label>Send Platform Event?</label>
+        <locationX>1502</locationX>
+        <locationY>1295</locationY>
+        <defaultConnector>
+            <targetReference>Send_DT_VF_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Use_SFMC_Email</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Yes</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_PE_0_0</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check the Use_SFMC_Email variable to decide whether we are sending a platform event or an email alert</description>
+        <name>Send_Platform_Event_0</name>
+        <label>Send Platform Event?</label>
+        <locationX>2030</locationX>
+        <locationY>1415</locationY>
+        <defaultConnector>
+            <targetReference>Send_AT_VF_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes_0</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Use_SFMC_Email</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Yes</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_PE_0_0_0</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <description>Changed Start Condition</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Check to see if the notification channel also includes SMS</description>
+        <name>channelContainsSMS</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(CONTAINS({!$Record.Channels__c}, &apos;SMS&apos;), true, false)</expression>
+    </formulas>
+    <formulas>
+        <name>IsMissingData</name>
+        <dataType>Boolean</dataType>
+        <expression>AND( ISPICKVAL({!$Record.Initial_Email_Send_Status__c}, &quot;Pending&quot;),
+ OR( ISBLANK( {!$Record.Appointment_Date__c}),
+ ISBLANK( {!$Record.Appointment_Day_of_Week__c}),
+ ISBLANK( {!$Record.Appointment_Time__c} ),
+ISBLANK( {!$Record.Appointment_Year__c} ),
+ISBLANK( TRIM( {!$Record.Customer_Email__c} ) ),
+ISBLANK( {!$Record.Email_Template_Date_Label__c} ),
+ISBLANK( {!$Record.Email_Template_Number_Label__c} ),
+ISBLANK( {!$Record.Store_City__c} ),
+ISBLANK( {!$Record.Store_Google_Maps_address__c} ),
+ISBLANK( {!$Record.Store_Logo__c} ),
+ISBLANK( {!$Record.Store_Phone_Number__c} ),
+ISBLANK( {!$Record.Store_State__c} ),
+ISBLANK( {!$Record.Store_Street__c} ),
+ISBLANK( {!$Record.Store_Zip__c} ) ) )</expression>
+    </formulas>
+    <formulas>
+        <name>Last_Error_Message_Formula</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Last_Error_Message__c} &amp;{!Error_Info} &amp;&quot;; &quot;</expression>
+    </formulas>
+    <interviewLabel>Notification Emails {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Notification Emails</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Appt_Appointment_Setting</name>
+        <label>Get Appt Appointment Setting</label>
+        <locationX>321</locationX>
+        <locationY>455</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Check_for_global_send_email_setting</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Email_Disable_Notifications</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Appt_Appointment_Setting__mdt</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Setting_Allow_To_Run</name>
+        <label>Get Setting Allow To Run</label>
+        <locationX>321</locationX>
+        <locationY>335</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Appt_Appointment_Setting</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Use_SFMC_Email</stringValue>
+            </value>
+        </filters>
+        <object>Appt_Appointment_Setting__mdt</object>
+        <outputAssignments>
+            <assignToReference>Use_SFMC_Email</assignToReference>
+            <field>Value__c</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordUpdates>
+        <name>Set_Failure_Status</name>
+        <label>Set Failure Status</label>
+        <locationX>1106</locationX>
+        <locationY>1295</locationY>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Error_Message__c</field>
+            <value>
+                <elementReference>Last_Error_Message_Formula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Set_Status_Failure</name>
+        <label>Set Status Failure</label>
+        <locationX>842</locationX>
+        <locationY>1055</locationY>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Email_Override_to_false</name>
+        <label>Update Email Override to false</label>
+        <locationX>1502</locationX>
+        <locationY>1751</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Service_Appointment__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Email_Notification_Source_Override__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>ServiceAppointment</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Email_Override_to_false_0</name>
+        <label>Update Email Override to false</label>
+        <locationX>2030</locationX>
+        <locationY>1871</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Service_Appointment__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Email_Notification_Source_Override__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>ServiceAppointment</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Initial_Email_Status</name>
+        <label>Update Initial Email Status</label>
+        <locationX>578</locationX>
+        <locationY>935</locationY>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Order Number</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Record_showing_email_can_t_be_sent</name>
+        <label>Update Record showing email can&apos;t be sent</label>
+        <locationX>50</locationX>
+        <locationY>815</locationY>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Error_Message__c</field>
+            <value>
+                <elementReference>Last_Error_Message_Formula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Record_Status</name>
+        <label>Update Record Status</label>
+        <locationX>314</locationX>
+        <locationY>935</locationY>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Error_Message__c</field>
+            <value>
+                <elementReference>Last_Error_Message_Formula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>195</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Setting_Allow_To_Run</targetReference>
+        </connector>
+        <filterFormula>NOT(CONTAINS({!$Record.Channels__c}, &quot;SMS&quot;))</filterFormula>
+        <object>Notification__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>Error_Info</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Stores value &apos;Yes&apos; or &apos;No&apos;. Defines whether to use platform events to send email or the old version of email sending</description>
+        <name>Use_SFMC_Email</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

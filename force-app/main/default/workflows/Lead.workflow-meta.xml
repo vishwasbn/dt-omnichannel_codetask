@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>Fleet_Customer_Store_Lead_Inquiry_Thank_You</fullName>
+        <description>Fleet Customer Store Lead Inquiry Thank You</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <recipients>
+            <recipient>krishna.sripada@discounttire.com.prod</recipient>
+            <type>user</type>
+        </recipients>
+        <senderAddress>dt_fleet@discounttire.com</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Fleet_Public_Email_Templates/Fleet_Customer_Store_Lead_Inquiry_Thank_You</template>
+    </alerts>
+    <alerts>
+        <fullName>Fleet_Send_Customer_Inquiry_AT_Thank_You_Email</fullName>
+        <description>Fleet Send Customer Inquiry AT Thank You Email</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>at_fleet@americastire.com</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Fleet_Public_Email_Templates/Fleet_Customer_Inquiry_Thank_You</template>
+    </alerts>
+    <alerts>
+        <fullName>Fleet_Send_Customer_Inquiry_Thank_You_Email</fullName>
+        <description>Fleet Send Customer Inquiry Thank You Email</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>apex+dt_fleet@ethos.com</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Fleet_Public_Email_Templates/Fleet_Customer_Inquiry_Thank_You</template>
+    </alerts>
+    <fieldUpdates>
+        <fullName>Calculate_Estimated_Annual_Spend</fullName>
+        <field>Estimated_Annual_Spend__c</field>
+        <formula>Fleet_Number_of_Vehicles__c  * 12  *  Average_Tire_Spend__c</formula>
+        <name>Calculate Estimated Annual Spend</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Estimated Annual Spend</fullName>
+        <actions>
+            <name>Calculate_Estimated_Annual_Spend</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Lead.Fleet_Number_of_Vehicles__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Lead.Average_Tire_Spend__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Lead.Estimated_Annual_Spend__c</field>
+            <operation>equals</operation>
+        </criteriaItems>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+</Workflow>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>Community_Email_Notification</fullName>
+        <description>Community Email Notification</description>
+        <protected>false</protected>
+        <recipients>
+            <recipient>kyle.french@discounttire.com.prod</recipient>
+            <type>user</type>
+        </recipients>
+        <recipients>
+            <recipient>michael.tryon@discounttire.com.prod</recipient>
+            <type>user</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Social_Media/AT_Create_An_Acct</template>
+    </alerts>
+    <alerts>
+        <fullName>Community_Question_Post</fullName>
+        <description>Community Question Post</description>
+        <protected>false</protected>
+        <recipients>
+            <recipient>kyle.french@discounttire.com.prod</recipient>
+            <type>user</type>
+        </recipients>
+        <recipients>
+            <recipient>matt.johnson@discounttire.com.prod</recipient>
+            <type>user</type>
+        </recipients>
+        <recipients>
+            <recipient>michael.tryon@discounttire.com.prod</recipient>
+            <type>user</type>
+        </recipients>
+        <recipients>
+            <recipient>price.sandoval@discounttire.com.prod</recipient>
+            <type>user</type>
+        </recipients>
+        <senderAddress>customerrelations@discounttire.com</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Community_Templates/Community_Question_Post</template>
+    </alerts>
+</Workflow>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>Fleet_Send_Approval_Letter_To_Customer</fullName>
+        <ccEmails>AR@discounttire.com</ccEmails>
+        <description>Send Approval Letter To Customer</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Fleet_Primary_Contact__c</field>
+            <type>contactLookup</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Fleet_Public_Email_Templates/Fleet_Credit_Application_Accepted</template>
+    </alerts>
+    <alerts>
+        <fullName>Fleet_Send_Credit_Application_Declined_Email_to_Customer</fullName>
+        <ccEmails>AR@discounttire.com</ccEmails>
+        <description>Send Credit Application Declined Email to Customer</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Fleet_Primary_Contact__c</field>
+            <type>contactLookup</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Fleet_Public_Email_Templates/Fleet_Credit_Application_Declined_New</template>
+    </alerts>
+    <alerts>
+        <fullName>Fleet_Send_Welcome_Email_to_Cash_Customer</fullName>
+        <ccEmails>ar@discounttire.com</ccEmails>
+        <description>Send Welcome Email to Cash Customer</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Fleet_Primary_Contact__c</field>
+            <type>contactLookup</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Fleet_Public_Email_Templates/Fleet_Welcome_Cash_Application_Accepted</template>
+    </alerts>
+    <alerts>
+        <fullName>Fleet_Send_Welcome_Email_to_Credit_Customer</fullName>
+        <ccEmails>ar@discounttire.com</ccEmails>
+        <description>Send Welcome Email to Credit Customer</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Fleet_Primary_Contact__c</field>
+            <type>contactLookup</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Fleet_Public_Email_Templates/Fleet_Welcome_Credit_Application_Accepted</template>
+    </alerts>
+    <fieldUpdates>
+        <fullName>Fleet_New_Account_Status_Default</fullName>
+        <description>Default New Account record Account Status to Prospect</description>
+        <field>Fleet_Account_Status__c</field>
+        <literalValue>Prospect</literalValue>
+        <name>Fleet New Account Status Default</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Fleet New Account Status Default</fullName>
+        <actions>
+            <name>Fleet_New_Account_Status_Default</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Account.Fleet_Account_Status__c</field>
+            <operation>equals</operation>
+        </criteriaItems>
+        <description>Default New Account record Account Status to Prospect</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Fleet Send Application Declined Email To Customer</fullName>
+        <actions>
+            <name>Fleet_Send_Credit_Application_Declined_Email_to_Customer</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>Fleet_Credit_Application_Declined</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>1 AND 2</booleanFilter>
+        <criteriaItems>
+            <field>Account.Fleet_Application_Type__c</field>
+            <operation>equals</operation>
+            <value>Credit</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Fleet_Credit_App_Status__c</field>
+            <operation>equals</operation>
+            <value>Declined</value>
+        </criteriaItems>
+        <description>Send Application Declined Emails to Customer</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Fleet Send Approval and Welcome Emails To Cash Customer</fullName>
+        <actions>
+            <name>Fleet_Send_Welcome_Email_to_Cash_Customer</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>Fleet_Welcome_Cash_Email</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>1 AND 2 AND 3</booleanFilter>
+        <criteriaItems>
+            <field>Account.Fleet_Account_Status__c</field>
+            <operation>equals</operation>
+            <value>Customer</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Fleet_Application_Type__c</field>
+            <operation>equals</operation>
+            <value>Non-Credit</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Fleet_NonCredit_App_Status__c</field>
+            <operation>equals</operation>
+            <value>Approved</value>
+        </criteriaItems>
+        <description>Send Approval and Welcome Emails to Cash Customer (Primary Contact)</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Fleet Send Approval and Welcome Emails To Credit Customer</fullName>
+        <actions>
+            <name>Fleet_Send_Approval_Letter_To_Customer</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>Fleet_Send_Welcome_Email_to_Credit_Customer</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>Fleet_Application_Approved</name>
+            <type>Task</type>
+        </actions>
+        <actions>
+            <name>Fleet_Welcome_Credit_Email</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>1 AND 2 AND 3</booleanFilter>
+        <criteriaItems>
+            <field>Account.Fleet_Account_Status__c</field>
+            <operation>equals</operation>
+            <value>Customer</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Fleet_Application_Type__c</field>
+            <operation>equals</operation>
+            <value>Credit</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Fleet_Credit_App_Status__c</field>
+            <operation>equals</operation>
+            <value>Approved</value>
+        </criteriaItems>
+        <description>Send Approval and Welcome Emails to Credit Customer (Primary Contact)</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <tasks>
+        <fullName>Fleet_Application_Approved</fullName>
+        <assignedToType>owner</assignedToType>
+        <description>Application Approved Email has been sent to the customer.</description>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Completed</status>
+        <subject>Email: Fleet Credit Application Accepted</subject>
+    </tasks>
+    <tasks>
+        <fullName>Fleet_Credit_Application_Declined</fullName>
+        <assignedToType>owner</assignedToType>
+        <description>Credit Application Declined Email has been sent.</description>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Completed</status>
+        <subject>Email: Fleet Credit Application Declined</subject>
+    </tasks>
+    <tasks>
+        <fullName>Fleet_Welcome_Cash_Email</fullName>
+        <assignedToType>owner</assignedToType>
+        <description>Welcome Letter has been sent to the cash customer.</description>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Completed</status>
+        <subject>Email: Fleet Welcome Cash Letter</subject>
+    </tasks>
+    <tasks>
+        <fullName>Fleet_Welcome_Credit_Email</fullName>
+        <assignedToType>owner</assignedToType>
+        <description>Welcome Letter has been sent to the credit customer.</description>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Completed</status>
+        <subject>Email: Fleet Welcome Credit Letter</subject>
+    </tasks>
+</Workflow>

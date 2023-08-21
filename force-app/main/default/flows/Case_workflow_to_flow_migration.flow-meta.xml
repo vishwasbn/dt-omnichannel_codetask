@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <decisions>
+        <name>Closes_Specific_email_address_only</name>
+        <label>Closes Specific email address only</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>update_status_as_spam</name>
+            <conditionLogic>(1 AND 2 ) OR( 1 AND (3 OR 4 OR 5 OR 6 OR 7 OR 8 OR 9))</conditionLogic>
+            <conditions>
+                <leftValueReference>ClosesSpecificemailaddresscondition</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>IsNew</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Contact.Email</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.FirstName</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.PersonTitle</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.PersonHasOptedOutOfEmail</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.Type</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Contact.Phone</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Case_workflow_to_flow_migration</targetReference>
+            </connector>
+            <label>update status as spam</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>ClosesSpecificemailaddresscondition</name>
+        <dataType>Boolean</dataType>
+        <expression>((
+CONTAINS({!$Record.Contact.Email}, &apos;e.merchantcircle.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;naveenkumarcbm@sulekha.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;star@venwelling.net&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;auxiliurschool.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;covs5142@gmail.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;junkemail@impactbuildings.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;donotreply@kpmg.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;jg@atlanticbb.net&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;no-reply@fsu.edu&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;no-reply@yelp.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;jamie@spudsbaseball.com&apos;))
+&amp;&amp;not(ISPICKVAL({!$Record.Status}, &apos;closed&apos;))||
+(({!$Record.Account.FirstName}=&apos;Cyberlead&apos; )||({!$Record.Account.FirstName}=&apos;OZY&apos; )||({!$Record.Account.FirstName}=&apos;kokdirector&apos; ))
+||
+(CONTAINS({!$Record.Account.PersonTitle}, &apos;SPAM&apos;))
+||  ( {!$Record.Account.Appt_Email_Opt_In__pc}) ||(ISPICKVAL({!$Record.Account.Type}, &apos;SPAM&apos;))
+||(CONTAINS({!$Record.Contact.Phone}, &apos;SPAM&apos;) ||CONTAINS(LOWER({!$Record.Contact.Phone}), &apos;spam&apos;) ||CONTAINS({!$Record.Contact.Phone}, &apos;Spam&apos;)))</expression>
+    </formulas>
+    <formulas>
+        <name>IsNew</name>
+        <dataType>Boolean</dataType>
+        <expression>Isnew()</expression>
+    </formulas>
+    <interviewLabel>Case workflow to flow migration {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Case workflow to flow migration</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Case_workflow_to_flow_migration</name>
+        <label>Case workflow to flow migration</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Spam Bulk Close (Auto)</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Closes_Specific_email_address_only</targetReference>
+        </connector>
+        <filterFormula>((
+CONTAINS({!$Record.Contact.Email}, &apos;e.merchantcircle.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;naveenkumarcbm@sulekha.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;star@venwelling.net&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;auxiliurschool.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;covs5142@gmail.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;junkemail@impactbuildings.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;donotreply@kpmg.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;jg@atlanticbb.net&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;no-reply@fsu.edu&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;no-reply@yelp.com&apos;)||
+CONTAINS({!$Record.Contact.Email}, &apos;jamie@spudsbaseball.com&apos;))
+&amp;&amp;not(ISPICKVAL({!$Record.Status}, &apos;closed&apos;))||
+(({!$Record.Account.FirstName}=&apos;Cyberlead&apos; )||({!$Record.Account.FirstName}=&apos;OZY&apos; )||({!$Record.Account.FirstName}=&apos;kokdirector&apos; ))
+||
+(CONTAINS({!$Record.Account.PersonTitle}, &apos;SPAM&apos;))
+||  ( {!$Record.Account.Appt_Email_Opt_In__pc}) ||(ISPICKVAL({!$Record.Account.Type}, &apos;SPAM&apos;))
+||(CONTAINS({!$Record.Contact.Phone}, &apos;SPAM&apos;) ||CONTAINS(LOWER({!$Record.Contact.Phone}), &apos;spam&apos;) ||CONTAINS({!$Record.Contact.Phone}, &apos;Spam&apos;))) || (AND( (ISPICKVAL( {!$Record.Status} , &apos;New&apos;)),!(ISPICKVAL( {!$Record.Origin} ,&apos;Social Network&apos;)),!(ISPICKVAL( {!$Record.Origin} ,&apos;Phone&apos;)),
+ !(CONTAINS( {!$Record.Subject} ,&apos;Email Loop Protection&apos;)), !({!$Permission.Bypass_Logic})))</filterFormula>
+        <object>Case</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Draft</status>
+</Flow>

@@ -1,0 +1,1506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_AT_Email</name>
+        <label>Send AT Email</label>
+        <locationX>1986</locationX>
+        <locationY>1535</locationY>
+        <actionName>Notification__c.Appointment_VF_Email_AT</actionName>
+        <actionType>emailAlert</actionType>
+        <connector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <description>Send DT Email using a VF Email Template</description>
+        <name>Send_DT_Email</name>
+        <label>Send DT Email</label>
+        <locationX>1458</locationX>
+        <locationY>1535</locationY>
+        <actionName>Notification__c.Appointment_VF_Email_DT</actionName>
+        <actionType>emailAlert</actionType>
+        <connector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <description>Calls Appt_InvocableNotificationUpdate to update the notification record once the PEs are sent out</description>
+        <name>Update_Notification_Object_After_PE_Published</name>
+        <label>Update Notification Object After PE Published</label>
+        <locationX>446</locationX>
+        <locationY>4991</locationY>
+        <actionName>Appt_InvocableNotificationUpdate</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>nRecords</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <apiVersion>55.0</apiVersion>
+    <assignments>
+        <name>Set_Email_Payload_Variable</name>
+        <label>Set Email Payload Variable</label>
+        <locationX>1194</locationX>
+        <locationY>1535</locationY>
+        <assignmentItems>
+            <assignToReference>Email_Payload</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Initial_PE_Email_Payload__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Email_Payload_Variable_0</name>
+        <label>Set Email Payload Variable</label>
+        <locationX>1722</locationX>
+        <locationY>1535</locationY>
+        <assignmentItems>
+            <assignToReference>Email_Payload</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Initial_PE_Email_Payload__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Error_Info</name>
+        <label>Set Error Info</label>
+        <locationX>138</locationX>
+        <locationY>815</locationY>
+        <assignmentItems>
+            <assignToReference>Error_Info</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Email is not enabled. Check global Email settings and Customer Email opt in/out</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Send_Status_to_Invalid_Data_with_Error_0</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Error_Info1</name>
+        <label>Set Error Info</label>
+        <locationX>930</locationX>
+        <locationY>1175</locationY>
+        <assignmentItems>
+            <assignToReference>Error_Info</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Email Not Eligible to Send</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Set_Email_Status_Invalid_Data_Ineligible_to_Send</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Error_Info2</name>
+        <label>Set Error Info</label>
+        <locationX>133</locationX>
+        <locationY>2447</locationY>
+        <assignmentItems>
+            <assignToReference>Error_Info</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SMS is not enabled. Check global SMS settings and Customer SMS opt in/out</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Send_Status_to_Invalid_Data_with_Error</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Error_Info3</name>
+        <label>Set Error Info</label>
+        <locationX>1101</locationX>
+        <locationY>3047</locationY>
+        <assignmentItems>
+            <assignToReference>Error_Info</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Initial SMS Payload not created</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Set_SMS_Send_Status_Invalid_Data</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Error_Info4</name>
+        <label>Set Error Info</label>
+        <locationX>1629</locationX>
+        <locationY>3047</locationY>
+        <assignmentItems>
+            <assignToReference>Error_Info</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Reply SMS Payload not created</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Copy_1_of_Set_SMS_Send_Status_Invalid_Data</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Error_Info5</name>
+        <label>Set Error Info</label>
+        <locationX>2250</locationX>
+        <locationY>1415</locationY>
+        <assignmentItems>
+            <assignToReference>Error_Info</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>No Store DBA name on Notification Object</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Send_Status_to_Invalid_Data</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Are we sending a reply to an appointment confirmation?</description>
+        <name>Set_Sending_Confirmation_Reply</name>
+        <label>Set Sending_Confirmation_Reply</label>
+        <locationX>1893</locationX>
+        <locationY>3287</locationY>
+        <assignmentItems>
+            <assignToReference>Send_Confirmation_Reply</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Set the SMS_Payload variable now that we know all conditions are met</description>
+        <name>Set_SMS_Payload_variable</name>
+        <label>Set SMS_Payload variable</label>
+        <locationX>1365</locationX>
+        <locationY>3047</locationY>
+        <assignmentItems>
+            <assignToReference>SMS_Payload</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Initial_PE_SMS_Payload__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Set the SMS_Payload variable now that we know all conditions are met</description>
+        <name>Set_SMS_Payload_variable_1</name>
+        <label>Set SMS_Payload variable</label>
+        <locationX>2025</locationX>
+        <locationY>3047</locationY>
+        <assignmentItems>
+            <assignToReference>SMS_Payload</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Reply_PE_Payload__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Check_for_Sending_REPLY_PE_Confirmed</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Check_for_Sending_INITIAL_PE</name>
+        <label>Check for Sending INITIAL PE</label>
+        <locationX>1579</locationX>
+        <locationY>2687</locationY>
+        <defaultConnector>
+            <targetReference>Reply_Send_Status_is_Failure</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Sending_Initial_PE</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Initial_PE_SMS_Send_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Failure</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Is_Initial_Send_Status_Failure</targetReference>
+            </connector>
+            <label>Sending Initial PE</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Check_for_Sending_REPLY_PE_Confirmed</name>
+        <label>Check for Sending REPLY Confirmation PE</label>
+        <locationX>2025</locationX>
+        <locationY>3167</locationY>
+        <defaultConnector>
+            <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Sending Confirmation</defaultConnectorLabel>
+        <rules>
+            <name>Send_Reply_PE</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Reply_PE_Notification_Type__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>APPT_CONFIRMED</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Sending_Confirmation_Reply</targetReference>
+            </connector>
+            <label>Sending Confirmation</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check to see if we have Email and SMS payloads after running previous logic. If we have only one or the other, we send one platform event for either SMS or Email. If both are valid, send an PE containing both payloads.</description>
+        <name>Check_Valid_Email_and_SMS_Payloads</name>
+        <label>Check Valid Email and SMS Payloads</label>
+        <locationX>446</locationX>
+        <locationY>4079</locationY>
+        <defaultConnector>
+            <targetReference>Is_PE_Reply_Confirmation</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Neither SMS or Email Valid</defaultConnectorLabel>
+        <rules>
+            <name>Only_Email_Valid</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Email_Payload</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>SMS_Payload</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Email_Platform_Event</targetReference>
+            </connector>
+            <label>Only Email Valid</label>
+        </rules>
+        <rules>
+            <name>Only_SMS_Valid</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>SMS_Payload</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Email_Payload</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_SMS_Platform_Event</targetReference>
+            </connector>
+            <label>Only SMS Valid</label>
+        </rules>
+        <rules>
+            <name>Email_and_SMS_Valid</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Email_Payload</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>SMS_Payload</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Combined_Email_SMS_Platform_Event</targetReference>
+            </connector>
+            <label>Email and SMS Valid</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check to see if the customer is opted out of emails, emails are disabled, or the notification record is not in the pending status</description>
+        <name>Customer_Email_Opt_Out_or_Email_Disabled_or_Email_Not_Pending</name>
+        <label>Customer Email Opt Out or Email Disabled or Email Not Pending?</label>
+        <locationX>446</locationX>
+        <locationY>695</locationY>
+        <defaultConnector>
+            <targetReference>Is_Not_Valid_Order_Number</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Eligible to Send Email</defaultConnectorLabel>
+        <rules>
+            <name>Not_Eligible_to_Send_Email</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Appointment_Email_Opt_In__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Global_Email_Disabled</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>TRUE</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Error_Info</targetReference>
+            </connector>
+            <label>Not Eligible to Send Email</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check to see if store is Discount Tire or Americas Tire</description>
+        <name>Is_DT_or_AT_Store</name>
+        <label>Is DT or AT Store?</label>
+        <locationX>1788</locationX>
+        <locationY>1295</locationY>
+        <defaultConnector>
+            <targetReference>Set_Error_Info5</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Neither</defaultConnectorLabel>
+        <rules>
+            <name>DT_Store</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Store_DBA_Name__c</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>DISCOUNT</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Platform_Event</targetReference>
+            </connector>
+            <label>DT Store</label>
+        </rules>
+        <rules>
+            <name>AT_Store</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Store_DBA_Name__c</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>AMERICA</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Platform_Event_0</targetReference>
+            </connector>
+            <label>AT Store</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check to see if there is missing data that would prevent an email from being sent successfully</description>
+        <name>Is_Email_Missing_Data</name>
+        <label>Is Email Missing Data</label>
+        <locationX>1103</locationX>
+        <locationY>935</locationY>
+        <defaultConnector>
+            <targetReference>Is_Invalid_Email_Notification</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Missing Data</defaultConnectorLabel>
+        <rules>
+            <name>Missing_Data</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>emailMissingData</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Email_Status</targetReference>
+            </connector>
+            <label>Missing Data</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check to see if we have disabled SMS in the environment</description>
+        <name>Is_Global_SMS_Disabled</name>
+        <label>Is Global SMS Disabled or Customer Opted Out?</label>
+        <locationX>446</locationX>
+        <locationY>2327</locationY>
+        <defaultConnector>
+            <targetReference>Is_Order_Number_Invalid</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>SMS Eligible</defaultConnectorLabel>
+        <rules>
+            <name>Global_SMS_Disabled_0</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>Global_SMS_Disabled</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>TRUE</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Appointment_SMS_Opt_In__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Error_Info2</targetReference>
+            </connector>
+            <label>Global SMS Disabled or Customer Opted Out or Status Not Failure</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_Initial_Send_Status_Failure</name>
+        <label>Is Initial Send Status Failure?</label>
+        <locationX>1079</locationX>
+        <locationY>2807</locationY>
+        <defaultConnector>
+            <targetReference>Is_Initial_SMS_Payload_Valid</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Send Status is Failure</defaultConnectorLabel>
+        <rules>
+            <name>Send_Status_is_Not_Failure</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Initial_PE_SMS_Send_Status__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Failure</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+            </connector>
+            <label>Send Status is Not Failure</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check to see that the SMS payload is not null. If null, it is invalid</description>
+        <name>Is_Initial_SMS_Payload_Valid</name>
+        <label>Is Initial SMS Payload Valid?</label>
+        <locationX>1233</locationX>
+        <locationY>2927</locationY>
+        <defaultConnector>
+            <targetReference>Set_SMS_Payload_variable</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>SMS Payload Valid</defaultConnectorLabel>
+        <rules>
+            <name>SMS_Payload_Invalid</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Initial_PE_SMS_Payload__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Error_Info3</targetReference>
+            </connector>
+            <label>SMS Payload Invalid</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Checks to see if &quot;Valid Email Notification&quot; field is set to false</description>
+        <name>Is_Invalid_Email_Notification</name>
+        <label>Is Invalid Email Notification?</label>
+        <locationX>1541</locationX>
+        <locationY>1055</locationY>
+        <defaultConnector>
+            <targetReference>Is_Send_Status_Pending</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Valid Email Notification</defaultConnectorLabel>
+        <rules>
+            <name>Invalid_Email_Notification</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Valid_Email_Notification__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Error_Info1</targetReference>
+            </connector>
+            <label>Invalid Email Notification</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check to see if the order number is invalid</description>
+        <name>Is_Not_Valid_Order_Number</name>
+        <label>Is Invalid Order Number?</label>
+        <locationX>753</locationX>
+        <locationY>815</locationY>
+        <defaultConnector>
+            <targetReference>Is_Email_Missing_Data</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Order Number Valid</defaultConnectorLabel>
+        <rules>
+            <name>Invalid_Order_Number</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Has_Valid_Order_Number__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Email_Status_Invalid_Order_Number</targetReference>
+            </connector>
+            <label>Invalid Order Number</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check to see if the order number is valid for the notification</description>
+        <name>Is_Order_Number_Invalid</name>
+        <label>Is Order Number Invalid?</label>
+        <locationX>758</locationX>
+        <locationY>2447</locationY>
+        <defaultConnector>
+            <targetReference>Is_SMS_Missing_data</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Order Number Valid</defaultConnectorLabel>
+        <rules>
+            <name>Order_Number_Invalid</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Has_Valid_Order_Number__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_SMS_Send_Status_Invalid_Order_Number</targetReference>
+            </connector>
+            <label>Order Number Invalid</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>If we are sending confirmation PE, we need to set the Service Appointments to Confirmed status</description>
+        <name>Is_PE_Reply_Confirmation</name>
+        <label>Is PE Reply Confirmation?</label>
+        <locationX>446</locationX>
+        <locationY>4535</locationY>
+        <defaultConnector>
+            <targetReference>Update_Notification_Object_After_PE_Published</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Reply Confirmation</defaultConnectorLabel>
+        <rules>
+            <name>Is_Reply_Confirmation</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Send_Confirmation_Reply</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Confirm_Service_Appointment</targetReference>
+            </connector>
+            <label>Is Reply Confirmation</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Check to see if the Reply SMS payload in not valid</description>
+        <name>Is_Reply_SMS_Payload_Invalid</name>
+        <label>Is Reply SMS Payload Invalid?</label>
+        <locationX>1827</locationX>
+        <locationY>2927</locationY>
+        <defaultConnector>
+            <targetReference>Set_SMS_Payload_variable_1</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Reply Payload Valid</defaultConnectorLabel>
+        <rules>
+            <name>Reply_Payload_Invalid</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Reply_PE_Payload__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Error_Info4</targetReference>
+            </connector>
+            <label>Reply Payload Invalid</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_Send_Status_Pending</name>
+        <label>Is Send Status Pending</label>
+        <locationX>2151</locationX>
+        <locationY>1175</locationY>
+        <defaultConnector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Send Status is Not Pending</defaultConnectorLabel>
+        <rules>
+            <name>Send_Status_Not_Pending</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Initial_Email_Send_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Pending</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Is_DT_or_AT_Store</targetReference>
+            </connector>
+            <label>Send Status Pending</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_SMS_Missing_data</name>
+        <label>Is SMS Missing data</label>
+        <locationX>1120</locationX>
+        <locationY>2567</locationY>
+        <defaultConnector>
+            <targetReference>Check_for_Sending_INITIAL_PE</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>SMS_Missing_Data</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>smsMissingData</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_SMS_Status_to_Invalid_data</targetReference>
+            </connector>
+            <label>SMS Missing Data</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Is the Reply Send Status Failure? If so, we should send the Reply</description>
+        <name>Reply_Send_Status_is_Failure</name>
+        <label>Reply Send Status is Failure?</label>
+        <locationX>2080</locationX>
+        <locationY>2807</locationY>
+        <defaultConnector>
+            <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Failure</defaultConnectorLabel>
+        <rules>
+            <name>Reply_Send_Status_is_Failure_1</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Reply_PE_Send_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Failure</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Is_Reply_SMS_Payload_Invalid</targetReference>
+            </connector>
+            <label>Reply Send Status is Failure</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Send_Platform_Event</name>
+        <label>Send Platform Event?</label>
+        <locationX>1326</locationX>
+        <locationY>1415</locationY>
+        <defaultConnector>
+            <targetReference>Send_DT_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Don&apos;t Send PE</defaultConnectorLabel>
+        <rules>
+            <name>Send_PE</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Use_SFMC_Email</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Yes</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Email_Payload_Variable</targetReference>
+            </connector>
+            <label>Send PE</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Send_Platform_Event_0</name>
+        <label>Send Platform Event?</label>
+        <locationX>1854</locationX>
+        <locationY>1415</locationY>
+        <defaultConnector>
+            <targetReference>Send_AT_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Don&apos;t Send PE</defaultConnectorLabel>
+        <rules>
+            <name>Send_PE_0</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Use_SFMC_Email</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Yes</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Email_Payload_Variable_0</targetReference>
+            </connector>
+            <label>Send PE</label>
+        </rules>
+    </decisions>
+    <description>Notifications with channel set to &quot;Email, SMS&quot;</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Formula that checks to see if the notification has valid order data</description>
+        <name>emailMissingData</name>
+        <dataType>Boolean</dataType>
+        <expression>AND( ISPICKVAL({!$Record.Initial_Email_Send_Status__c}, &quot;Pending&quot;),
+ OR( ISBLANK( {!$Record.Appointment_Date__c}),
+ ISBLANK( {!$Record.Appointment_Day_of_Week__c}),
+ ISBLANK( {!$Record.Appointment_Time__c} ),
+ISBLANK( {!$Record.Appointment_Year__c} ),
+ISBLANK( TRIM( {!$Record.Customer_Email__c} ) ),
+ISBLANK( {!$Record.Email_Template_Date_Label__c} ),
+ISBLANK( {!$Record.Email_Template_Number_Label__c} ),
+ISBLANK( {!$Record.Store_City__c} ),
+ISBLANK( {!$Record.Store_Google_Maps_address__c} ),
+ISBLANK( {!$Record.Store_Logo__c} ),
+ISBLANK( {!$Record.Store_Phone_Number__c} ),
+ISBLANK( {!$Record.Store_State__c} ),
+ISBLANK( {!$Record.Store_Street__c} ),
+ISBLANK( {!$Record.Store_Zip__c} ) ) )</expression>
+    </formulas>
+    <formulas>
+        <name>Last_Error_Message_Formula</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Last_Error_Message__c} &amp;{!Error_Info} &amp;&apos;; &apos;</expression>
+    </formulas>
+    <formulas>
+        <name>smsMissingData</name>
+        <dataType>Boolean</dataType>
+        <expression>ISBLANK({!$Record.Customer_Mobile_Phone__c})</expression>
+    </formulas>
+    <interviewLabel>Notifications Email and SMS Channel {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Notifications Email and SMS Channel</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <description>Creates a platform event for both email and sms</description>
+        <name>Create_Combined_Email_SMS_Platform_Event</name>
+        <label>Create Combined Email SMS Platform Event</label>
+        <locationX>578</locationX>
+        <locationY>4199</locationY>
+        <connector>
+            <targetReference>Update_Email_Override_False_0</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>communicationType__c</field>
+            <value>
+                <elementReference>$Record.Communication_Type__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>emailPayload__c</field>
+            <value>
+                <elementReference>Email_Payload</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>notificationChannel__c</field>
+            <value>
+                <stringValue>BOTH</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>notificationId__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>notificationType__c</field>
+            <value>
+                <elementReference>$Record.Notification_Type__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>smsPayload__c</field>
+            <value>
+                <elementReference>SMS_Payload</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>source__c</field>
+            <value>
+                <elementReference>$Record.Source__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Notification_Event__e</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <description>Creates a platform event for Email</description>
+        <name>Create_Email_Platform_Event</name>
+        <label>Create Email Platform Event</label>
+        <locationX>50</locationX>
+        <locationY>4199</locationY>
+        <connector>
+            <targetReference>Update_Email_Override_False</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>communicationType__c</field>
+            <value>
+                <elementReference>$Record.Communication_Type__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>emailPayload__c</field>
+            <value>
+                <elementReference>Email_Payload</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>notificationChannel__c</field>
+            <value>
+                <stringValue>EMAIL</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>notificationId__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>notificationType__c</field>
+            <value>
+                <elementReference>$Record.Notification_Type__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>source__c</field>
+            <value>
+                <elementReference>$Record.Source__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Notification_Event__e</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <description>Creates a platform event for only SMS</description>
+        <name>Create_SMS_Platform_Event</name>
+        <label>Create SMS Platform Event</label>
+        <locationX>314</locationX>
+        <locationY>4199</locationY>
+        <connector>
+            <targetReference>Is_PE_Reply_Confirmation</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>communicationType__c</field>
+            <value>
+                <elementReference>$Record.Communication_Type__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>notificationChannel__c</field>
+            <value>
+                <stringValue>SMS</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>notificationId__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>notificationType__c</field>
+            <value>
+                <elementReference>$Record.Notification_Type__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>smsPayload__c</field>
+            <value>
+                <elementReference>SMS_Payload</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>source__c</field>
+            <value>
+                <elementReference>$Record.Source__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Notification_Event__e</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordLookups>
+        <description>Stores the value of the Email_Disable_Notifications custom metadata in a variable</description>
+        <name>Set_Global_Email_Disabled</name>
+        <label>Set Global_Email_Disabled</label>
+        <locationX>446</locationX>
+        <locationY>455</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Set_Global_SMS_Disabled</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Email_Disable_Notifications</stringValue>
+            </value>
+        </filters>
+        <object>Appt_Appointment_Setting__mdt</object>
+        <outputAssignments>
+            <assignToReference>Global_Email_Disabled</assignToReference>
+            <field>Value__c</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <description>Set a variable to hold the value of the &quot;Notification_Disable_SMS&quot; custom metadata record</description>
+        <name>Set_Global_SMS_Disabled</name>
+        <label>Set Global SMS Disabled</label>
+        <locationX>446</locationX>
+        <locationY>575</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Customer_Email_Opt_Out_or_Email_Disabled_or_Email_Not_Pending</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Notification_Disable_SMS</stringValue>
+            </value>
+        </filters>
+        <object>Appt_Appointment_Setting__mdt</object>
+        <outputAssignments>
+            <assignToReference>Global_SMS_Disabled</assignToReference>
+            <field>Value__c</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <description>Set the &quot;Use_SFMC_Email&quot; variable to the value of the custom metadata record</description>
+        <name>SetUse_SFMC_Email</name>
+        <label>Set Use_SFMC_Email</label>
+        <locationX>446</locationX>
+        <locationY>335</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Set_Global_Email_Disabled</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Use_SFMC_Email</stringValue>
+            </value>
+        </filters>
+        <object>Appt_Appointment_Setting__mdt</object>
+        <outputAssignments>
+            <assignToReference>Use_SFMC_Email</assignToReference>
+            <field>Value__c</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordUpdates>
+        <description>Confirm the Service Appointments that are related to the SA attached to the notification</description>
+        <name>Confirm_Related_Service_Appointments</name>
+        <label>Confirm Related Service Appointments</label>
+        <locationX>314</locationX>
+        <locationY>4775</locationY>
+        <connector>
+            <targetReference>Update_Notification_Object_After_PE_Published</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Service_Appointment__r.Related_Appointment__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Confirmed</stringValue>
+            </value>
+        </inputAssignments>
+        <object>ServiceAppointment</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Set the Service Appointment attached to Notification to Confirmed</description>
+        <name>Confirm_Service_Appointment</name>
+        <label>Confirm Service Appointment</label>
+        <locationX>314</locationX>
+        <locationY>4655</locationY>
+        <connector>
+            <targetReference>Confirm_Related_Service_Appointments</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Service_Appointment__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Confirmed</stringValue>
+            </value>
+        </inputAssignments>
+        <object>ServiceAppointment</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Set Reply SMS Send Status to Invalid Data and give a reason why we failed</description>
+        <name>Copy_1_of_Set_SMS_Send_Status_Invalid_Data</name>
+        <label>Set Reply SMS Send Status Invalid Data</label>
+        <locationX>1629</locationX>
+        <locationY>3167</locationY>
+        <connector>
+            <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Last_Error_Message__c</field>
+            <value>
+                <elementReference>Last_Error_Message_Formula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Reply_PE_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Sets email status to invalid data</description>
+        <name>Set_Email_Status</name>
+        <label>Set Email Status Invalid Data</label>
+        <locationX>666</locationX>
+        <locationY>1055</locationY>
+        <connector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Set the email status to invalid data, set error message to ineligible to send</description>
+        <name>Set_Email_Status_Invalid_Data_Ineligible_to_Send</name>
+        <label>Set Email Status Invalid Data, Ineligible to Send</label>
+        <locationX>930</locationX>
+        <locationY>1295</locationY>
+        <connector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Error_Message__c</field>
+            <value>
+                <elementReference>Last_Error_Message_Formula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Set SMS Send Status to Invalid Data and give a reason why we failed</description>
+        <name>Set_SMS_Send_Status_Invalid_Data</name>
+        <label>Set SMS Send Status Invalid Data</label>
+        <locationX>1101</locationX>
+        <locationY>3167</locationY>
+        <connector>
+            <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Initial_PE_SMS_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Error_Message__c</field>
+            <value>
+                <elementReference>Last_Error_Message_Formula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Set_SMS_Status_to_Invalid_data</name>
+        <label>Set SMS Status to Invalid data</label>
+        <locationX>661</locationX>
+        <locationY>2687</locationY>
+        <connector>
+            <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Initial_PE_SMS_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Update the email override on the service appointment to false</description>
+        <name>Update_Email_Override_False</name>
+        <label>Update Email Override False</label>
+        <locationX>50</locationX>
+        <locationY>4319</locationY>
+        <connector>
+            <targetReference>Is_PE_Reply_Confirmation</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Service_Appointment__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Email_Notification_Source_Override__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>ServiceAppointment</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Update the email override on the service appointment to false</description>
+        <name>Update_Email_Override_False_0</name>
+        <label>Update Email Override False</label>
+        <locationX>578</locationX>
+        <locationY>4319</locationY>
+        <connector>
+            <targetReference>Is_PE_Reply_Confirmation</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Service_Appointment__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Email_Notification_Source_Override__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>ServiceAppointment</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Set the Initial_Email_Send_Status field to &quot;Invalid Order Number&quot;</description>
+        <name>Update_Email_Status_Invalid_Order_Number</name>
+        <label>Update Email Status Invalid Order Number</label>
+        <locationX>402</locationX>
+        <locationY>935</locationY>
+        <connector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Order Number</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Send_Status_to_Invalid_Data</name>
+        <label>Update Send Status to Invalid Data</label>
+        <locationX>2250</locationX>
+        <locationY>1535</locationY>
+        <connector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Error_Message__c</field>
+            <value>
+                <elementReference>Last_Error_Message_Formula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Send_Status_to_Invalid_Data_with_Error</name>
+        <label>Update Send Status to Invalid Data with Error</label>
+        <locationX>133</locationX>
+        <locationY>2567</locationY>
+        <connector>
+            <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Initial_PE_SMS_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Error_Message__c</field>
+            <value>
+                <elementReference>Last_Error_Message_Formula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Send_Status_to_Invalid_Data_with_Error_0</name>
+        <label>Update Send Status to Invalid Data with Error</label>
+        <locationX>138</locationX>
+        <locationY>935</locationY>
+        <connector>
+            <targetReference>Is_Global_SMS_Disabled</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Initial_Email_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Data</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Error_Message__c</field>
+            <value>
+                <elementReference>Last_Error_Message_Formula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Update the SMS Send Status to Invalid Order Number</description>
+        <name>Update_SMS_Send_Status_Invalid_Order_Number</name>
+        <label>Update SMS Send Status Invalid Order Number</label>
+        <locationX>397</locationX>
+        <locationY>2567</locationY>
+        <connector>
+            <targetReference>Check_Valid_Email_and_SMS_Payloads</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Initial_PE_SMS_Send_Status__c</field>
+            <value>
+                <stringValue>Invalid Order Number</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>320</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>SetUse_SFMC_Email</targetReference>
+        </connector>
+        <filterLogic>1 AND 2 AND (3 OR 4 OR 5)</filterLogic>
+        <filters>
+            <field>Channels__c</field>
+            <operator>Contains</operator>
+            <value>
+                <stringValue>EMAIL</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Channels__c</field>
+            <operator>Contains</operator>
+            <value>
+                <stringValue>SMS</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Initial_Email_Send_Status__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Initial_PE_SMS_Send_Status__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Reply_PE_Send_Status__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Notification__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>Holds the email payload on the notification object</description>
+        <name>Email_Payload</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue></stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>Error_Info</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Stores whether or not we have disabled email notifications in the environment</description>
+        <name>Global_Email_Disabled</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Holds the value of the &quot;Notification_Disable_SMS&quot; custom metadata record for later use</description>
+        <name>Global_SMS_Disabled</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>Reply_SMS_Payload</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Stores whether our SMS is a reply confirmation, since additional logic will need to be performed</description>
+        <name>Send_Confirmation_Reply</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Holds the SMS payload to be used in the platform event</description>
+        <name>SMS_Payload</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue></stringValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Reply or Initial?</description>
+        <name>SMS_Send_Type</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Stores the value of the Use_SFMC_Email custom metadata record for later use</description>
+        <name>Use_SFMC_Email</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>After_Hours_email_alert</name>
+        <label>Case.After_Hours_email_alert</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>Case.After_Hours_email_alert</actionName>
+        <actionType>emailAlert</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <apiVersion>58.0</apiVersion>
+    <description>Migrated from the: After Hours Email Case Auto-Response Rule workflow rule
+Workflow rule description: &quot;</description>
+    <label>After Hours Email Case Auto-Response Rule</label>
+    <migratedFromWorkflowRuleName>After Hours Email Case Auto-Response Rule</migratedFromWorkflowRuleName>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>mainUpdate</name>
+        <label>mainUpdate</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>After_Hours_email_alert</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Auto_Response_Sent__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>mainUpdate</targetReference>
+        </connector>
+        <filterFormula>AND( OR(MOD( DATEVALUE({!$Record.CreatedDate}) - DATE(1900, 1, 6), 7) =1, AND(MOD( DATEVALUE({!$Record.CreatedDate}) - DATE(1900, 1, 6), 7) =0, VALUE(MID(TEXT({!$Record.CreatedDate}),12,2))&lt; 10, VALUE(MID(TEXT({!$Record.CreatedDate}),12,2))&gt; 1), AND(MOD( DATEVALUE({!$Record.CreatedDate}) - DATE(1900, 1, 6), 7) &gt;= 2, VALUE(MID(TEXT({!$Record.CreatedDate}),12,2))&lt; 13, VALUE(MID(TEXT({!$Record.CreatedDate}),12,2))&gt; 1) ), NOT(CONTAINS({!$Record.Subject}, &apos;[Email Loop Protection]&apos;)),NOT({!$Permission.Bypass_Logic}) )</filterFormula>
+        <object>Case</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Draft</status>
+</Flow>

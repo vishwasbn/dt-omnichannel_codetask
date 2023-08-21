@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>callInvocable_Method</name>
+        <label>callInvocable Method</label>
+        <locationX>50</locationX>
+        <locationY>455</locationY>
+        <actionName>Fleet_TaskUtility</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>acclist</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <apiVersion>54.0</apiVersion>
+    <decisions>
+        <name>check_for_account_RT</name>
+        <label>check for account RT</label>
+        <locationX>182</locationX>
+        <locationY>335</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>B2B</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.RecordType.DeveloperName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>B2B</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>callInvocable_Method</targetReference>
+            </connector>
+            <label>B2B</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>Due_date</name>
+        <dataType>Date</dataType>
+        <expression>CASE( 
+  MOD( TODAY() - DATE( 1900, 1, 7 ), 7 ),
+  2, TODAY()+ 2 + 4,
+  3, TODAY()+ 2 + 4,
+  4, TODAY() + 2 + 4,
+  5, TODAY() + 2 + 4,
+  6, TODAY()+ 1 + 5,
+  7, TODAY() + 5,
+  TODAY() + 4
+)</expression>
+    </formulas>
+    <formulas>
+        <name>Reminder_date</name>
+        <dataType>DateTime</dataType>
+        <expression>DATETIMEVALUE({!text_reminder_date})</expression>
+    </formulas>
+    <formulas>
+        <name>text_reminder_date</name>
+        <dataType>String</dataType>
+        <expression>TEXT({!Due_date})+&quot; &quot;+ &quot;16:00:00&quot;</expression>
+    </formulas>
+    <interviewLabel>Application Follow-up Task for Approved Account {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Follow-up with customer regarding approved account</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>check_for_account_RT</targetReference>
+        </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Fleet_Account_Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Customer</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Fleet_AR_App_Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Approved</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>ECC_Account_Number__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
+        <object>Account</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>recordtype</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>subject_line</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Follow-up with customer regarding approved account</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>taskid</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>tasksub</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>testsub</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>testing for task on approved one </stringValue>
+        </value>
+    </variables>
+</Flow>

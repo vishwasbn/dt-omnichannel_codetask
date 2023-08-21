@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Case_Status_Customer_Replied</fullName>
+        <description>Updates Case Status to Customer Replied</description>
+        <field>Status</field>
+        <literalValue>Customer Replied</literalValue>
+        <name>Case Status: Customer Replied</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>ParentId</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Case_Status_DT_Replied</fullName>
+        <description>Updates Case Status to Closed when Replied</description>
+        <field>Status</field>
+        <literalValue>Closed</literalValue>
+        <name>Case Status: DT Replied</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>ParentId</targetObject>
+    </fieldUpdates>
+    <rules>
+        <fullName>Update Case Status to Closed after Reply</fullName>
+        <actions>
+            <name>Case_Status_DT_Replied</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>EmailMessage.Incoming</field>
+            <operation>equals</operation>
+            <value>False</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Status</field>
+            <operation>equals</operation>
+            <value>Customer Replied,Store Replied,New</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Case.Contact_Email__c</field>
+            <operation>notContain</operation>
+            <value>@discounttire.com,@americastire.com</value>
+        </criteriaItems>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+</Workflow>
