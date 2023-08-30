@@ -83,4 +83,28 @@ public static Logger logInstance = Logger.getInstance();
         System.debug('date : '+DateTime.parse(DateValue.Substring(5,7)+'/'+DateValue.Substring(8,10)+'/'+DateValue.Substring(0,4)+', '+hours+':'+timeValue.substring(3,5)+ ' ' +ampm));
         return DateTime.parse(DateValue.Substring(5,7)+'/'+DateValue.Substring(8,10)+'/'+DateValue.Substring(0,4)+', '+hours+':'+timeValue.substring(3,5)+ ' ' +ampm);
     }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Option> getOperatingHourOptions() {
+        List<Option> options = new List<Option>();
+        
+        for (OperatingHours oh : [select id, Name, TimeZone from OperatingHours]) {
+            options.add(new Option(oh.Id, oh.Name));
+        }
+        
+        return options;
+    }
+    
+    public class Option {
+        @AuraEnabled
+        public String value { get; set; }
+        
+        @AuraEnabled
+        public String label { get; set; }
+        
+        public Option(String value, String label) {
+            this.value = value;
+            this.label = label;
+        }
+    }
 }

@@ -4,3 +4,6 @@ declare module "@salesforce/apex/TestResourceAbsenceController.getAllStores" {
 declare module "@salesforce/apex/TestResourceAbsenceController.createAbsenceRecords" {
   export default function createAbsenceRecords(param: {requestData: any}): Promise<any>;
 }
+declare module "@salesforce/apex/TestResourceAbsenceController.getOperatingHourOptions" {
+  export default function getOperatingHourOptions(): Promise<any>;
+}

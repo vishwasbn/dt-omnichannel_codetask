@@ -1,6 +1,30 @@
 <template>
     <div class="slds-theme_default slds-p-top_small" style="height:30%;">
-        <lightning-layout multiple-rows>
+        
+            <!--Operating hour selection page start-->
+            <template if:true={operatinghourpage}>
+                <lightning-card title="">
+                    <div class="slds-grid slds-gutters slds-m-top_small">
+                        <div class="slds-col slds-size_1-of-4">
+            
+                            <lightning-combobox label="Select an Operating Hour" options={operatingHourOptions}
+                                value={selectedOperatingHourId} onchange={handleOperatingHourChange}>
+                            </lightning-combobox>
+            
+                            <!-- <lightning-combobox
+                                                                label="Static Dropdown"
+                                                                options={staticOptions}
+                                                                value={selectedStaticOption}
+                                                                onchange={handleStaticChange}>
+                                                            </lightning-combobox> -->
+                        </div>
+                    </div>
+                </lightning-card>
+            
+            </template>
+            
+            <lightning-layout multiple-rows>
+            <!--Operating hour selection page end-->
             <!-- FIRST SCREEN: START -->
             <template if:true={isFirstScreen}>
                 <lightning-layout-item size="12" height="10px !important" padding="around-small">

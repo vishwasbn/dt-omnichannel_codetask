@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllStores';
 import createAbsence from '@salesforce/apex/TestResourceAbsenceController.createAbsenceRecords';
+import getOperatingHourOptions from '@salesforce/apex/TestResourceAbsenceController.getOperatingHourOptions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 const columns = [
     { label: 'Name', fieldName: 'Name', hideDefaultActions: 'true' },
@@ -23,7 +24,8 @@ const RBColumns = [
 ];
 const DELAY = 300;
 export default class TestApptResourceAbsence extends LightningElement {
-    isFirstScreen = true;
+    isFirstScreen = false;
+    operatinghourpage = true;
     isSecondScreen;
     isThirdScreen;
     _isValidationError = false;
@@ -47,6 +49,11 @@ export default class TestApptResourceAbsence extends LightningElement {
     secondScreenColumns = secondScreenColumns;
     isSuccess = false;
     disableButton = true;
+    operatingHourOptions = [];
+    selectedOperatingHourId;
+
+
+
     get disableButton() {
         return this.checkedRows.length > 0 ? false : true;
     }
@@ -299,6 +306,19 @@ export default class TestApptResourceAbsence extends LightningElement {
         element.StoreDate = event.target.value;
         this.recordsData = [...this.recordsData];
 
+    }
+
+    @wire(getOperatingHourOptions)
+    wiredAccountOptions({ data, error }) {
+        if (data) {
+            this.operatingHourOptions = data;
+        } else if (error) {
+            console.log('Not able to get the operating hour options from server');
+        }
+    }
+
+    handleOperatingHourChange(event) {
+        this.selectedOperatingHourId = event.detail.value;
     }
 
 }
