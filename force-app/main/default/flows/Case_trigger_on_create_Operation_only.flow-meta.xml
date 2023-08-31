@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>After_Hours_email_alert</name>
+        <label>After Hours email alert</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <actionName>Case.After_Hours_email_alert</actionName>
+        <actionType>emailAlert</actionType>
+        <connector>
+            <targetReference>set_auto_response_check_box_to_true</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
+        <name>Email_Case_Auto_Response_1</name>
+        <label>Email Case Auto-Response</label>
+        <locationX>50</locationX>
+        <locationY>839</locationY>
+        <actionName>Case.Email_Case_Auto_Response</actionName>
+        <actionType>emailAlert</actionType>
+        <connector>
+            <targetReference>set_auto_response_field</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <apiVersion>59.0</apiVersion>
+    <decisions>
+        <description>Check if  the case is created on the after hours</description>
+        <name>After_Hours_Email_Case</name>
+        <label>After Hours Email Case</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnector>
+            <targetReference>Email_case_auto_response</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>is_after_hour_email_case</name>
+            <conditionLogic>1 AND NOT(2) AND 3</conditionLogic>
+            <conditions>
+                <leftValueReference>after_hours_formula</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subject</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>[Email Loop Protection]</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Permission.Bypass_Logic</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>After_Hours_email_alert</targetReference>
+            </connector>
+            <label>is after hour email case</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Case_origin_is_community_of_web_form</name>
+        <label>is origin is community or web form</label>
+        <locationX>182</locationX>
+        <locationY>1439</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>origin_is_community_or_web_form</name>
+            <conditionLogic>1 AND 6 AND (2 OR 3 OR 4 OR 5)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>New</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Origin</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Web Form - DTD</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Origin</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Web Form - DT</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Origin</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Web Form - AT</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Origin</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Customer Community</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Permission.Bypass_Logic</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>get_Customer_Relations_Queue</targetReference>
+            </connector>
+            <label>origin is community or web form</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Email_case_auto_response</name>
+        <label>Email case auto response</label>
+        <locationX>182</locationX>
+        <locationY>731</locationY>
+        <defaultConnector>
+            <targetReference>web_case</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>is_email_case</name>
+            <conditionLogic>1 AND 2 AND 3 AND NOT(4) AND 5</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>New</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Origin</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Social Network</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Origin</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Phone</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subject</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Email Loop Protection</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Permission.Bypass_Logic</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Email_Case_Auto_Response_1</targetReference>
+            </connector>
+            <label>is email case</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>web_case</name>
+        <label>web form case</label>
+        <locationX>182</locationX>
+        <locationY>1139</locationY>
+        <defaultConnector>
+            <targetReference>Case_origin_is_community_of_web_form</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>is_web_case</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>New</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Origin</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Contact Us Web Form</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>set_case_priority</targetReference>
+            </connector>
+            <label>is web form case</label>
+        </rules>
+    </decisions>
+    <description>This customer care related flow used to replace the workflow which triggers only in case of case create operation</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>This caluculate if the email case is created during after hours</description>
+        <name>after_hours_formula</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(
+  MOD( DATEVALUE({!$Record.CreatedDate}) - DATE(1900, 1, 6), 7) =1, 
+  AND(
+   MOD( DATEVALUE({!$Record.CreatedDate}) - DATE(1900, 1, 6), 7) =0, 
+   VALUE(MID(TEXT({!$Record.CreatedDate}),12,2))&lt; 10, 
+   VALUE(MID(TEXT({!$Record.CreatedDate}),12,2))&gt; 1),
+  AND(
+   MOD( DATEVALUE({!$Record.CreatedDate}) - DATE(1900, 1, 6), 7) &gt;= 2,
+   VALUE(MID(TEXT({!$Record.CreatedDate}),12,2))&lt; 13, 
+   VALUE(MID(TEXT({!$Record.CreatedDate}),12,2))&gt; 1) )</expression>
+    </formulas>
+    <interviewLabel>Case trigger on insert Operation {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>CCC Case trigger on create Operation only</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>get_Customer_Relations_Queue</name>
+        <label>get Customer Relations Queue</label>
+        <locationX>50</locationX>
+        <locationY>1547</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Update_Owner_to_Customer_Relations</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Type</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Queue</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>CCC_Customer_Relations_Queue</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Group</object>
+        <queriedFields>Id</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>set_auto_response_check_box_to_true</name>
+        <label>set auto response check box to true</label>
+        <locationX>50</locationX>
+        <locationY>539</locationY>
+        <connector>
+            <targetReference>Email_case_auto_response</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Auto_Response_Sent__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>set_auto_response_field</name>
+        <label>set auto response field</label>
+        <locationX>50</locationX>
+        <locationY>947</locationY>
+        <connector>
+            <targetReference>web_case</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Auto_Response_Sent__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>set_case_priority</name>
+        <label>set case priority</label>
+        <locationX>50</locationX>
+        <locationY>1247</locationY>
+        <connector>
+            <targetReference>Case_origin_is_community_of_web_form</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Priority</field>
+            <value>
+                <stringValue>Medium</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Owner_to_Customer_Relations</name>
+        <label>Update Owner to Customer Relations</label>
+        <locationX>50</locationX>
+        <locationY>1655</locationY>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>get_Customer_Relations_Queue.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>After_Hours_Email_Case</targetReference>
+        </connector>
+        <object>Case</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <triggerOrder>1</triggerOrder>
+</Flow>

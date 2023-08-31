@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <decisions>
+        <name>is_spam_details</name>
+        <label>is spam details</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>spam_details</name>
+            <conditionLogic>1 AND 2 AND 3 AND 4 AND 5 AND 6 AND 7 AND 8 AND (9 OR 10)</conditionLogic>
+            <conditions>
+                <leftValueReference>is_spam_accountemail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>is_spam_webemail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>is_spam_webname</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>is_spam_subject</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>is_spam_accountname</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>is_spam_accountlastname</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>is_nonspam_accountemail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Closed</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>is_nonspam_subject</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>is_nonspam_contactemail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>case_status_to_closed</targetReference>
+            </connector>
+            <label>spam details</label>
+        </rules>
+    </decisions>
+    <description>This Flow is related to the Customer care which is used to handle the Spam cases.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>is_nonspam_accountemail</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(CONTAINS({!$Record.Account.Email__c}, &apos;MerchantCircle&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;naveenkumarcbm@sulekha.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;noreply@surveygizmo.com&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>is_nonspam_contactemail</name>
+        <dataType>Boolean</dataType>
+        <expression>(CONTAINS({!$Record.Contact.Email}, &apos;@discounttire.com&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>is_nonspam_subject</name>
+        <dataType>Boolean</dataType>
+        <expression>(CONTAINS({!$Record.Subject}, &apos;Google Business Review&apos;))</expression>
+    </formulas>
+    <formulas>
+        <description>These are the spam account emails</description>
+        <name>is_spam_accountemail</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(CONTAINS({!$Record.Account.Email__c}, &apos;hello@broadly.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;jason@4wdsupply.ca&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;@sandsbrokerageinc.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;info@sxsadventurerally.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;alerts@relix.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;messages-noreply@linkedin.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;pc@gtglass.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;shippingsupply.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;seo-indexer.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;cp20.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;citylistings.net&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;updatelisting.net&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;easylink.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;99business.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;@bybirdeye.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;sales22@pacific-line.cn&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;team@epartrade.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;notifications-noreply@linkedin.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;marketing@scantron.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;Info@performancenc.ca&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;info@simpletire.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;@vfiber.com&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;@fsu.edu&apos;),CONTAINS({!$Record.Account.Email__c}, &apos;@farmersagent.com&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>is_spam_accountlastname</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(({!$Record.Account.LastName}=&apos;from AutoLeap&apos;),({!$Record.Account.LastName}=&apos;MerchantCircle&apos;),({!$Record.Account.LastName}=&apos;Relix&apos;),({!$Record.Account.LastName}=&apos;at grandecom.net&apos;),({!$Record.Account.LastName}=&apos;Admins postmaster at ppd.com&apos;),({!$Record.Account.LastName}=&apos;MerchantCircle&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>is_spam_accountname</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(CONTAINS({!$Record.Account.Name}, &apos;BirdEye&apos;),CONTAINS({!$Record.Account.Name}, &apos;Exoto&apos;),CONTAINS({!$Record.Account.Name}, &apos;KFamous&apos;),CONTAINS({!$Record.Account.Name}, &apos;Listing Dept&apos;),CONTAINS({!$Record.Account.Name}, &apos;CJM&apos;),CONTAINS({!$Record.Account.Name}, &apos;Relix&apos;),CONTAINS({!$Record.Account.Name}, &apos;Trackingmail&apos;),CONTAINS({!$Record.Account.Name}, &apos;Biz Cap&apos;),CONTAINS({!$Record.Account.Name}, &apos;India Williams&apos;),CONTAINS({!$Record.Account.Name}, &apos;Sulekha Jobs&apos;),CONTAINS({!$Record.Account.Name}, &apos;Impact Buildings&apos;),CONTAINS({!$Record.Account.Name}, &apos;Cyberlead&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>is_spam_subject</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(CONTAINS({!$Record.Subject}, &apos;Child Labor&apos;),CONTAINS({!$Record.Subject}, &apos;Will you clean up your supply chains&apos;),CONTAINS({!$Record.Subject}, &apos;Will you clean up your supply chains&apos;),CONTAINS({!$Record.Subject}, &apos;Whose hands made my stuff&apos;),CONTAINS({!$Record.Subject}, &apos;Are children making&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>is_spam_webemail</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(CONTAINS({!$Record.SuppliedEmail}, &apos;customercare@surveyclubmail.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;daily@relix.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;donotreply@easylink.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;enews@exoto.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;johnfeng111@126.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;leanne.sweeney@eddisonscjm.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;melissa@northwestruralwater.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;wrapidconcepts@gmail.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;trackingmail@fedex.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;pc@gtglass.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;@kpmg.com&apos;),CONTAINS({!$Record.SuppliedEmail}, &apos;@relix.com&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>is_spam_webname</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(CONTAINS({!$Record.SuppliedName}, &apos;Alerts@relix.com&apos;),CONTAINS({!$Record.SuppliedName}, &apos;fast funds&apos;),CONTAINS({!$Record.SuppliedName}, &apos;NAI Hanning &amp; Bean&apos;),CONTAINS({!$Record.SuppliedName}, &apos;enews@exoto.com&apos;),CONTAINS({!$Record.SuppliedName}, &apos;olga@641west.com&apos;),CONTAINS({!$Record.SuppliedName}, &apos;enews@exoto.com&apos;),CONTAINS({!$Record.SuppliedName}, &apos;Relix&apos;),CONTAINS({!$Record.SuppliedName}, &apos;mail@mycommunitynews.us&apos;),CONTAINS({!$Record.SuppliedName}, &apos;junkemail@impactbuildings.com&apos;),CONTAINS({!$Record.SuppliedName}, &apos;noreply&apos;),CONTAINS({!$Record.SuppliedName}, &apos;no-reply&apos;),CONTAINS({!$Record.SuppliedName}, &apos;dontreply&apos;))</expression>
+    </formulas>
+    <interviewLabel>Closes Known Spam {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>CCC Closes Known Spam</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>case_status_to_closed</name>
+        <label>case status to closed</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Spam Bulk Close (Auto)</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>is_spam_details</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Status</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Closed</stringValue>
+            </value>
+        </filters>
+        <object>Case</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <triggerOrder>6</triggerOrder>
+</Flow>
