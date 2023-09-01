@@ -1,28 +1,37 @@
 <template>
+    <section class="main">
     <div class="slds-theme_default slds-p-top_small" style="height:30%;">
         
             <!--Operating hour selection page start-->
             <template if:true={operatinghourpage}>
                 <lightning-card title="">
                     <div class="slds-grid slds-gutters slds-m-top_small">
-                        <div class="slds-col slds-size_1-of-4">
+                        <div class="slds-col slds-size_1-of-1">
+                            <div class="slds-align_absolute-center slds-m-around_small">
+                                <lightning-combobox style="width:600px" label="Select an Operating Hour" options={operatingHourOptions} value={selectedOperatingHourId}
+                                    onchange={handleOperatingHourChange}>
+                                </lightning-combobox>
+                            </div>
             
-                            <lightning-combobox label="Select an Operating Hour" options={operatingHourOptions}
-                                value={selectedOperatingHourId} onchange={handleOperatingHourChange}>
-                            </lightning-combobox>
-            
-                            <!-- <lightning-combobox
-                                                                label="Static Dropdown"
-                                                                options={staticOptions}
-                                                                value={selectedStaticOption}
-                                                                onchange={handleStaticChange}>
-                                                            </lightning-combobox> -->
+                            <div class="slds-align_absolute-center slds-m-around_small">
+                                <lightning-combobox disabled={disableregiondropdown} style="width:600px" label="Select Store region"
+                                    options={storeRegionOptions} value={selectedRegion} onchange={handleRegionChange}>
+                                </lightning-combobox>
+                            </div>
+                            <div class="slds-align_absolute-center slds-m-around_small">
+                                <lightning-button variant="brand"
+                                label="Next"
+                                disabled={disablebtn}
+                                onclick={handleOperatingHourScreen}
+                                class="slds-truncate"></lightning-button>
+                            
+                            </div>
                         </div>
                     </div>
                 </lightning-card>
             
             </template>
-            
+
             <lightning-layout multiple-rows>
             <!--Operating hour selection page end-->
             <!-- FIRST SCREEN: START -->
@@ -215,5 +224,5 @@
             </lightning-layout-item>
         </lightning-layout>
     </div>
-
+</section>
 </template>

@@ -2,6 +2,7 @@ import { LightningElement, wire, track } from 'lwc';
 import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllStores';
 import createAbsence from '@salesforce/apex/TestResourceAbsenceController.createAbsenceRecords';
 import getOperatingHourOptions from '@salesforce/apex/TestResourceAbsenceController.getOperatingHourOptions';
+import getSiteRegions from '@salesforce/apex/TestResourceAbsenceController.getSiteRegions';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 const columns = [
     { label: 'Name', fieldName: 'Name', hideDefaultActions: 'true' },
@@ -51,12 +52,27 @@ export default class TestApptResourceAbsence extends LightningElement {
     disableButton = true;
     operatingHourOptions = [];
     selectedOperatingHourId;
+    storeRegionOptions = [];
+    selectedRegion;
 
 
 
     get disableButton() {
         return this.checkedRows.length > 0 ? false : true;
     }
+
+    // get disableregiondropdown(){
+    //     return this.selectedOperatingHourId == null || this.storeRegionOptions.length == 0;
+    // }
+
+    // get disableregiondropdown(){
+    //     return this.storeRegionOptions.length == 0;
+    // }
+
+    get disablebtn(){
+        return this.selectedRegion == null;
+    }
+
     connectedCallback() {
         //today  = new Date().getFullYear() + '-' + (new Date().getMonth()+1) + '-' + new Date().getDate();
         this.today = new Date().toLocaleString();
@@ -317,8 +333,32 @@ export default class TestApptResourceAbsence extends LightningElement {
         }
     }
 
+    getSiteRegions(){
+        getSiteRegions({ operatingHourId : this.selectedOperatingHourId })
+        .then((result) => {
+            console.log('Optained the region'+ result);
+            this.storeRegionOptions = result;
+
+        })
+        .catch((error) => {
+            console.log('Exception on the region fetch' + error);
+            this.storeRegionOptions = [];
+        });
+    }
+
     handleOperatingHourChange(event) {
         this.selectedOperatingHourId = event.detail.value;
+        this.selectedRegion =null;
+        this.storeRegionOptions =null;
+        this.getSiteRegions();
+    }
+
+    handleRegionChange(event) {
+        this.selectedRegion = event.detail.value;        
+    }
+
+    handleOperatingHourScreen(){
+        
     }
 
 }

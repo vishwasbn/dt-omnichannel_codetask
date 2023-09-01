@@ -94,6 +94,20 @@ public static Logger logInstance = Logger.getInstance();
         
         return options;
     }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Option> getSiteRegions(String operatingHourId) {
+        List<Option> options = new List<Option>();
+        
+        for (AggregateResult ar : [select Site_Account__r.Store_Region__c  from ServiceTerritory where Site_Account__r.RecordType.Name='Site' and OperatingHours.id = :operatingHourId group by Site_Account__r.Store_Region__c]) {
+            if(ar.get('Store_Region__c')!=null){
+                options.add(new Option(ar.get('Store_Region__c').toString(), ar.get('Store_Region__c').toString()));
+            }
+            
+        }
+        
+        return options;
+    }
     
     public class Option {
         @AuraEnabled

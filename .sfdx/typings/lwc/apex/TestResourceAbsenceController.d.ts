@@ -7,3 +7,6 @@ declare module "@salesforce/apex/TestResourceAbsenceController.createAbsenceReco
 declare module "@salesforce/apex/TestResourceAbsenceController.getOperatingHourOptions" {
   export default function getOperatingHourOptions(): Promise<any>;
 }
+declare module "@salesforce/apex/TestResourceAbsenceController.getSiteRegions" {
+  export default function getSiteRegions(param: {operatingHourId: any}): Promise<any>;
+}
