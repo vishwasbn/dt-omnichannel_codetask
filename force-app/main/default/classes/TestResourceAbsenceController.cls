@@ -121,4 +121,17 @@ public static Logger logInstance = Logger.getInstance();
             this.label = label;
         }
     }
+
+    @AuraEnabled(cacheable=true)
+    public static String getUserAccountTimezone() {
+        String userTimeZone = '';
+        
+        // Fetch the current user's account
+        User currentUser = [SELECT AccountId, TimeZoneSidKey FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+        
+        if (currentUser != null && currentUser.TimezoneSidKey != null) {
+                userTimeZone = currentUser.TimezoneSidKey;
+            }
+        return userTimeZone;
+    }
 }

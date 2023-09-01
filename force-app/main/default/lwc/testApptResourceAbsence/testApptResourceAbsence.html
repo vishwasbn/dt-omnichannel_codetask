@@ -1,4 +1,14 @@
 <template>
+    <lightning-card>
+        <div class="slds-p-around_medium">
+            <template if:true={userTimezone}>
+                <p class="timezone_text">The logged-in user's account timezone is: <b>{userTimezone}</b></p>
+            </template>
+            <template if:false={userTimezone}>
+                <p class="timezone_text">No account timezone found for the logged-in user.</p>
+            </template>
+        </div>
+    </lightning-card>
     <section class="main">
     <div class="slds-theme_default slds-p-top_small" style="height:30%;">
         

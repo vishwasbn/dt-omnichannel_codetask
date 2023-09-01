@@ -10,3 +10,6 @@ declare module "@salesforce/apex/TestResourceAbsenceController.getOperatingHourO
 declare module "@salesforce/apex/TestResourceAbsenceController.getSiteRegions" {
   export default function getSiteRegions(param: {operatingHourId: any}): Promise<any>;
 }
+declare module "@salesforce/apex/TestResourceAbsenceController.getUserAccountTimezone" {
+  export default function getUserAccountTimezone(): Promise<any>;
+}

@@ -3,6 +3,9 @@ import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllSt
 import createAbsence from '@salesforce/apex/TestResourceAbsenceController.createAbsenceRecords';
 import getOperatingHourOptions from '@salesforce/apex/TestResourceAbsenceController.getOperatingHourOptions';
 import getSiteRegions from '@salesforce/apex/TestResourceAbsenceController.getSiteRegions';
+import getUserAccountTimezone from '@salesforce/apex/TestResourceAbsenceController.getUserAccountTimezone';
+
+
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 const columns = [
     { label: 'Name', fieldName: 'Name', hideDefaultActions: 'true' },
@@ -49,11 +52,13 @@ export default class TestApptResourceAbsence extends LightningElement {
     RBColumns = RBColumns;
     secondScreenColumns = secondScreenColumns;
     isSuccess = false;
+
     disableButton = true;
     operatingHourOptions = [];
     selectedOperatingHourId;
     storeRegionOptions = [];
     selectedRegion;
+    userTimezone;
 
 
 
@@ -359,6 +364,15 @@ export default class TestApptResourceAbsence extends LightningElement {
 
     handleOperatingHourScreen(){
         
+    }
+
+    @wire(getUserAccountTimezone)
+    wiredUserTimezone({ data, error }) {
+        if (data) {
+            this.userTimezone = data;
+        } else if (error) {
+            console.error('Error fetching user account timezone', error);
+        }
     }
 
 }
