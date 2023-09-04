@@ -130,6 +130,11 @@ export default class TestApptResourceAbsence extends LightningElement {
         else {
             this.disableButton = true;
         }
+        if(event.detail.config.action == null || event.detail.config.action == 'undefined'){
+                var newlist = [];
+                newlist.push(...this.checkedRows);
+                this.selectedRows = newlist;
+        }
     }
     searchKeyChanged(event) {
 
@@ -363,7 +368,8 @@ export default class TestApptResourceAbsence extends LightningElement {
     }
 
     handleOperatingHourScreen(){
-        
+        this.operatinghourpage = false;
+        this.isFirstScreen = true;
     }
 
     @wire(getUserAccountTimezone)
