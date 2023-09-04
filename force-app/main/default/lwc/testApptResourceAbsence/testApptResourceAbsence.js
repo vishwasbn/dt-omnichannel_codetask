@@ -113,7 +113,8 @@ export default class TestApptResourceAbsence extends LightningElement {
             this.data.push(currentItem);
         });
     }
-    rowSelected(event) {
+
+    /*rowSelected(event) {
 
         if (this.template.querySelector("lightning-datatable").getSelectedRows().length > 0) {
             this.disableButton = false;
@@ -130,12 +131,78 @@ export default class TestApptResourceAbsence extends LightningElement {
         else {
             this.disableButton = true;
         }
+        //Vishwas added start
         if(event.detail.config.action == null || event.detail.config.action == 'undefined'){
                 var newlist = [];
                 newlist.push(...this.checkedRows);
                 this.selectedRows = newlist;
         }
+        ////Vishwas added end
+    }*/
+
+    @track globalrowvalueselected = [];
+
+    rowSelected(event) {
+
+        var eventdetails = JSON.parse(JSON.stringify(event.detail)).config;
+
+        if(eventdetails.action != undefined){
+            if(eventdetails.action == 'deselectAllRows'){
+                const allSiteIds = this.data.map(site => site.Id);
+                console.log('Deselected '+allSiteIds);
+            }
+            else if(eventdetails.action == 'selectAllRows'){
+                const allSiteIds = this.template.querySelector("lightning-datatable").getSelectedRows();
+                console.log('Selected '+allSiteIds);
+                JSON.parse(allSiteIds).forEach(currentItem => {
+                    if (this.globalrowvalueselected.indexOf(currentItem.serviceTeritoryId) === -1) {
+                        this.globalrowvalueselected.push(currentItem.serviceTeritoryId);
+                    }
+                });
+                console.log(this.globalrowvalueselected);
+            }
+            else if(eventdetails.action == 'rowDeselect'){
+
+            }
+            else if (eventdetails.action == 'rowSelect') {
+                var selectedrow = this.template.querySelector("lightning-datatable").getSelectedRows();
+                JSON.parse(selectedrow).forEach(currentItem => {
+                    if (this.globalrowvalueselected.indexOf(currentItem.serviceTeritoryId) === -1) {
+                        this.globalrowvalueselected.push(currentItem.serviceTeritoryId);
+                    }
+                });
+                console.log(this.globalrowvalueselected);
+            }
+        }
+        else{
+
+        }
+
+        // if (this.template.querySelector("lightning-datatable").getSelectedRows().length > 0) {
+        //     this.disableButton = false;
+        //     this.selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows();
+        //     JSON.parse(JSON.stringify(this.selectedRows)).forEach(currentItem => {
+        //         if (this.checkedRows.indexOf(currentItem.serviceTeritoryId) === -1) {
+        //             this.checkedRows.push(currentItem.serviceTeritoryId);
+        //         }
+        //     });
+        //     if (this.dateParty == '') {
+        //         this.disableButton = true;
+        //     }
+        // }
+        // else {
+        //     this.disableButton = true;
+        // }
+        // //Vishwas added start
+        // if(event.detail.config.action == null || event.detail.config.action == 'undefined'){
+        //         var newlist = [];
+        //         newlist.push(...this.checkedRows);
+        //         this.selectedRows = newlist;
+        // }
+        // ////Vishwas added end
     }
+
+
     searchKeyChanged(event) {
 
         //this.checkedRows = [];
