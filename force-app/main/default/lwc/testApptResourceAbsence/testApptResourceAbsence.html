@@ -46,39 +46,54 @@
                     <!--Operating hour selection page end-->
                     <!-- FIRST SCREEN: START -->
                     <template if:true={isFirstScreen}>
-                        <lightning-layout-item size="12" height="10px !important" padding="around-small">
-                            <div class="slds-text-body_small" style="color:red;font-weight:bold">Please Select Date of
-                                Party
-                                before proceeding to next steps.</div>
-                        </lightning-layout-item>
-                        <lightning-layout-item size="2" padding="around-small">
-                            <div>
-                                <lightning-input type="date" min={today} data-id="dateParty" onchange={getDateParty}
-                                    value={dateParty} label="Date of Party"
-                                    placeholder="Select Date of Party"></lightning-input>
+                        <lightning-layout-item size="12" padding="around-small">
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <div class="slds-col  slds-size_2-of-4">
+                        
+                                    <div class="slds-col slds-size_1-of-1">
+                                        <div class="slds-text-body_small" style="color:red;font-weight:bold">Please Select Date of
+                                            Party
+                                            before proceeding to next steps.</div>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1">
+                                        
+                                    </div>
+                                    <div class="slds-col slds-grid slds-size_1-of-2 slds-wrap slds-gutters slds-col slds-align-bottom">
+                                        <lightning-input required type="date" min={today} data-id="dateParty" onchange={getDateParty} class="picklist"
+                                            value={dateParty} label="Date of Party" placeholder="Select Date of Party"></lightning-input>
+                        
+                                    </div>
+                        
+                                </div>
+                                <div class="slds-col  slds-size_1-of-4"></div>
+                                <div class="slds-col slds-size_1-of-4">
+                        
+                                    <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
+                                        <lightning-combobox label="Operating Hour" options={operatingHourOptions} class="picklist"
+                                            value={selectedOperatingHourId} onchange={handleOperatingHourChange}>
+                                        </lightning-combobox>
+                                    </div>
+                                    <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
+                                        <lightning-combobox disabled={disableregiondropdown} label="Store region" class="picklist"
+                                            options={storeRegionOptions} value={selectedRegion} onchange={handleRegionChange}>
+                                        </lightning-combobox>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-grid slds-wrap slds-gutters">
+                                        <div class="slds-col slds-size_2-of-3 slds-m-top_xx-small">
+                                            <lightning-input class="searchbox" name="enter-search" label="" data-id="searchtext" type="search"
+                                                value={searchKey}>
+                                            </lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-3 slds-m-top_large">
+                                            <lightning-button variant="brand" label="Search" title="Search" id="searchStoreButton"
+                                                onclick={searchStore}>
+                                            </lightning-button>
+                                        </div>
+                                    </div>
+                        
+                                </div>
                             </div>
-                        </lightning-layout-item>
-                        <lightning-layout-item size="3" class="slds-p-around_small">
-                            <lightning-combobox label="Select an Operating Hour" options={operatingHourOptions}
-                                value={selectedOperatingHourId} onchange={handleOperatingHourChange}>
-                            </lightning-combobox>
-                        </lightning-layout-item>
-                        <lightning-layout-item size="3" class="slds-p-around_small">
-                            <lightning-combobox disabled={disableregiondropdown} label="Select Store region"
-                                options={storeRegionOptions} value={selectedRegion} onchange={handleRegionChange}>
-                            </lightning-combobox>
-                        </lightning-layout-item>
-                        <lightning-layout-item size="3" padding="around-small">
-                            <div>
-                                <lightning-input class="searchbox" name="enter-search" label="" data-id="searchtext" type="search"
-                                     value={searchKey}>
-                                </lightning-input>
-                            </div>
-                        </lightning-layout-item>
-                        <lightning-layout-item size="1" class="slds-p-top_x-large">
-                            <lightning-button variant="brand" label="Search" title="Search" id="searchStoreButton"
-                                onclick={searchStore}>
-                            </lightning-button>
+                        
                         </lightning-layout-item>
 
                         <lightning-layout-item size="12" padding="around-small">
