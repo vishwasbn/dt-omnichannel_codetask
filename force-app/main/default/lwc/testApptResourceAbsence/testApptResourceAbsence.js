@@ -140,39 +140,71 @@ export default class TestApptResourceAbsence extends LightningElement {
         ////Vishwas added end
     }*/
 
-    @track globalrowvalueselected = [];
+    globalrowvalueselected = [];
 
     rowSelected(event) {
 
         var eventdetails = JSON.parse(JSON.stringify(event.detail)).config;
-
+        var temparray = []
         if(eventdetails.action != undefined){
             if(eventdetails.action == 'deselectAllRows'){
                 const allSiteIds = this.data.map(site => site.id);
-                console.log('Deselected '+allSiteIds);
+                console.log('deselectAllRows '+allSiteIds);
+                allSiteIds.forEach(currentItem => {
+                    if (this.globalrowvalueselected.indexOf(currentItem) !== -1) {
+                        this.globalrowvalueselected = this.removeElementAt(this.globalrowvalueselected, this.globalrowvalueselected.indexOf(currentItem));
+                        console.log('currentItem removed');
+                        
+                    }
+                });
+                console.log('After deselectAllRows lenghth : '+this.globalrowvalueselected.length);
+                //this.globalrowvalueselected = temparray;
+                JSON.stringify('deselectAllRows '+this.globalrowvalueselected);
+                this.modifytherowitem();
             }
             else if(eventdetails.action == 'selectAllRows'){
-                const allSiteIds = this.template.querySelector("lightning-datatable").getSelectedRows();
-                console.log('Selected '+allSiteIds);
-                // JSON.parse(allSiteIds).forEach(currentItem => {
-                //     if (this.globalrowvalueselected.indexOf(currentItem.serviceTeritoryId) === -1) {
-                //         this.globalrowvalueselected.push(currentItem.serviceTeritoryId);
-                //     }
-                // });
-                // console.log(this.globalrowvalueselected);
+                //const allSiteIds = this.template.querySelector("lightning-datatable").getSelectedRows();
+                const allSiteIds = this.data.map(site => site.id);
+                console.log('selectAllRows '+allSiteIds);
+                allSiteIds.forEach(currentItem => {
+                    if (this.globalrowvalueselected.indexOf(currentItem) === -1) {
+                        this.globalrowvalueselected.push(currentItem);
+                        
+                        
+                    }
+                });
+                console.log('After selectAllRows lenghth : '+this.globalrowvalueselected.length);
+                JSON.stringify('selectAllRows '+this.globalrowvalueselected);
+                this.modifytherowitem();
             }
             else if(eventdetails.action == 'rowDeselect'){
+                //var selectedrow = this.template.querySelector("lightning-datatable").getSelectedRows();
+                const allSiteIds = this.data.map(site => site.id);
+                var selectedrowObj = JSON.parse(JSON.stringify(this.template.querySelector("lightning-datatable").getSelectedRows()));
+                var selectedrow = selectedrowObj.map(rowentry => rowentry.id);
 
+                allSiteIds.forEach(currentItem => {
+                    if(selectedrow.indexOf(currentItem) === -1){
+                        if (this.globalrowvalueselected.indexOf(currentItem) !== -1) {
+                            this.globalrowvalueselected = this.removeElementAt(this.globalrowvalueselected, this.globalrowvalueselected.indexOf(currentItem));
+                            
+                        }
+                    }
+                    
+                });
+                console.log('After rowDeselect lenghth : '+this.globalrowvalueselected.length);
             }
             else if (eventdetails.action == 'rowSelect') {
                 var selectedrow = this.template.querySelector("lightning-datatable").getSelectedRows();
                 JSON.parse(JSON.stringify(selectedrow)).forEach(currentItem => {
                     if (this.globalrowvalueselected.indexOf(currentItem.serviceTeritoryId) === -1) {
                         this.globalrowvalueselected.push(currentItem.serviceTeritoryId);
-                        this.modifytherowitem();
+                        
                     }
                 });
-                console.log(this.globalrowvalueselected);
+                console.log('After rowSelect lenghth : '+this.globalrowvalueselected.length);
+                console.log('rowSelect '+this.globalrowvalueselected);
+                this.modifytherowitem();
             }
         }
         else{
@@ -227,6 +259,7 @@ export default class TestApptResourceAbsence extends LightningElement {
         if (data) {
 
             this.allData = [];
+            this.checkedRows = [];//vishwas
             data.forEach(currentItem => {
                 //TODO : currentItem
 
@@ -242,11 +275,15 @@ export default class TestApptResourceAbsence extends LightningElement {
                 objSR.id = currentItem.Id;
                 objSR.StoreTimeZone = currentItem.OperatingHours.TimeZone;
                 objSR.StoreDate = new Date().toISOString();
-                if (this.checkedRows.indexOf(objSR.id) === -1) {
+                if (this.globalrowvalueselected.indexOf(objSR.id) === -1) {
                     objSR.isChecked = false;
                 } else {
                     objSR.isChecked = true;
                 }
+                
+                if(this.globalrowvalueselected.indexOf(objSR.id) !== -1){
+                    this.checkedRows.push(objSR.id);
+                }//vishwas
                 this.allData.push(objSR);
             });
 
@@ -448,6 +485,13 @@ export default class TestApptResourceAbsence extends LightningElement {
         this.operatinghourpage = false;
         this.isFirstScreen = true;
     }
+
+    removeElementAt(arr, index) {
+        console.log('global selected arr length'+arr.length);
+        let frontPart = arr.slice(0, index);
+        let lastPart  = arr.slice( index+1 ); // index to end of array
+        return [...frontPart, ...lastPart];
+     }
 
     @wire(getUserAccountTimezone)
     wiredUserTimezone({ data, error }) {
