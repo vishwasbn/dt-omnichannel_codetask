@@ -148,27 +148,28 @@ export default class TestApptResourceAbsence extends LightningElement {
 
         if(eventdetails.action != undefined){
             if(eventdetails.action == 'deselectAllRows'){
-                const allSiteIds = this.data.map(site => site.Id);
+                const allSiteIds = this.data.map(site => site.id);
                 console.log('Deselected '+allSiteIds);
             }
             else if(eventdetails.action == 'selectAllRows'){
                 const allSiteIds = this.template.querySelector("lightning-datatable").getSelectedRows();
                 console.log('Selected '+allSiteIds);
-                JSON.parse(allSiteIds).forEach(currentItem => {
-                    if (this.globalrowvalueselected.indexOf(currentItem.serviceTeritoryId) === -1) {
-                        this.globalrowvalueselected.push(currentItem.serviceTeritoryId);
-                    }
-                });
-                console.log(this.globalrowvalueselected);
+                // JSON.parse(allSiteIds).forEach(currentItem => {
+                //     if (this.globalrowvalueselected.indexOf(currentItem.serviceTeritoryId) === -1) {
+                //         this.globalrowvalueselected.push(currentItem.serviceTeritoryId);
+                //     }
+                // });
+                // console.log(this.globalrowvalueselected);
             }
             else if(eventdetails.action == 'rowDeselect'){
 
             }
             else if (eventdetails.action == 'rowSelect') {
                 var selectedrow = this.template.querySelector("lightning-datatable").getSelectedRows();
-                JSON.parse(selectedrow).forEach(currentItem => {
+                JSON.parse(JSON.stringify(selectedrow)).forEach(currentItem => {
                     if (this.globalrowvalueselected.indexOf(currentItem.serviceTeritoryId) === -1) {
                         this.globalrowvalueselected.push(currentItem.serviceTeritoryId);
+                        this.modifytherowitem();
                     }
                 });
                 console.log(this.globalrowvalueselected);
@@ -200,6 +201,15 @@ export default class TestApptResourceAbsence extends LightningElement {
         //         this.selectedRows = newlist;
         // }
         // ////Vishwas added end
+    }
+
+    modifytherowitem(){
+        this.checkedRows = [];
+        this.data.forEach(currentItem => {
+            if (this.globalrowvalueselected.indexOf(currentItem.id) !== -1) {
+                this.checkedRows.push(currentItem.id);
+            }
+        });
     }
 
 
