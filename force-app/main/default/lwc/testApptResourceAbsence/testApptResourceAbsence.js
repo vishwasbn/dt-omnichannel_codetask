@@ -408,19 +408,27 @@ export default class TestApptResourceAbsence extends LightningElement {
                 this._isValidationError = false;
                 return;
             }
-            createAbsence({ requestData: JSON.stringify(this.recordsData) })
-                .then(result => {
-                    this.isSuccess = true;
-                    this.isSecondScreen = false;
-                    this.isThirdScreen = true;
-                })
-                .catch(error => {
+                createAbsence({ requestData: JSON.stringify(this.recordsData) })
+                    .then(result => {
+
+                        if (!result.isError) {
+                            this.isSuccess = true;
+                            this.isSecondScreen = false;
+                            this.isThirdScreen = true;
+                        } else {
+                            this.isSuccess = false;
+                            this.isSecondScreen = false;
+                            this.isThirdScreen = true;
+                        }
+
+                    })
+                    .catch(error => {
 
 
-                    this.isSuccess = false;
-                    this.isSecondScreen = false;
-                    this.isThirdScreen = true;
-                })
+                        this.isSuccess = false;
+                        this.isSecondScreen = false;
+                        this.isThirdScreen = true;
+                    })
         }
 
 

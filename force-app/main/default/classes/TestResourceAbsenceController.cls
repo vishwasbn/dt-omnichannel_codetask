@@ -31,14 +31,15 @@ public static Logger logInstance = Logger.getInstance();
 
     // This method will create the resource absence records and will be called from AppresourceAbsence LWC component.
     @AuraEnabled
-    public static void createAbsenceRecords(String requestData){
-        
+    public static ResponseWrapper createAbsenceRecords(String requestData){
+        ResponseWrapper rw = new ResponseWrapper();
         try{
             List<RequestData> lstData = (List<RequestData>) JSON.deserialize(requestData,List<RequestData>.class);
             Set<String> serviceResourceNames = New Set<String>();
             Map<String,RequestData> storeIdMap = new Map<String,RequestData>();
             List<ServiceResource> lstSR = new List<ServiceResource>();
             List<ResourceAbsence> insertResourceAbsenceList = new List<ResourceAbsence>();
+            TimeZone tz = UserInfo.getTimeZone();
             for(RequestData obj : lstData){
                 serviceResourceNames.add(obj.StoreId);
                 storeIdMap.put(obj.id,obj);
@@ -51,9 +52,16 @@ public static Logger logInstance = Logger.getInstance();
                 resourceAbsenceObj.ResourceId = memberObj.ServiceResourceId;
                 insertResourceAbsenceList.add(resourceAbsenceObj);
             }
-            insert insertResourceAbsenceList; 
+            insert insertResourceAbsenceList;
+            rw.isError = false;
+            rw.messsage = JSON.serialize(insertResourceAbsenceList); 
+            return rw;
         }catch(Exception e){
             logInstance.log('CreateAbsenceRecords', Appt_ResourceAbsenceController.class.getName(), e.getmessage());
+            System.debug('Exception occured during absence creation'+e.getMessage()+' '+e.getStackTraceString());
+            rw.isError = true;
+            rw.messsage = e.getMessage() + ' - ' + e.getStackTraceString(); 
+            return rw;
         }
     }
 
@@ -133,5 +141,12 @@ public static Logger logInstance = Logger.getInstance();
                 userTimeZone = currentUser.TimezoneSidKey;
             }
         return userTimeZone;
+    }
+
+    public class ResponseWrapper{
+        @auraEnabled
+        public String messsage{get;set;}
+        @auraEnabled
+        public Boolean isError{get;set;}
     }
 }
