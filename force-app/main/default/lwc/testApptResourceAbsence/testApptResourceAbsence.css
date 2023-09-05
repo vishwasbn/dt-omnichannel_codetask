@@ -26,3 +26,11 @@
     text-align: center;
     color: red;
 }
+
+.searchbox{
+    margin-top: 3px;
+}
+
+.searchBtn{
+    margin-top: 20px;
+}

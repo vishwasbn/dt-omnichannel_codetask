@@ -1,5 +1,6 @@
 import { LightningElement, wire, track } from 'lwc';
-import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllStores';
+//import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllStores';
+import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllStores2';
 import createAbsence from '@salesforce/apex/TestResourceAbsenceController.createAbsenceRecords';
 import getOperatingHourOptions from '@salesforce/apex/TestResourceAbsenceController.getOperatingHourOptions';
 import getSiteRegions from '@salesforce/apex/TestResourceAbsenceController.getSiteRegions';
@@ -10,6 +11,8 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 const columns = [
     { label: 'Name', fieldName: 'Name', hideDefaultActions: 'true' },
     { label: 'Operating Hours', fieldName: 'OpeartingHours', hideDefaultActions: 'true' },
+    { label: 'Store Region', fieldName: 'region', hideDefaultActions: 'true' },
+    { label: 'Store Time Zone', fieldName: 'StoreTimeZone', hideDefaultActions: 'true' }
 ];
 const secondScreenColumns = [
     { label: 'Store', fieldName: 'StoreId', type: 'text', hideDefaultActions: 'true' },
@@ -28,7 +31,7 @@ const RBColumns = [
 ];
 const DELAY = 300;
 export default class TestApptResourceAbsence extends LightningElement {
-    isFirstScreen = false;
+    isFirstScreen = true;
     operatinghourpage = true;
     isSecondScreen;
     isThirdScreen;
@@ -57,7 +60,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     operatingHourOptions = [];
     selectedOperatingHourId;
     storeRegionOptions = [];
-    selectedRegion;
+    selectedRegion = '';
     userTimezone;
 
 
@@ -255,7 +258,7 @@ export default class TestApptResourceAbsence extends LightningElement {
         });*/
 
     }
-    @wire(getAccounts, { searchKey: '$searchKey' }) wiredAccounts({ data, error }) {
+    @wire(getAccounts, { searchKey: '$searchKey', region: '$selectedRegion' }) wiredAccounts({ data, error }) {
         if (data) {
 
             this.allData = [];
@@ -268,6 +271,7 @@ export default class TestApptResourceAbsence extends LightningElement {
                 objSR.Name = currentItem.Name;
                 objSR.StoreId = currentItem.Site_Account__r.Store_ID__c;
                 objSR.OpeartingHours = currentItem.OperatingHours.Name;
+                objSR.region = currentItem.Site_Account__r.Store_Region__c;
                 //objSR.StartTime = "09:30:00.000Z";
                 //objSR.EndTime = "18:30:00.000Z";
                 objSR.StartTime = null;
@@ -480,7 +484,7 @@ export default class TestApptResourceAbsence extends LightningElement {
 
     handleOperatingHourChange(event) {
         this.selectedOperatingHourId = event.detail.value;
-        this.selectedRegion =null;
+        this.selectedRegion ='';
         this.storeRegionOptions =null;
         this.getSiteRegions();
     }

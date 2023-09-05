@@ -14,7 +14,7 @@
             <div class="slds-theme_default slds-p-top_small">
 
                 <!--Operating hour selection page start-->
-                <template if:true={operatinghourpage}>
+                <!--<template if:true={operatinghourpage}>
                     <lightning-card title="">
                         <div class="slds-grid slds-gutters slds-m-top_small">
                             <div class="slds-col slds-size_1-of-1">
@@ -40,7 +40,7 @@
                         </div>
                     </lightning-card>
 
-                </template>
+                </template> --><!--Vishwas commented-->
 
                 <lightning-layout multiple-rows>
                     <!--Operating hour selection page end-->
@@ -51,23 +51,31 @@
                                 Party
                                 before proceeding to next steps.</div>
                         </lightning-layout-item>
-                        <lightning-layout-item size="4" padding="around-small">
+                        <lightning-layout-item size="2" padding="around-small">
                             <div>
                                 <lightning-input type="date" min={today} data-id="dateParty" onchange={getDateParty}
                                     value={dateParty} label="Date of Party"
                                     placeholder="Select Date of Party"></lightning-input>
                             </div>
                         </lightning-layout-item>
-                        <lightning-layout-item size="4" class="slds-p-left_xx-large slds-p-top_medium">
+                        <lightning-layout-item size="3" class="slds-p-around_small">
+                            <lightning-combobox label="Select an Operating Hour" options={operatingHourOptions}
+                                value={selectedOperatingHourId} onchange={handleOperatingHourChange}>
+                            </lightning-combobox>
                         </lightning-layout-item>
-                        <lightning-layout-item size="3" class="slds-p-left_xx-large slds-p-top_medium">
+                        <lightning-layout-item size="3" class="slds-p-around_small">
+                            <lightning-combobox disabled={disableregiondropdown} label="Select Store region"
+                                options={storeRegionOptions} value={selectedRegion} onchange={handleRegionChange}>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="3" padding="around-small">
                             <div>
-                                <lightning-input name="enter-search" label="" data-id="searchtext" type="search"
-                                    class="" value={searchKey}>
+                                <lightning-input class="searchbox" name="enter-search" label="" data-id="searchtext" type="search"
+                                     value={searchKey}>
                                 </lightning-input>
                             </div>
                         </lightning-layout-item>
-                        <lightning-layout-item size="1" class="slds-p-left_medium slds-p-top_x-large">
+                        <lightning-layout-item size="1" class="slds-p-top_x-large">
                             <lightning-button variant="brand" label="Search" title="Search" id="searchStoreButton"
                                 onclick={searchStore}>
                             </lightning-button>
