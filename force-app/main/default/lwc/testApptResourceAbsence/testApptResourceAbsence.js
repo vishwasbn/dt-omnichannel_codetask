@@ -42,7 +42,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     @track
     allData = [];
     today = '';
-    dateParty = '';
+    dateParty = null;
     checkedRows = [];
     //data = [];
     recordsData = [];
@@ -53,7 +53,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     secondScreenColumns = secondScreenColumns;
     isSuccess = false;
 
-    disableButton = true;
+    //vishwas disableButton = true;
     operatingHourOptions = [];
     selectedOperatingHourId;
     storeRegionOptions = [];
@@ -63,7 +63,7 @@ export default class TestApptResourceAbsence extends LightningElement {
 
 
     get disableButton() {
-        return this.checkedRows.length > 0 ? false : true;
+        return (this.globalrowvalueselected.length == 0 || this.dateParty == null);
     }
 
     // get disableregiondropdown(){
@@ -90,18 +90,18 @@ export default class TestApptResourceAbsence extends LightningElement {
             this.checkedRows.splice(this.checkedRows.indexOf(event.target.value), 1);
         }
         if (this.dateParty != '' && this.checkedRows.length > 0) {
-            this.disableButton = false;
+            //vishwas this.disableButton = false;
         } else {
-            this.disableButton = true;
+            //vishwas this.disableButton = true;
         }
     }
     getDateParty(event) {
 
         this.dateParty = event.target.value;
         if (this.dateParty != '' && this.checkedRows.length > 0) {
-            this.disableButton = false;
+            //vishwas this.disableButton = false;
         } else {
-            this.disableButton = true;
+            //vishwas this.disableButton = true;
         }
         this.data = [];
         this.allData.forEach(currentItem => {
@@ -333,7 +333,7 @@ export default class TestApptResourceAbsence extends LightningElement {
         }
         this.recordsData = [];
         this._firstTimeAllData.forEach(currentItem => {
-            if (this.checkedRows.indexOf(currentItem.id) !== -1) {
+            if (this.globalrowvalueselected.indexOf(currentItem.id) !== -1) {
                 currentItem.StoreDate = this.dateParty;
                 this.recordsData.push(currentItem);
             }
