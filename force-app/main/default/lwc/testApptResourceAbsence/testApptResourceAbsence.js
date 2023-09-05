@@ -83,7 +83,7 @@ export default class TestApptResourceAbsence extends LightningElement {
 
     connectedCallback() {
         //today  = new Date().getFullYear() + '-' + (new Date().getMonth()+1) + '-' + new Date().getDate();
-        this.today = new Date().toLocaleString();
+        this.today = new Date().toJSON().slice(0, 10);
     }
     getSelectedStore(event) {
 
