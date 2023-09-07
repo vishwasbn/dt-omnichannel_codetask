@@ -9,7 +9,7 @@ import getUserAccountTimezone from '@salesforce/apex/TestResourceAbsenceControll
 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 const columns = [
-    { label: 'Name', fieldName: 'Name', hideDefaultActions: 'true' },
+    { label: 'Store Name', fieldName: 'Name', hideDefaultActions: 'true' },
     { label: 'Operating Hours', fieldName: 'OpeartingHours', hideDefaultActions: 'true' },
     { label: 'Store Region', fieldName: 'region', hideDefaultActions: 'true' },
     { label: 'Store Time Zone', fieldName: 'StoreTimeZone', hideDefaultActions: 'true' }

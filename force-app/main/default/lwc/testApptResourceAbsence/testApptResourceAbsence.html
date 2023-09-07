@@ -69,18 +69,18 @@
                                 <div class="slds-col slds-size_1-of-4">
                         
                                     <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
-                                        <lightning-combobox label="Operating Hour" options={operatingHourOptions} class="picklist"
+                                        <lightning-combobox label="Operating Hour" options={operatingHourOptions} class="picklist" placeholder="Operating Hours"
                                             value={selectedOperatingHourId} onchange={handleOperatingHourChange}>
                                         </lightning-combobox>
                                     </div>
                                     <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
-                                        <lightning-combobox disabled={disableregiondropdown} label="Store region" class="picklist"
+                                        <lightning-combobox disabled={disableregiondropdown} label="Store region" class="picklist" placeholder="Strore Region"
                                             options={storeRegionOptions} value={selectedRegion} onchange={handleRegionChange}>
                                         </lightning-combobox>
                                     </div>
                                     <div class="slds-col slds-size_1-of-1 slds-grid slds-wrap slds-gutters">
                                         <div class="slds-size_2-of-3 slds-m-top_xx-small">
-                                            <lightning-input class="searchbox" name="enter-search" label="" data-id="searchtext" type="search"
+                                            <lightning-input class="searchbox" name="enter-search" label="" data-id="searchtext" type="search" placeholder="Search Store name"
                                                 value={searchKey}>
                                             </lightning-input>
                                         </div>
