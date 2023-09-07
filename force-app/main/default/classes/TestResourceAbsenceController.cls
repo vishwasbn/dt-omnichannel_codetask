@@ -16,7 +16,7 @@ public static Logger logInstance = Logger.getInstance();
 
 // This method will get list of stores on LWC component load and show there as well as used for search stores using search bar in LWC component.
  @AuraEnabled(cacheable=true)
-    public static List<ServiceTerritory> getAllStores(String searchKey){
+    public static List<ServiceTerritory> getAllStores1_z(String searchKey){
         List<ServiceTerritory> serviceList = new List<ServiceTerritory>();
         if(String.isBlank(searchKey)){
             serviceList = [SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone	 FROM ServiceTerritory];
@@ -25,6 +25,19 @@ public static Logger logInstance = Logger.getInstance();
             searchKey = '%' + searchKey + '%';
             serviceList =  [SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone FROM ServiceTerritory where name like :searchKey];
         }
+        return serviceList;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<ServiceTerritory> getAllStores(String searchKey , String region){
+        List<ServiceTerritory> serviceList = new List<ServiceTerritory>();
+        System.debug('searchKey '+searchKey);
+        System.debug('region '+region);
+       
+        searchKey = '%' + searchKey + '%';
+        region = '%' + region + '%';
+        serviceList =  [SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone,Site_Account__r.Store_Region__c FROM ServiceTerritory where Site_Account__r.RecordType.Name='Site' and IsActive = true and name like :searchKey and Site_Account__r.Store_Region__c like :region Order by Name asc];
+        
         return serviceList;
     }
     

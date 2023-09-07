@@ -1,35 +1,20 @@
 import { LightningElement, wire, track } from 'lwc';
-//import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllStores';
-import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllStores2';
+
+import getAccounts from '@salesforce/apex/TestResourceAbsenceController.getAllStores';
 import createAbsence from '@salesforce/apex/TestResourceAbsenceController.createAbsenceRecords';
 import getOperatingHourOptions from '@salesforce/apex/TestResourceAbsenceController.getOperatingHourOptions';
 import getSiteRegions from '@salesforce/apex/TestResourceAbsenceController.getSiteRegions';
 import getUserAccountTimezone from '@salesforce/apex/TestResourceAbsenceController.getUserAccountTimezone';
 
-
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
 const columns = [
     { label: 'Store Name', fieldName: 'Name', hideDefaultActions: 'true' },
     { label: 'Operating Hours', fieldName: 'OpeartingHours', hideDefaultActions: 'true' },
     { label: 'Store Region', fieldName: 'region', hideDefaultActions: 'true' },
     { label: 'Store Time Zone', fieldName: 'StoreTimeZone', hideDefaultActions: 'true' }
 ];
-const secondScreenColumns = [
-    { label: 'Store', fieldName: 'StoreId', type: 'text', hideDefaultActions: 'true' },
-    { label: 'Start Time', fieldName: 'StartTime', type: 'time', hideDefaultActions: 'false', editable: true },
-    { label: 'End Time', fieldName: 'EndTime', type: 'time', hideDefaultActions: 'false', editable: true },
-    { label: 'Date', fieldName: 'StoreDate', type: 'date', hideDefaultActions: 'true', editable: true },
-    { label: 'TimeZone', fieldName: 'StoreTimeZone', type: 'text', hideDefaultActions: 'true' },
-];
 
-const RBColumns = [
-    { label: 'Store', fieldName: 'StoreId', hideDefaultActions: 'true' },
-    { label: 'Start Time', fieldName: 'startTime', hideDefaultActions: 'true', type: 'time', editable: true },
-    { label: 'End Time', fieldName: 'endTime', hideDefaultActions: 'true', type: 'time', editable: true },
-    { label: 'Date', fieldName: 'selectedDate', hideDefaultActions: 'true', type: 'Date', editable: true },
-    { label: 'Store Timezone', fieldName: 'timeZone', hideDefaultActions: 'true' },
-];
-const DELAY = 300;
 export default class TestApptResourceAbsence extends LightningElement {
     isFirstScreen = true;
     operatinghourpage = true;
@@ -47,17 +32,12 @@ export default class TestApptResourceAbsence extends LightningElement {
     today = '';
     dateParty = null;
     checkedRows = [];
-    //data = [];
     recordsData = [];
     selectedRows = [];
     searchKey = '';
     columns = columns;
-    RBColumns = RBColumns;
-    secondScreenColumns = secondScreenColumns;
     isSuccess = false;
     showSpinner = false; // to show loading spinner
-
-    //vishwas disableButton = true;
     operatingHourOptions = [];
     selectedOperatingHourId;
     storeRegionOptions = [];
@@ -65,14 +45,9 @@ export default class TestApptResourceAbsence extends LightningElement {
     userTimezone;
 
 
-
     get disableButton() {
         return (this.globalrowvalueselected.length == 0 || this.dateParty == null);
     }
-
-    // get disableregiondropdown(){
-    //     return this.selectedOperatingHourId == null || this.storeRegionOptions.length == 0;
-    // }
 
     get regionOptDisable(){
         return this.storeRegionOptions.length == 0;
@@ -83,73 +58,18 @@ export default class TestApptResourceAbsence extends LightningElement {
     }
 
     connectedCallback() {
-        //today  = new Date().getFullYear() + '-' + (new Date().getMonth()+1) + '-' + new Date().getDate();
         this.today = new Date().toJSON().slice(0, 10);
     }
-    getSelectedStore(event) {
 
-        if (event.target.checked && (this.checkedRows.indexOf(event.target.value) === -1)) {
-            this.checkedRows.push(event.target.value);
-        } else if ((!event.target.checked) && (this.checkedRows.indexOf(event.target.value) !== -1)) {
-            this.checkedRows.splice(this.checkedRows.indexOf(event.target.value), 1);
-        }
-        if (this.dateParty != '' && this.checkedRows.length > 0) {
-            //vishwas this.disableButton = false;
-        } else {
-            //vishwas this.disableButton = true;
-        }
-    }
     getDateParty(event) {
-
         this.dateParty = event.target.value;
-        if (this.dateParty != '' && this.checkedRows.length > 0) {
-            //vishwas this.disableButton = false;
-        } else {
-            //vishwas this.disableButton = true;
-        }
-        this.data = [];
-        this.allData.forEach(currentItem => {
-            if (this.checkedRows.indexOf(currentItem.id) === -1) {
-                currentItem.isChecked = false;
-            } else {
-                currentItem.isChecked = true;
-            }
-            this.data.push(currentItem);
-        });
     }
-
-    /*rowSelected(event) {
-
-        if (this.template.querySelector("lightning-datatable").getSelectedRows().length > 0) {
-            this.disableButton = false;
-            this.selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows();
-            JSON.parse(JSON.stringify(this.selectedRows)).forEach(currentItem => {
-                if (this.checkedRows.indexOf(currentItem.serviceTeritoryId) === -1) {
-                    this.checkedRows.push(currentItem.serviceTeritoryId);
-                }
-            });
-            if (this.dateParty == '') {
-                this.disableButton = true;
-            }
-        }
-        else {
-            this.disableButton = true;
-        }
-        //Vishwas added start
-        if(event.detail.config.action == null || event.detail.config.action == 'undefined'){
-                var newlist = [];
-                newlist.push(...this.checkedRows);
-                this.selectedRows = newlist;
-        }
-        ////Vishwas added end
-    }*/
 
     globalrowvalueselected = [];
 
     rowSelected(event) {
 
         var eventdetails = JSON.parse(JSON.stringify(event.detail)).config;
-        var temparray = []
         if(eventdetails.action != undefined){
             if(eventdetails.action == 'deselectAllRows'){
                 const allSiteIds = this.data.map(site => site.id);
@@ -162,12 +82,10 @@ export default class TestApptResourceAbsence extends LightningElement {
                     }
                 });
                 console.log('After deselectAllRows lenghth : '+this.globalrowvalueselected.length);
-                //this.globalrowvalueselected = temparray;
                 JSON.stringify('deselectAllRows '+this.globalrowvalueselected);
-                this.modifytherowitem();
+                this.modifyCheckedRow();
             }
             else if(eventdetails.action == 'selectAllRows'){
-                //const allSiteIds = this.template.querySelector("lightning-datatable").getSelectedRows();
                 const allSiteIds = this.data.map(site => site.id);
                 console.log('selectAllRows '+allSiteIds);
                 allSiteIds.forEach(currentItem => {
@@ -179,14 +97,12 @@ export default class TestApptResourceAbsence extends LightningElement {
                 });
                 console.log('After selectAllRows lenghth : '+this.globalrowvalueselected.length);
                 JSON.stringify('selectAllRows '+this.globalrowvalueselected);
-                this.modifytherowitem();
+                this.modifyCheckedRow();
             }
             else if(eventdetails.action == 'rowDeselect'){
-                //var selectedrow = this.template.querySelector("lightning-datatable").getSelectedRows();
                 const allSiteIds = this.data.map(site => site.id);
                 var selectedrowObj = JSON.parse(JSON.stringify(this.template.querySelector("lightning-datatable").getSelectedRows()));
                 var selectedrow = selectedrowObj.map(rowentry => rowentry.id);
-
                 allSiteIds.forEach(currentItem => {
                     if(selectedrow.indexOf(currentItem) === -1){
                         if (this.globalrowvalueselected.indexOf(currentItem) !== -1) {
@@ -208,38 +124,12 @@ export default class TestApptResourceAbsence extends LightningElement {
                 });
                 console.log('After rowSelect lenghth : '+this.globalrowvalueselected.length);
                 console.log('rowSelect '+this.globalrowvalueselected);
-                this.modifytherowitem();
+                this.modifyCheckedRow();
             }
         }
-        else{
-
-        }
-
-        // if (this.template.querySelector("lightning-datatable").getSelectedRows().length > 0) {
-        //     this.disableButton = false;
-        //     this.selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows();
-        //     JSON.parse(JSON.stringify(this.selectedRows)).forEach(currentItem => {
-        //         if (this.checkedRows.indexOf(currentItem.serviceTeritoryId) === -1) {
-        //             this.checkedRows.push(currentItem.serviceTeritoryId);
-        //         }
-        //     });
-        //     if (this.dateParty == '') {
-        //         this.disableButton = true;
-        //     }
-        // }
-        // else {
-        //     this.disableButton = true;
-        // }
-        // //Vishwas added start
-        // if(event.detail.config.action == null || event.detail.config.action == 'undefined'){
-        //         var newlist = [];
-        //         newlist.push(...this.checkedRows);
-        //         this.selectedRows = newlist;
-        // }
-        // ////Vishwas added end
     }
 
-    modifytherowitem(){
+    modifyCheckedRow(){
         this.checkedRows = [];
         this.data.forEach(currentItem => {
             if (this.globalrowvalueselected.indexOf(currentItem.id) !== -1) {
@@ -248,25 +138,13 @@ export default class TestApptResourceAbsence extends LightningElement {
         });
     }
 
-
-    searchKeyChanged(event) {
-
-        //this.checkedRows = [];
-        this.searchKey = event.target.value;
-        this.selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows();
-        /*JSON.parse(JSON.stringify(this.selectedRows)).forEach(currentItem => {
-            this.checkedRows.push(currentItem.serviceTeritoryId);
-        });*/
-
-    }
     @wire(getAccounts, { searchKey: '$searchKey', region: '$selectedRegion' }) wiredAccounts({ data, error }) {
         this.showSpinner = true;
         if (data) {
 
             this.allData = [];
-            this.checkedRows = [];//vishwas
+            this.checkedRows = [];
             data.forEach(currentItem => {
-                //TODO : currentItem
 
                 let objSR = new Object();
                 objSR.serviceTeritoryId = currentItem.Id;
@@ -274,8 +152,6 @@ export default class TestApptResourceAbsence extends LightningElement {
                 objSR.StoreId = currentItem.Site_Account__r.Store_ID__c;
                 objSR.OpeartingHours = currentItem.OperatingHours.Name;
                 objSR.region = currentItem.Site_Account__r.Store_Region__c;
-                //objSR.StartTime = "09:30:00.000Z";
-                //objSR.EndTime = "18:30:00.000Z";
                 objSR.StartTime = null;
                 objSR.EndTime = null;
                 objSR.id = currentItem.Id;
@@ -289,7 +165,7 @@ export default class TestApptResourceAbsence extends LightningElement {
                 
                 if(this.globalrowvalueselected.indexOf(objSR.id) !== -1){
                     this.checkedRows.push(objSR.id);
-                }//vishwas
+                }
                 this.allData.push(objSR);
             });
 
@@ -305,12 +181,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     }
 
     searchStore(evt) {
-
         this.searchKey = this.template.querySelector('lightning-input[data-id=searchtext]').value;
-        /*this.selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows();
-        JSON.parse(JSON.stringify(this.selectedRows)).forEach(currentItem => {
-            this.checkedRows.push(currentItem.serviceTeritoryId);
-        });*/
     }
 
     handleKeyUp(evt) {
@@ -321,13 +192,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     }
 
     handleFirstScreen() {
-
-        /*this.recordsData = this.template.querySelector("lightning-datatable").getSelectedRows();
-        this.isFirstScreen = false;
-        this.isSecondScreen = true;
-        this.recordsData.forEach(currentItem => {
-            currentItem.StoreDate = this.dateParty;
-        });*/
+        
         if (new Date(this.dateParty) < new Date()) {
             this.dispatchEvent(
                 new ShowToastEvent({

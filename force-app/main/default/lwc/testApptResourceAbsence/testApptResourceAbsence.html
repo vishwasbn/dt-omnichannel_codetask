@@ -10,9 +10,9 @@
         </div>
      </div>
      <!--Show spinner end-->
-     
+
     <lightning-card>
-        <div class="slds-p-around_medium">
+        <div class="slds-p-around_small">
             <template if:true={userTimezone}>
                 <p class="timezone_text">The logged-in user's account timezone is: <b>{userTimezone}</b></p>
             </template>
@@ -21,255 +21,179 @@
             </template>
         </div>
     </lightning-card>
-    <lightning-card>
-        <div class="main">
-            <div class="slds-theme_default slds-p-top_small">
-
-                <!--Operating hour selection page start-->
-                <!--<template if:true={operatinghourpage}>
-                    <lightning-card title="">
-                        <div class="slds-grid slds-gutters slds-m-top_small">
-                            <div class="slds-col slds-size_1-of-1">
-                                <div class="slds-align_absolute-center slds-m-around_small">
-                                    <lightning-combobox style="width:600px" label="Select an Operating Hour"
-                                        options={operatingHourOptions} value={selectedOperatingHourId}
-                                        onchange={handleOperatingHourChange}>
+    <div class="main">
+        <div class="slds-theme_default slds-p-top_small">
+            <lightning-layout multiple-rows>
+                <!-- FIRST SCREEN: START -->
+                <template if:true={isFirstScreen}>
+                    <lightning-layout-item size="12" padding="around-small">
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col  slds-size_2-of-4">
+                    
+                                <div class="slds-col slds-size_1-of-1">
+                                    <div class="slds-text-body_small" style="color:red;font-weight:bold">Please Select Date of
+                                        Party
+                                        before proceeding to next steps.</div>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1">
+                                    
+                                </div>
+                                <div class="slds-col slds-grid slds-size_1-of-2 slds-wrap slds-gutters slds-col slds-align-bottom">
+                                    <lightning-input required type="date" min={today} data-id="dateParty" onchange={getDateParty} class="picklist"
+                                        value={dateParty} label="Date of Party" placeholder="Select Date of Party"></lightning-input>
+                    
+                                </div>
+                    
+                            </div>
+                            <div class="slds-col  slds-size_1-of-4"></div>
+                            <div class="slds-col slds-size_1-of-4">
+                    
+                                <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
+                                    <lightning-combobox label="Operating Hour" options={operatingHourOptions} class="picklist" placeholder="Operating Hours"
+                                        value={selectedOperatingHourId} onchange={handleOperatingHourChange}>
                                     </lightning-combobox>
                                 </div>
-
-                                <div class="slds-align_absolute-center slds-m-around_small">
-                                    <lightning-combobox disabled={disableregiondropdown} style="width:600px"
-                                        label="Select Store region" options={storeRegionOptions} value={selectedRegion}
-                                        onchange={handleRegionChange}>
+                                <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
+                                    <lightning-combobox disabled={regionOptDisable} label="Store region" class="picklist" placeholder="Strore Region"
+                                        options={storeRegionOptions} value={selectedRegion} onchange={handleRegionChange}>
                                     </lightning-combobox>
                                 </div>
-                                <div class="slds-align_absolute-center slds-m-around_small">
-                                    <lightning-button variant="brand" label="Next" disabled={disablebtn}
-                                        onclick={handleOperatingHourScreen} class="slds-truncate"></lightning-button>
-
+                                <div class="slds-col slds-size_1-of-1 slds-grid slds-wrap slds-gutters">
+                                    <div class="slds-size_2-of-3 slds-m-top_xx-small">
+                                        <lightning-input class="searchbox" name="enter-search" label="" data-id="searchtext" type="search" placeholder="Search Store name"
+                                            value={searchKey}>
+                                        </lightning-input>
+                                    </div>
+                                    <div class="slds-size_1-of-3 slds-m-top_large slds-p-left_small">
+                                        <lightning-button variant="brand" label="Search" title="Search" id="searchStoreButton"
+                                            onclick={searchStore}>
+                                        </lightning-button>
+                                    </div>
                                 </div>
+                    
                             </div>
                         </div>
-                    </lightning-card>
+                    
+                    </lightning-layout-item>
 
-                </template> --><!--Vishwas commented-->
-
-                <lightning-layout multiple-rows>
-                    <!--Operating hour selection page end-->
-                    <!-- FIRST SCREEN: START -->
-                    <template if:true={isFirstScreen}>
-                        <lightning-layout-item size="12" padding="around-small">
-                            <div class="slds-grid slds-wrap slds-gutters">
-                                <div class="slds-col  slds-size_2-of-4">
-                        
-                                    <div class="slds-col slds-size_1-of-1">
-                                        <div class="slds-text-body_small" style="color:red;font-weight:bold">Please Select Date of
-                                            Party
-                                            before proceeding to next steps.</div>
-                                    </div>
-                                    <div class="slds-col slds-size_1-of-1">
-                                        
-                                    </div>
-                                    <div class="slds-col slds-grid slds-size_1-of-2 slds-wrap slds-gutters slds-col slds-align-bottom">
-                                        <lightning-input required type="date" min={today} data-id="dateParty" onchange={getDateParty} class="picklist"
-                                            value={dateParty} label="Date of Party" placeholder="Select Date of Party"></lightning-input>
-                        
-                                    </div>
-                        
-                                </div>
-                                <div class="slds-col  slds-size_1-of-4"></div>
-                                <div class="slds-col slds-size_1-of-4">
-                        
-                                    <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
-                                        <lightning-combobox label="Operating Hour" options={operatingHourOptions} class="picklist" placeholder="Operating Hours"
-                                            value={selectedOperatingHourId} onchange={handleOperatingHourChange}>
-                                        </lightning-combobox>
-                                    </div>
-                                    <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
-                                        <lightning-combobox disabled={regionOptDisable} label="Store region" class="picklist" placeholder="Strore Region"
-                                            options={storeRegionOptions} value={selectedRegion} onchange={handleRegionChange}>
-                                        </lightning-combobox>
-                                    </div>
-                                    <div class="slds-col slds-size_1-of-1 slds-grid slds-wrap slds-gutters">
-                                        <div class="slds-size_2-of-3 slds-m-top_xx-small">
-                                            <lightning-input class="searchbox" name="enter-search" label="" data-id="searchtext" type="search" placeholder="Search Store name"
-                                                value={searchKey}>
-                                            </lightning-input>
-                                        </div>
-                                        <div class="slds-size_1-of-3 slds-m-top_large slds-p-left_small">
-                                            <lightning-button variant="brand" label="Search" title="Search" id="searchStoreButton"
-                                                onclick={searchStore}>
-                                            </lightning-button>
-                                        </div>
-                                    </div>
-                        
-                                </div>
-                            </div>
-                        
-                        </lightning-layout-item>
-
-                        <lightning-layout-item size="12" padding="around-small">
-                            <div style="height:250px;" class="slds-scrollable">
-                                <lightning-datatable key-field="id" data={data} columns={columns} selected-rows={checkedRows}
-                                    onrowselection={rowSelected} resize-column-disabled>
-                                </lightning-datatable>
-                                <!-- <table class="slds-table slds-table_cell-buffer slds-table_bordered "
-                                    aria-labelledby="element-with-table-label other-element-with-table-label">
-                                    <thead>
-                                        <tr class="slds-line-height_reset">
-                                            <th class="" scope="col">
-                                                <div class="slds-truncate" title="Select All">
-                                                    Select Store
-                                                </div>
-                                            </th>
-                                            <th class="" scope="col">
-                                                <div class="" title="Name">Name</div>
-                                            </th>
-                                            <th class="" scope="col">
-                                                <div class="" title="Operating Hours">Operating Hours</div>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <template for:each={data} for:item="currentRow" for:index="i">
-                                            <tr class="slds-hint-parent" key={currentRow.id}>
-                                                <th data-label="Select All" scope="row">
-                                                    <div class="slds-truncate" title="Select-Store-Checkbox">
-                                                        <div class="slds-checkbox" style="padding-left: 15px;">
-                                                            <input type="checkbox" name="Favs"
-                                                                onchange={getSelectedStore} id={currentRow.id}
-                                                                value={currentRow.id} checked={currentRow.isChecked} />
-                                                            <label class="slds-checkbox__label" for={currentRow.id}>
-                                                                <span class="slds-checkbox_faux"></span>
-                                                                <span class="slds-form-element__label"></span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </th>
-                                                <td data-label="Store Name">
-                                                    <div class="slds-col slds-size_2-of-3" title="Store-Name">
-                                                        {currentRow.Name}
-                                                    </div>
-                                                </td>
-                                                <td data-label="Close Date">
-                                                    <div class="slds-col slds-size_2-of-3" title="Close-Date">
-                                                        {currentRow.OpeartingHours}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table> -->
-                            </div>
-                        </lightning-layout-item>
-                    </template>
-                    <!-- FIRST SCREEN: END -->
-                    <!-- SECOND SCREEN: START -->
-                    <template if:true={isSecondScreen}>
-                        <lightning-layout-item size="12" padding="around-small">
-                            <div style="height:350px;" class="slds-scrollable">
-                                <table class="slds-table slds-table_cell-buffer slds-table_bordered "
-                                    aria-labelledby="element-with-table-label other-element-with-table-label">
-                                    <thead>
-                                        <tr class="slds-line-height_reset">
-                                            <th class="" scope="col">
-                                                <div class="slds-truncate" title="Store">Store</div>
-                                            </th>
-                                            <th class="" scope="col">
-                                                <div class="" title="Start Time">Start Time</div>
-                                            </th>
-                                            <th class="" scope="col">
-                                                <div class="" title="End Time">End Time</div>
-                                            </th>
-                                            <th class="" scope="col">
-                                                <div class="slds-truncate" title="Date">Date</div>
-                                            </th>
-                                            <th class="" scope="col">
-                                                <div class="slds-truncate" title="TimeZone">TimeZone</div>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <template for:each={recordsData} for:item="data" for:index="i">
-                                            <tr class="slds-hint-parent" key={data.id}>
-                                                <th data-label="Store ID" scope="row">
-                                                    <div class="slds-truncate" title="Store-ID">
-                                                        {data.StoreId}
-                                                    </div>
-                                                </th>
-                                                <td data-label="Start Time">
-                                                    <div class="slds-col slds-size_2-of-3" title="Start-Time">
-                                                        <lightning-input class="absencevalidation" required type="time"
-                                                            data-id={data.id} variant="label-hidden" name={data.id}
-                                                            label="" value={data.StartTime}
-                                                            onchange={handleStartTimeChange}></lightning-input>
-                                                    </div>
-                                                </td>
-                                                <td data-label="End Time">
-                                                    <div class="slds-col slds-size_2-of-3" title="End-Time">
-                                                        <lightning-input class="absencevalidation" required type="time"
-                                                            data-id={data.id} variant="label-hidden" name={data.id}
-                                                            min={data.StartTime} label="" value={data.EndTime}
-                                                            onchange={handleEndTimeChange}></lightning-input>
-                                                    </div>
-                                                </td>
-                                                <td data-label="Absence Date">
-                                                    <div class="slds-col slds-size_2-of-3" title="Absence-Date">
-                                                        <lightning-input class="absencevalidation" required type="date"
-                                                            data-id={data.id} variant="label-hidden" name={data.id}
-                                                            min={today} label="" value={data.StoreDate}
-                                                            onchange={handleStoreDateChange}></lightning-input>
-                                                    </div>
-                                                </td>
-                                                <td data-label="Store Time Zone">
-                                                    <div class="slds-truncate" title="Store Time Zone">
-                                                        {data.StoreTimeZone}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </lightning-layout-item>
-                    </template>
-                    <!-- SECOND SCREEN: END -->
-                    <template if:true={isThirdScreen}>
-                        <lightning-layout-item size="12" padding="around-small">
-                            <template if:true={isSuccess}>
-                                <div style="color:green;text-align:center;font-weight: 600;font-size: large;"
-                                    class="slds-p-top_large">
-                                    Stores have been successfully blocked the time as per the store time zone.
-                                </div>
-                            </template>
-                            <template if:false={isSuccess}>
-                                <div style="color:red;text-align:center;font-weight: 600;font-size: large;"
-                                    class="slds-p-top_large">
-                                    Errors are getting while blocking time for stores.
-                                </div>
-                            </template>
-                        </lightning-layout-item>
-                    </template>
-
-                    <lightning-layout-item size="12" padding="around-large">
-                        <div class="slds-align_absolute-center">
-                            <template if:true={isFirstScreen}>
-                                <lightning-button variant="brand" label="Next" title="Next" disabled={disableButton}
-                                    onclick={handleFirstScreen}>
-                                </lightning-button>
-                            </template>
-                            <template if:true={isSecondScreen}>
-                                <lightning-button variant="brand" label="Back" title="Back" onclick={goBack}>
-                                </lightning-button>&nbsp;&nbsp;&nbsp;
-                                <lightning-button variant="brand" label="Submit" title="Submit"
-                                    onclick={handleSecondScreen}>
-                                </lightning-button>
-                            </template>
-
+                    <lightning-layout-item size="12" padding="around-small">
+                        <div style="height:250px;" class="slds-scrollable">
+                            <lightning-datatable key-field="id" data={data} columns={columns} selected-rows={checkedRows}
+                                onrowselection={rowSelected} resize-column-disabled>
+                            </lightning-datatable>                                
                         </div>
                     </lightning-layout-item>
-                </lightning-layout>
-            </div>
+                </template>
+                <!-- FIRST SCREEN: END -->
+
+                <!-- SECOND SCREEN: START -->
+                <template if:true={isSecondScreen}>
+                    <lightning-layout-item size="12" padding="around-small">
+                        <div style="height:350px;" class="slds-scrollable">
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered "
+                                aria-labelledby="element-with-table-label other-element-with-table-label">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Store">Store</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="" title="Start Time">Start Time</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="" title="End Time">End Time</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Date">Date</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="TimeZone">TimeZone</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={recordsData} for:item="data" for:index="i">
+                                        <tr class="slds-hint-parent" key={data.id}>
+                                            <th data-label="Store ID" scope="row">
+                                                <div class="slds-truncate" title="Store-ID">
+                                                    {data.StoreId}
+                                                </div>
+                                            </th>
+                                            <td data-label="Start Time">
+                                                <div class="slds-col slds-size_2-of-3" title="Start-Time">
+                                                    <lightning-input class="absencevalidation" required type="time"
+                                                        data-id={data.id} variant="label-hidden" name={data.id}
+                                                        label="" value={data.StartTime}
+                                                        onchange={handleStartTimeChange}></lightning-input>
+                                                </div>
+                                            </td>
+                                            <td data-label="End Time">
+                                                <div class="slds-col slds-size_2-of-3" title="End-Time">
+                                                    <lightning-input class="absencevalidation" required type="time"
+                                                        data-id={data.id} variant="label-hidden" name={data.id}
+                                                        min={data.StartTime} label="" value={data.EndTime}
+                                                        onchange={handleEndTimeChange}></lightning-input>
+                                                </div>
+                                            </td>
+                                            <td data-label="Absence Date">
+                                                <div class="slds-col slds-size_2-of-3" title="Absence-Date">
+                                                    <lightning-input class="absencevalidation" required type="date"
+                                                        data-id={data.id} variant="label-hidden" name={data.id}
+                                                        min={today} label="" value={data.StoreDate}
+                                                        onchange={handleStoreDateChange}></lightning-input>
+                                                </div>
+                                            </td>
+                                            <td data-label="Store Time Zone">
+                                                <div class="slds-truncate" title="Store Time Zone">
+                                                    {data.StoreTimeZone}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </lightning-layout-item>
+                </template>
+                <!-- SECOND SCREEN: END -->
+
+                <!-- THIRD SCREEN: START -->
+                <template if:true={isThirdScreen}>
+                    <lightning-layout-item size="12" padding="around-small">
+                        <template if:true={isSuccess}>
+                            <div style="color:green;text-align:center;font-weight: 600;font-size: large;"
+                                class="slds-p-top_large">
+                                Stores have been successfully blocked the time as per the store time zone.
+                            </div>
+                        </template>
+                        <template if:false={isSuccess}>
+                            <div style="color:red;text-align:center;font-weight: 600;font-size: large;"
+                                class="slds-p-top_large">
+                                Errors are getting while blocking time for stores.
+                            </div>
+                        </template>
+                    </lightning-layout-item>
+                </template>
+                <!-- THIRD SCREEN: END -->
+
+                <lightning-layout-item size="12" padding="around-large">
+                    <div class="slds-align_absolute-center">
+                        <template if:true={isFirstScreen}>
+                            <lightning-button variant="brand" label="Next" title="Next" disabled={disableButton}
+                                onclick={handleFirstScreen}>
+                            </lightning-button>
+                        </template>
+                        <template if:true={isSecondScreen}>
+                            <lightning-button variant="brand" label="Back" title="Back" onclick={goBack}>
+                            </lightning-button>&nbsp;&nbsp;&nbsp;
+                            <lightning-button variant="brand" label="Submit" title="Submit"
+                                onclick={handleSecondScreen}>
+                            </lightning-button>
+                        </template>
+
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
         </div>
-    </lightning-card>
+    </div>
 </template>
