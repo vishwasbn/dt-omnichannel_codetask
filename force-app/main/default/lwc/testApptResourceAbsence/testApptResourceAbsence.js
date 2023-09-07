@@ -55,6 +55,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     RBColumns = RBColumns;
     secondScreenColumns = secondScreenColumns;
     isSuccess = false;
+    showSpinner = false; // to show loading spinner
 
     //vishwas disableButton = true;
     operatingHourOptions = [];
@@ -73,9 +74,9 @@ export default class TestApptResourceAbsence extends LightningElement {
     //     return this.selectedOperatingHourId == null || this.storeRegionOptions.length == 0;
     // }
 
-    // get disableregiondropdown(){
-    //     return this.storeRegionOptions.length == 0;
-    // }
+    get regionOptDisable(){
+        return this.storeRegionOptions.length == 0;
+    }
 
     get disablebtn(){
         return this.selectedRegion == null;
@@ -259,6 +260,7 @@ export default class TestApptResourceAbsence extends LightningElement {
 
     }
     @wire(getAccounts, { searchKey: '$searchKey', region: '$selectedRegion' }) wiredAccounts({ data, error }) {
+        this.showSpinner = true;
         if (data) {
 
             this.allData = [];
@@ -296,8 +298,9 @@ export default class TestApptResourceAbsence extends LightningElement {
                 this._firstTimeAllData = this.allData;
             }
             this.data = this.allData;
+            this.showSpinner = false;
         } else if (error) {
-
+            this.showSpinner = false;
         }
     }
 
@@ -466,6 +469,7 @@ export default class TestApptResourceAbsence extends LightningElement {
             this.operatingHourOptions = data;
         } else if (error) {
             console.log('Not able to get the operating hour options from server');
+            this.operatingHourOptions = [];
         }
     }
 
@@ -485,7 +489,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     handleOperatingHourChange(event) {
         this.selectedOperatingHourId = event.detail.value;
         this.selectedRegion ='';
-        this.storeRegionOptions =null;
+        this.storeRegionOptions =[];
         this.getSiteRegions();
     }
 

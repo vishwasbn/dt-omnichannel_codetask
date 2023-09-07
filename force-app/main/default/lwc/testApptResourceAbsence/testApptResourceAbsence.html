@@ -1,4 +1,16 @@
 <template>
+    <!--Show spinner start-->
+    <div if:true={showSpinner}>
+        <div class="slds-spinner_container">
+            <div class="slds-spinner--brand slds-spinner slds-spinner--large slds-is-fixed" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+     </div>
+     <!--Show spinner end-->
+     
     <lightning-card>
         <div class="slds-p-around_medium">
             <template if:true={userTimezone}>
@@ -74,7 +86,7 @@
                                         </lightning-combobox>
                                     </div>
                                     <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
-                                        <lightning-combobox disabled={disableregiondropdown} label="Store region" class="picklist" placeholder="Strore Region"
+                                        <lightning-combobox disabled={regionOptDisable} label="Store region" class="picklist" placeholder="Strore Region"
                                             options={storeRegionOptions} value={selectedRegion} onchange={handleRegionChange}>
                                         </lightning-combobox>
                                     </div>
