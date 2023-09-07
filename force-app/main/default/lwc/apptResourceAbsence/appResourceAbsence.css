@@ -1,4 +1,4 @@
-.main-container{
+.main-container {
     background-color: white;
     padding: 20px;
     min-height: 73vh;
@@ -6,10 +6,35 @@
     overflow-y: auto;
 }
 
-.searchBox-width{
-	width: 100% !important;
+.searchBox-width {
+    width: 100% !important;
 }
 
-.slds-th__action-button{
+.slds-th__action-button {
     display: none;
+}
+
+.main {
+    background: rgb(255, 255, 255);
+    padding: 0px 10px 0px 10px;
+    border: 1px solid rgb(221, 219, 218);
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.10);
+}
+
+.timezone_text{
+    text-align: center;
+    color: #4000ca;
+}
+
+.searchbox{
+    margin-top: 3px;
+}
+
+.searchBtn{
+    margin-top: 20px;
+}
+
+.picklist{
+    width: 100%;
 }

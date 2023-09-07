@@ -75,7 +75,7 @@ private class Appt_ResourceAbsenceController_Test {
 		insert servTerr;     
         List<ServiceTerritory> serviceList;
         Test.startTest();
-        serviceList = Appt_ResourceAbsenceController.getAllStores('Test');
+        serviceList = Appt_ResourceAbsenceController.getAllStores('Test', '');
         Test.stopTest();
         System.assertEquals(true, serviceList.size() == 1);
     }
@@ -89,4 +89,31 @@ private class Appt_ResourceAbsenceController_Test {
         Test.stopTest();
         System.assertNotEquals(result,null);
    }
+
+   @isTest
+    static void testGetUserAccountTimezone() {
+        // Create a test user with a known timezone
+        Profile testProfile = [SELECT Id FROM Profile WHERE Name = 'Standard User']; // Change the profile name as needed
+        User testUser = new User(
+            Alias = 'testUser',
+            Email = 'testuser@test.com',
+            EmailEncodingKey = 'UTF-8',
+            LastName = 'Test',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            ProfileId = testProfile.Id,
+            TimeZoneSidKey = 'America/New_York', // Set the expected timezone here
+            UserName = 'testuser@test.com.coedev'
+        );
+        insert testUser;
+
+        // Set the test context to the created user
+        System.runAs(testUser) {
+            // Call the AuraEnabled method to get the user's account timezone
+            String userTimezone = Appt_ResourceAbsenceController.getUserAccountTimezone();
+
+            // Verify that the user's timezone is as expected
+            System.assertEquals('America/New_York', userTimezone);
+        }
+    }
 }

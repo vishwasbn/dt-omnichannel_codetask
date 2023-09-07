@@ -1,32 +1,48 @@
+/*========================================================================================================
+* @author: Ayna
+* @date: 07th Aug '23
+* @description: Helper class for Absence creation Lighnting component functionality
+
+Modification Log:
+------------------------------------------------------------------------------------
+Developer     Jira Number   Date                Description
+------------------------------------------------------------------------------------
+Ayna           SO-385       07th Aug '23        Created to accommodate all the controller method. 
+========================================================================================================== */
+
 public with sharing class Appt_ResourceAbsenceController {
 
 public static Logger logInstance = Logger.getInstance();
 
 // This method will get list of stores on LWC component load and show there as well as used for search stores using search bar in LWC component.
- @AuraEnabled(cacheable=true)
-    public static List<ServiceTerritory> getAllStores(String searchKey){
+    @AuraEnabled(cacheable=true)
+    public static List<ServiceTerritory> getAllStores(String searchKey , String region){
         List<ServiceTerritory> serviceList = new List<ServiceTerritory>();
-        if(String.isBlank(searchKey)){
-            serviceList = [SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone	 FROM ServiceTerritory];
+        String soqlQuery = 'SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone,Site_Account__r.Store_Region__c FROM ServiceTerritory where IsActive = true';
+        if (!String.isEmpty(searchKey)) {
+            soqlQuery += ' and Name LIKE \'%' + searchKey + '%\'';
         }
-        else{
-            searchKey = '%' + searchKey + '%';
-            serviceList =  [SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone FROM ServiceTerritory where name like :searchKey];
+        if (!String.isEmpty(region)) {
+            soqlQuery += ' and Site_Account__r.Store_Region__c LIKE \'%' + region + '%\'';
         }
+        soqlQuery += ' Order by Name asc';
+        serviceList = Database.query(soqlQuery);
+        
         return serviceList;
     }
     
 
     // This method will create the resource absence records and will be called from AppresourceAbsence LWC component.
     @AuraEnabled
-    public static void createAbsenceRecords(String requestData){
-        
+    public static ResponseWrapper createAbsenceRecords(String requestData){
+        ResponseWrapper rw = new ResponseWrapper();
         try{
             List<RequestData> lstData = (List<RequestData>) JSON.deserialize(requestData,List<RequestData>.class);
             Set<String> serviceResourceNames = New Set<String>();
             Map<String,RequestData> storeIdMap = new Map<String,RequestData>();
             List<ServiceResource> lstSR = new List<ServiceResource>();
             List<ResourceAbsence> insertResourceAbsenceList = new List<ResourceAbsence>();
+            TimeZone tz = UserInfo.getTimeZone();
             for(RequestData obj : lstData){
                 serviceResourceNames.add(obj.StoreId);
                 storeIdMap.put(obj.id,obj);
@@ -39,9 +55,16 @@ public static Logger logInstance = Logger.getInstance();
                 resourceAbsenceObj.ResourceId = memberObj.ServiceResourceId;
                 insertResourceAbsenceList.add(resourceAbsenceObj);
             }
-            insert insertResourceAbsenceList; 
+            insert insertResourceAbsenceList;
+            rw.isError = false;
+            rw.messsage = JSON.serialize(insertResourceAbsenceList); 
+            return rw;
         }catch(Exception e){
             logInstance.log('CreateAbsenceRecords', Appt_ResourceAbsenceController.class.getName(), e.getmessage());
+            System.debug('Exception occured during absence creation'+e.getMessage()+' '+e.getStackTraceString());
+            rw.isError = true;
+            rw.messsage = e.getMessage() + ' - ' + e.getStackTraceString(); 
+            return rw;
         }
     }
 
@@ -69,5 +92,63 @@ public static Logger logInstance = Logger.getInstance();
         hours = timeOnly > 12 ? timeOnly-12 : timeOnly;
         System.debug(hours + ':'+timeValue.substring(3,5)+ ' ' +ampm);
         return DateTime.parse(DateValue.Substring(5,7)+'/'+DateValue.Substring(8,10)+'/'+DateValue.Substring(0,4)+', '+hours+':'+timeValue.substring(3,5)+ ' ' +ampm);
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Option> getOperatingHourOptions() {
+        List<Option> options = new List<Option>();
+        
+        for (OperatingHours oh : [select id, Name, TimeZone from OperatingHours]) {
+            options.add(new Option(oh.Id, oh.Name));
+        }
+        
+        return options;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Option> getSiteRegions(String operatingHourId) {
+        List<Option> options = new List<Option>();
+        
+        for (AggregateResult ar : [select Site_Account__r.Store_Region__c  from ServiceTerritory where Site_Account__r.RecordType.Name='Site' and OperatingHours.id = :operatingHourId group by Site_Account__r.Store_Region__c]) {
+            if(ar.get('Store_Region__c')!=null){
+                options.add(new Option(ar.get('Store_Region__c').toString(), ar.get('Store_Region__c').toString()));
+            }
+            
+        }
+        
+        return options;
+    }
+    
+    public class Option {
+        @AuraEnabled
+        public String value { get; set; }
+        
+        @AuraEnabled
+        public String label { get; set; }
+        
+        public Option(String value, String label) {
+            this.value = value;
+            this.label = label;
+        }
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static String getUserAccountTimezone() {
+        String userTimeZone = '';
+        
+        // Fetch the current user's account
+        User currentUser = [SELECT AccountId, TimeZoneSidKey FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+        
+        if (currentUser != null && currentUser.TimezoneSidKey != null) {
+                userTimeZone = currentUser.TimezoneSidKey;
+            }
+        return userTimeZone;
+    }
+
+    public class ResponseWrapper{
+        @auraEnabled
+        public String messsage{get;set;}
+        @auraEnabled
+        public Boolean isError{get;set;}
     }
 }
