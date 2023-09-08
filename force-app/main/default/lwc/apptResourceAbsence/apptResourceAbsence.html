@@ -14,10 +14,10 @@
     <lightning-card>
         <div class="slds-p-around_small">
             <template if:true={userTimezone}>
-                <p class="timezone_text">The logged-in user's account timezone is: <b>{userTimezone}</b></p>
+                <p class="timezoneText" style="text-align: center;color: #4000ca">The logged-in user's account timezone is: <b>{userTimezone}</b></p>
             </template>
             <template if:false={userTimezone}>
-                <p class="timezone_text">No account timezone found for the logged-in user.</p>
+                <p class="timezoneText" style="text-align: center;color: #4000ca">No account timezone found for the logged-in user.</p>
             </template>
         </div>
     </lightning-card>
@@ -49,18 +49,18 @@
                             <div class="slds-col slds-size_1-of-4">
                     
                                 <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
-                                    <lightning-combobox label="Operating Hour" options={operatingHourOptions} class="picklist" placeholder="Operating Hours"
+                                    <lightning-combobox style="width:100%" label="Operating Hour" options={operatingHourOptions} class="picklist" placeholder="Operating Hours"
                                         value={selectedOperatingHourId} onchange={handleOperatingHourChange}>
                                     </lightning-combobox>
                                 </div>
                                 <div class="slds-col slds-grid slds-size_1-of-1 slds-wrap slds-gutters slds-grid_align-end">
-                                    <lightning-combobox disabled={regionOptDisable} label="Store region" class="picklist" placeholder="Strore Region"
+                                    <lightning-combobox style="width:100%" disabled={regionOptDisable} label="Store region" class="picklist" placeholder="Strore Region"
                                         options={storeRegionOptions} value={selectedRegion} onchange={handleRegionChange}>
                                     </lightning-combobox>
                                 </div>
                                 <div class="slds-col slds-size_1-of-1 slds-grid slds-wrap slds-gutters">
                                     <div class="slds-size_2-of-3 slds-m-top_xx-small">
-                                        <lightning-input class="searchbox" name="enter-search" label="" data-id="searchtext" type="search" placeholder="Search Store name"
+                                        <lightning-input style="margin-top: 3px" class="searchbox" name="enter-search" label="" data-id="searchtext" type="search" placeholder="Search Store name"
                                             value={searchKey}>
                                         </lightning-input>
                                     </div>

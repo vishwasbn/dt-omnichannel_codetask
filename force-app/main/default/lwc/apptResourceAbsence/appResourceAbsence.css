@@ -22,19 +22,19 @@
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.10);
 }
 
-.timezone_text{
+.timezoneText {
     text-align: center;
     color: #4000ca;
 }
 
-.searchbox{
+.searchbox {
     margin-top: 3px;
 }
 
-.searchBtn{
+.searchBtn {
     margin-top: 20px;
 }
 
-.picklist{
+.picklist {
     width: 100%;
 }
