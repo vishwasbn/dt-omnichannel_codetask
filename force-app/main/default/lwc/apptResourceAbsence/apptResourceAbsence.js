@@ -275,6 +275,7 @@ export default class TestApptResourceAbsence extends LightningElement {
                 this._isValidationError = false;
                 return;
             }
+                this.showSpinner = true;
                 createAbsence({ requestData: JSON.stringify(this.recordsData) })
                     .then(result => {
 
@@ -287,7 +288,7 @@ export default class TestApptResourceAbsence extends LightningElement {
                             this.isSecondScreen = false;
                             this.isThirdScreen = true;
                         }
-
+                        this.showSpinner = false;
                     })
                     .catch(error => {
 
@@ -295,6 +296,7 @@ export default class TestApptResourceAbsence extends LightningElement {
                         this.isSuccess = false;
                         this.isSecondScreen = false;
                         this.isThirdScreen = true;
+                        this.showSpinner = false;
                     })
         }
 
@@ -371,6 +373,10 @@ export default class TestApptResourceAbsence extends LightningElement {
         } else if (error) {
             console.error('Error fetching user account timezone', error);
         }
+    }
+
+    reload(){
+        location.reload();
     }
 
 }
