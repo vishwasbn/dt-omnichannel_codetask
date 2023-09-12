@@ -19,7 +19,7 @@ public class Appt_ConstantValues {
     public static final Integer WORK_TYPE_DURATION_FRONT_DEFAULT = 20;
     public static final Integer WORK_TYPE_DURATION_BACK_DEFAULT = 20;
     public static final String WORK_ORDER_DURATION_TYPE = 'Minutes';
-    
+
     public static final String WORKORDER_ORDERTYPE_INV = 'Invoice';
     public static final String WORKORDER_ORDERTYPE_QUO = 'Quote';
     public static final String WORKORDER_ORDERTYPE_LAY = 'Layaway';
@@ -27,8 +27,8 @@ public class Appt_ConstantValues {
     public static final String WORKORDER_ORDERTYPE_ROPIS = 'ROPIS';
     public static final String WORKORDER_ORDERTYPE_SERVICE_APPT = 'ServiceAppointment';
     public static final Set<String> WORKORDER_ORDER_TYPES_FOR_HYBRISNUMBER=new Set<String>{WORKORDER_ORDERTYPE_BOPIS,WORKORDER_ORDERTYPE_ROPIS, WORKORDER_ORDERTYPE_SERVICE_APPT };
-
-
+ 
+        
     public static final String SERVICE_RESOURCE_TYPE_FRONT = 'Front Room';
     public static final String SERVICE_RESOURCE_TYPE_BACK = 'Back Room';
 
@@ -155,5 +155,11 @@ public class Appt_ConstantValues {
     public static final string NOTIFICATION_INVOICE_STATUS_SUCCESSFUL = 'Successful';    
     public static final string NOTIFICATION_INVOICE_STATUS_ERROR = 'Error';
 
-    public static final String ADDRESS_DEFAULT_COUNTRY = 'United States'; 
+    public static final String ADDRESS_DEFAULT_COUNTRY = 'United States';
+    //Appt 3.0 - On the fly flag enabled when appointments are created as part of vision implementaion.
+    public static Boolean isVisionFeature = false;
+    //Appt 3.0 - End point settings to make CAR order histories outbound call
+    public static final String INTEGRATION_SETTING_ORDER_HISTORIES_URL = 'Order_Histories_Url';
+    //Appt 3.0 - End point settings to make consolidated CAR outbound inventories call
+    public static final String INTEGRATION_SETTING_INVENTORIES_URL = 'Inventories_Url';    
 }
