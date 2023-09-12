@@ -31,12 +31,24 @@ public static Logger logInstance = Logger.getInstance();
     @AuraEnabled(cacheable=true)
     public static List<ServiceTerritory> getAllStores(String searchKey , String region){
         List<ServiceTerritory> serviceList = new List<ServiceTerritory>();
-        System.debug('searchKey '+searchKey);
-        System.debug('region '+region);
+
+        String soqlQuery = 'SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone,Site_Account__r.Store_Region__c FROM ServiceTerritory where IsActive = true';
+        // System.debug('searchKey '+searchKey);
+        // System.debug('region '+region);
        
-        searchKey = '%' + searchKey + '%';
-        region = '%' + region + '%';
-        serviceList =  [SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone,Site_Account__r.Store_Region__c FROM ServiceTerritory where Site_Account__r.RecordType.Name='Site' and IsActive = true and name like :searchKey and Site_Account__r.Store_Region__c like :region Order by Name asc];
+        // searchKey = '%' + searchKey + '%';
+        // region = '%' + region + '%';
+        // serviceList =  [SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone,Site_Account__r.Store_Region__c FROM ServiceTerritory where Site_Account__r.RecordType.Name='Site' and IsActive = true and name like :searchKey and Site_Account__r.Store_Region__c like :region Order by Name asc];
+
+        if (!String.isEmpty(searchKey)) {
+            soqlQuery += ' and Name LIKE \'%' + searchKey + '%\'';
+        }
+        if (!String.isEmpty(region)) {
+            soqlQuery += ' and Site_Account__r.Store_Region__c LIKE \'%' + region + '%\'';
+        }
+        soqlQuery += ' Order by Name asc';
+        serviceList = Database.query(soqlQuery);
+
         
         return serviceList;
     }

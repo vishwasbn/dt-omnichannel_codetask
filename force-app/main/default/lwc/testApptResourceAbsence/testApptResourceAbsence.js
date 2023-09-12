@@ -17,7 +17,6 @@ const columns = [
 
 export default class TestApptResourceAbsence extends LightningElement {
     isFirstScreen = true;
-    operatinghourpage = true;
     isSecondScreen;
     isThirdScreen;
     _isValidationError = false;
