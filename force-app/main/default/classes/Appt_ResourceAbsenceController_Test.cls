@@ -1,6 +1,6 @@
 @isTest
 private class Appt_ResourceAbsenceController_Test {
-        @testSetup
+        
     static void setupData() {
 
         // setup the Account ... Territory ... Resource ... Appoitments... 
@@ -32,7 +32,7 @@ private class Appt_ResourceAbsenceController_Test {
 
     @isTest
     static void testCreateAbsenceRecords() {
-    
+        Appt_ResourceAbsenceController_Test.setupData();
         List<Appt_ResourceAbsenceController.RequestData> testData = new List<Appt_ResourceAbsenceController.RequestData>();
         Appt_ResourceAbsenceController.RequestData testData1 = new Appt_ResourceAbsenceController.RequestData();
         testData1.ServiceTeritoryId = '1'; // Add the relevant ServiceTerritory Id here
@@ -57,13 +57,11 @@ private class Appt_ResourceAbsenceController_Test {
         System.assertEquals('Resource Back', createdServiceResources[0].Name);
         System.assertEquals('T', createdServiceResources[0].ResourceType);
         System.assertEquals('Back Room', createdServiceResources[0].Type__c);
-       // System.assertEquals('0056g000007o1VOAAY', createdServiceResources[0].RelatedRecordId);
         System.assertEquals(true, createdServiceResources[0].IsActive);
-        
-        createdServiceResources = [SELECT Id, Name, ResourceType, Type__c, RelatedRecordId, IsActive FROM ServiceResource];
     }
     @isTest
     static void testGetAllStores() {
+        Appt_ResourceAbsenceController_Test.setupData();
     	 //insert operating hours
         List<OperatingHours> opHrs = WOM_TestDataUtility.createOpHours(1,'Test Operating Hours');
        insert opHrs;
@@ -115,5 +113,16 @@ private class Appt_ResourceAbsenceController_Test {
             // Verify that the user's timezone is as expected
             System.assertEquals('America/New_York', userTimezone);
         }
+    }
+
+    @isTest(SeeAllData=true)
+    static void getOperatingHourOptions() {
+        List<AggregateResult> aggr = [select OperatingHours.Name , OperatingHoursId from ServiceTerritory where IsActive = true  group by OperatingHours.Name, OperatingHoursId  Order by OperatingHours.Name ASC];
+        List<Appt_ResourceAbsenceController.Option> options= new List<Appt_ResourceAbsenceController.Option>();
+        Test.startTest();
+        options = Appt_ResourceAbsenceController.getOperatingHourOptions();
+        Test.stopTest();
+
+        System.assertEquals(aggr.size(), options.size());
     }
 }

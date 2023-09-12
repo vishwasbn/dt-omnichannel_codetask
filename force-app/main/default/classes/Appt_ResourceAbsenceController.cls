@@ -98,8 +98,8 @@ public static Logger logInstance = Logger.getInstance();
     public static List<Option> getOperatingHourOptions() {
         List<Option> options = new List<Option>();
         
-        for (OperatingHours oh : [select id, Name, TimeZone from OperatingHours]) {
-            options.add(new Option(oh.Id, oh.Name));
+        for (AggregateResult ar : [select OperatingHours.Name , OperatingHoursId from ServiceTerritory where IsActive = true  group by OperatingHours.Name, OperatingHoursId  Order by OperatingHours.Name ASC ]) {
+            options.add(new Option(ar.get('Name').toString(), ar.get('OperatingHoursId').toString()));
         }
         
         return options;
@@ -109,7 +109,7 @@ public static Logger logInstance = Logger.getInstance();
     public static List<Option> getSiteRegions(String operatingHourId) {
         List<Option> options = new List<Option>();
         
-        for (AggregateResult ar : [select Site_Account__r.Store_Region__c  from ServiceTerritory where Site_Account__r.RecordType.Name='Site' and OperatingHours.id = :operatingHourId group by Site_Account__r.Store_Region__c]) {
+        for (AggregateResult ar : [select Site_Account__r.Store_Region__c  from ServiceTerritory where IsActive = true and OperatingHours.id = :operatingHourId group by Site_Account__r.Store_Region__c Order by Site_Account__r.Store_Region__c ASC ]) {
             if(ar.get('Store_Region__c')!=null){
                 options.add(new Option(ar.get('Store_Region__c').toString(), ar.get('Store_Region__c').toString()));
             }
@@ -126,7 +126,7 @@ public static Logger logInstance = Logger.getInstance();
         @AuraEnabled
         public String label { get; set; }
         
-        public Option(String value, String label) {
+        public Option(String label, String value) {
             this.value = value;
             this.label = label;
         }
