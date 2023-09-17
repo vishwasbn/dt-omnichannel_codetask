@@ -19,7 +19,6 @@
     <environments>Default</environments>
     <interviewLabel>Fleet Case Resolved {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Fleet Case Resolved</label>
-    <migratedFromWorkflowRuleName>Fleet Case Resolved</migratedFromWorkflowRuleName>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

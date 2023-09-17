@@ -145,7 +145,7 @@
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>is_email_case</name>
-            <conditionLogic>1 AND 2 AND 3 AND NOT(4) AND 5</conditionLogic>
+            <conditionLogic>1 AND 2 AND 3 AND NOT(4) AND NOT(5) AND NOT(6)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Status</leftValueReference>
                 <operator>EqualTo</operator>
@@ -175,10 +175,17 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Permission.Bypass_Logic</leftValueReference>
-                <operator>NotEqualTo</operator>
+                <leftValueReference>$Record.ContactEmail</leftValueReference>
+                <operator>Contains</operator>
                 <rightValue>
-                    <booleanValue>true</booleanValue>
+                    <stringValue>@discounttire.com</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.ContactEmail</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>@service-now.com</stringValue>
                 </rightValue>
             </conditions>
             <connector>
