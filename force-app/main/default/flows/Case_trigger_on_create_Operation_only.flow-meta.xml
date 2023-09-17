@@ -49,7 +49,7 @@
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>is_after_hour_email_case</name>
-            <conditionLogic>1 AND NOT(2) AND 3</conditionLogic>
+            <conditionLogic>1 AND NOT(2) AND 3 AND (4 OR 5)</conditionLogic>
             <conditions>
                 <leftValueReference>after_hours_formula</leftValueReference>
                 <operator>EqualTo</operator>
@@ -69,6 +69,20 @@
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.ContactEmail</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.SuppliedEmail</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -145,7 +159,7 @@
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>is_email_case</name>
-            <conditionLogic>1 AND 2 AND 3 AND NOT(4) AND NOT(5) AND NOT(6)</conditionLogic>
+            <conditionLogic>1 AND 2 AND 3 AND NOT(4) AND NOT(5) AND NOT(6) AND (7 OR 8)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Status</leftValueReference>
                 <operator>EqualTo</operator>
@@ -186,6 +200,20 @@
                 <operator>Contains</operator>
                 <rightValue>
                     <stringValue>@service-now.com</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.ContactEmail</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.SuppliedEmail</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>

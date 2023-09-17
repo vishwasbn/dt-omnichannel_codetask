@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Fleet_Send_Case_Closed_Email</name>
         <label>Sent closed email alert</label>
-        <locationX>176</locationX>
-        <locationY>323</locationY>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
         <actionName>Case.Fleet_Send_Case_Closed_Email</actionName>
         <actionType>emailAlert</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -16,7 +16,35 @@
         </inputParameters>
     </actionCalls>
     <apiVersion>58.0</apiVersion>
+    <decisions>
+        <name>Check_for_case_contact_email</name>
+        <label>Check for case contact email</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>contact_email_exists</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>contactEmailExists</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Fleet_Send_Case_Closed_Email</targetReference>
+            </connector>
+            <label>contact email exists</label>
+        </rules>
+    </decisions>
     <environments>Default</environments>
+    <formulas>
+        <description>This formula evaluate if the case contact email is exist or not</description>
+        <name>contactEmailExists</name>
+        <dataType>Boolean</dataType>
+        <expression>NOT(ISBLANK({!$Record.ContactEmail}))</expression>
+    </formulas>
     <interviewLabel>Fleet Case Resolved {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Fleet Case Resolved</label>
     <processMetadataValues>
@@ -33,10 +61,10 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <start>
-        <locationX>50</locationX>
+        <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Fleet_Send_Case_Closed_Email</targetReference>
+            <targetReference>Check_for_case_contact_email</targetReference>
         </connector>
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterFormula>AND(OR(ISPICKVAL( {!$Record.Status} , &apos;Resolved&apos;),ISPICKVAL( {!$Record.Status} , &apos;Closed&apos;)), ({!$Record.RecordType.Name} =&apos;Fleet Community Case&apos;),!({!$Permission.Bypass_Logic}))</filterFormula>
