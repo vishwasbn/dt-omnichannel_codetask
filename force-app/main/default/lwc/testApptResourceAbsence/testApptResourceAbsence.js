@@ -38,7 +38,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     isSuccess = false;
     showSpinner = false; // to show loading spinner
     operatingHourOptions = [];
-    selectedOperatingHourId;
+    selectedOperatingHourId = '';
     storeRegionOptions = [];
     selectedRegion = '';
     userTimezone;
@@ -137,7 +137,7 @@ export default class TestApptResourceAbsence extends LightningElement {
         });
     }
 
-    @wire(getAccounts, { searchKey: '$searchKey', region: '$selectedRegion' }) wiredAccounts({ data, error }) {
+    @wire(getAccounts, { operatingHourId: '$selectedOperatingHourId', region: '$selectedRegion', searchKey: '$searchKey' }) wiredAccounts({ data, error }) {
         this.showSpinner = true;
         if (data) {
 
@@ -330,7 +330,9 @@ export default class TestApptResourceAbsence extends LightningElement {
     @wire(getOperatingHourOptions)
     wiredAccountOptions({ data, error }) {
         if (data) {
-            this.operatingHourOptions = data;
+            var options = [{'label' : 'All', 'value' : 'All'}];
+            options.push(...data);
+            this.operatingHourOptions = options;
         } else if (error) {
             console.log('Not able to get the operating hour options from server');
             this.operatingHourOptions = [];
@@ -340,7 +342,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     getSiteRegions(){
         getSiteRegions({ operatingHourId : this.selectedOperatingHourId })
         .then((result) => {
-            console.log('Optained the region'+ result);
+            console.log('Optained the region'+ result);            
             this.storeRegionOptions = result;
 
         })
@@ -351,7 +353,8 @@ export default class TestApptResourceAbsence extends LightningElement {
     }
 
     handleOperatingHourChange(event) {
-        this.selectedOperatingHourId = event.detail.value;
+        var valueSeleted = event.detail.value
+        this.selectedOperatingHourId = valueSeleted == 'All' ? '' : valueSeleted;
         this.selectedRegion ='';
         this.storeRegionOptions =[];
         this.getSiteRegions();
