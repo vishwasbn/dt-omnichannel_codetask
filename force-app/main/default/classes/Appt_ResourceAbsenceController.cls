@@ -8,13 +8,14 @@ Modification Log:
 Developer     Jira Number   Date                Description
 ------------------------------------------------------------------------------------
 Ayna           SO-385       07th Aug '23        Created to accommodate all the controller method. 
+Vishwas        S0-385       25-08-2023          Added methods to list Operating Hours, Store Region and get logged in user timezone.
 ========================================================================================================== */
 
 public with sharing class Appt_ResourceAbsenceController {
 
 public static Logger logInstance = Logger.getInstance();
 
-// This method will get list of stores on LWC component load and show there as well as used for search stores using search bar in LWC component.
+// This method will get list of stores on component and filter store based on region and search key
     @AuraEnabled(cacheable=true)
     public static List<ServiceTerritory> getAllStores(String searchKey , String region){
         List<ServiceTerritory> serviceList = new List<ServiceTerritory>();
@@ -32,7 +33,7 @@ public static Logger logInstance = Logger.getInstance();
     }
     
 
-    // This method will create the resource absence records and will be called from AppresourceAbsence LWC component.
+    // This method is used to create the resource absence records
     @AuraEnabled
     public static ResponseWrapper createAbsenceRecords(String requestData){
         ResponseWrapper rw = new ResponseWrapper();
@@ -69,9 +70,9 @@ public static Logger logInstance = Logger.getInstance();
     }
 
    public Class RequestData{
-     public String ServiceTeritoryId;
-     public String Name;
-     public string id;
+      public String ServiceTeritoryId;
+      public String Name;
+      public string id;
       public String StoreId;
       public String StartTime;
       public String EndTime; 
@@ -83,17 +84,18 @@ public static Logger logInstance = Logger.getInstance();
       public  String Result;
 
     }
+
+    //This method is used to convert the date and time string value to datetime in the loggedin timezone
     public static DateTime getDateTimeValue(String timeValue,String DateValue){
         Integer timeonly = Integer.valueOf(timeValue.substring(0,2));
-        system.debug(timeonly);
         String ampm = '';
         ampm = timeOnly >= 12 ? Appt_ConstantValues.TIME_PM : Appt_ConstantValues.TIME_AM;
         Integer hours = 0;
         hours = timeOnly > 12 ? timeOnly-12 : timeOnly;
-        System.debug(hours + ':'+timeValue.substring(3,5)+ ' ' +ampm);
         return DateTime.parse(DateValue.Substring(5,7)+'/'+DateValue.Substring(8,10)+'/'+DateValue.Substring(0,4)+', '+hours+':'+timeValue.substring(3,5)+ ' ' +ampm);
     }
 
+    // This method is used to retrived the operating hour record as picklist for the lwc component
     @AuraEnabled(cacheable=true)
     public static List<Option> getOperatingHourOptions() {
         List<Option> options = new List<Option>();
@@ -105,6 +107,7 @@ public static Logger logInstance = Logger.getInstance();
         return options;
     }
 
+    //This method used to retrived the Store regions based on the store Operating hour
     @AuraEnabled(cacheable=true)
     public static List<Option> getSiteRegions(String operatingHourId) {
         List<Option> options = new List<Option>();
@@ -132,6 +135,7 @@ public static Logger logInstance = Logger.getInstance();
         }
     }
 
+    //This method is used to trrived retrive logged in user timezone.
     @AuraEnabled(cacheable=true)
     public static String getUserAccountTimezone() {
         String userTimeZone = '';

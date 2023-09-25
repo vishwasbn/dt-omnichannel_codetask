@@ -59,16 +59,17 @@ private class Appt_ResourceAbsenceController_Test {
         System.assertEquals('Back Room', createdServiceResources[0].Type__c);
         System.assertEquals(true, createdServiceResources[0].IsActive);
     }
+
     @isTest
     static void testGetAllStores() {
         Appt_ResourceAbsenceController_Test.setupData();
-    	 //insert operating hours
+    	//insert operating hours
         List<OperatingHours> opHrs = WOM_TestDataUtility.createOpHours(1,'Test Operating Hours');
-       insert opHrs;
-       //insert account of record type 'Site'
-      List<Account> acct = WOM_TestDataUtility.createAccounts(1,'Test Account','Site');
-      acct[0].Store_Id__c='123123';
-       insert acct;
+        insert opHrs;
+        //insert account of record type 'Site'
+        List<Account> acct = WOM_TestDataUtility.createAccounts(1,'Test Account','Site');
+        acct[0].Store_Id__c='123123';
+        insert acct;
         List<ServiceTerritory> servTerr = WOM_TestDataUtility.createServiceTerritory(1,'Test Service Territory',true); 
 		insert servTerr;     
         List<ServiceTerritory> serviceList;
@@ -77,6 +78,7 @@ private class Appt_ResourceAbsenceController_Test {
         Test.stopTest();
         System.assertEquals(true, serviceList.size() == 1);
     }
+    
     @isTest
     static void testGetDateTimeValue() {
         String endTime = '18:30:00.000Z';
@@ -122,7 +124,6 @@ private class Appt_ResourceAbsenceController_Test {
         Test.startTest();
         options = Appt_ResourceAbsenceController.getOperatingHourOptions();
         Test.stopTest();
-
         System.assertEquals(aggr.size(), options.size());
     }
 }

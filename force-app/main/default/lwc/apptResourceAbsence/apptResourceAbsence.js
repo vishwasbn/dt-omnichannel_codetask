@@ -68,21 +68,16 @@ export default class TestApptResourceAbsence extends LightningElement {
         if(eventdetails.action != undefined){
             if(eventdetails.action == 'deselectAllRows'){
                 const allSiteIds = this.data.map(site => site.id);
-                console.log('deselectAllRows '+allSiteIds);
                 allSiteIds.forEach(currentItem => {
                     if (this.globalrowvalueselected.indexOf(currentItem) !== -1) {
                         this.globalrowvalueselected = this.removeElementAt(this.globalrowvalueselected, this.globalrowvalueselected.indexOf(currentItem));
-                        console.log('currentItem removed');
                         
                     }
                 });
-                console.log('After deselectAllRows lenghth : '+this.globalrowvalueselected.length);
-                JSON.stringify('deselectAllRows '+this.globalrowvalueselected);
                 this.modifyCheckedRow();
             }
             else if(eventdetails.action == 'selectAllRows'){
                 const allSiteIds = this.data.map(site => site.id);
-                console.log('selectAllRows '+allSiteIds);
                 allSiteIds.forEach(currentItem => {
                     if (this.globalrowvalueselected.indexOf(currentItem) === -1) {
                         this.globalrowvalueselected.push(currentItem);
@@ -90,8 +85,6 @@ export default class TestApptResourceAbsence extends LightningElement {
                         
                     }
                 });
-                console.log('After selectAllRows lenghth : '+this.globalrowvalueselected.length);
-                JSON.stringify('selectAllRows '+this.globalrowvalueselected);
                 this.modifyCheckedRow();
             }
             else if(eventdetails.action == 'rowDeselect'){
@@ -107,7 +100,6 @@ export default class TestApptResourceAbsence extends LightningElement {
                     }
                     
                 });
-                console.log('After rowDeselect lenghth : '+this.globalrowvalueselected.length);
             }
             else if (eventdetails.action == 'rowSelect') {
                 var selectedrow = this.template.querySelector("lightning-datatable").getSelectedRows();
@@ -117,8 +109,6 @@ export default class TestApptResourceAbsence extends LightningElement {
                         
                     }
                 });
-                console.log('After rowSelect lenghth : '+this.globalrowvalueselected.length);
-                console.log('rowSelect '+this.globalrowvalueselected);
                 this.modifyCheckedRow();
             }
         }
@@ -179,13 +169,6 @@ export default class TestApptResourceAbsence extends LightningElement {
         this.searchKey = this.template.querySelector('lightning-input[data-id=searchtext]').value;
     }
 
-    handleKeyUp(evt) {
-        const isEnterKey = evt.keyCode === 13;
-        if (isEnterKey) {
-            this.queryTerm = evt.target.value;
-        }
-    }
-
     handleFirstScreen() {
         
         if (new Date(this.dateParty).toJSON().slice(0, 10) < new Date().toJSON().slice(0, 10)) {
@@ -208,13 +191,12 @@ export default class TestApptResourceAbsence extends LightningElement {
         this.isFirstScreen = false;
         this.isSecondScreen = true;
     }
+
     goBack() {
         this.isFirstScreen = true;
         this.isSecondScreen = false;
     }
-    getSelectedRow() {
 
-    }
     handleSecondScreen() {
 
         const allValid = [...this.template.querySelectorAll('.absencevalidation')]
@@ -310,6 +292,7 @@ export default class TestApptResourceAbsence extends LightningElement {
         this.recordsData = [...this.recordsData];
 
     }
+    
     handleEndTimeChange(event) {
 
         let element = this.recordsData.find(ele => ele.id === event.currentTarget.dataset.id);
@@ -317,6 +300,7 @@ export default class TestApptResourceAbsence extends LightningElement {
         this.recordsData = [...this.recordsData];
 
     }
+    
     handleStoreDateChange(event) {
 
         let element = this.recordsData.find(ele => ele.id === event.currentTarget.dataset.id);
@@ -330,7 +314,6 @@ export default class TestApptResourceAbsence extends LightningElement {
         if (data) {
             this.operatingHourOptions = data;
         } else if (error) {
-            console.log('Not able to get the operating hour options from server');
             this.operatingHourOptions = [];
         }
     }
@@ -338,12 +321,10 @@ export default class TestApptResourceAbsence extends LightningElement {
     getSiteRegions(){
         getSiteRegions({ operatingHourId : this.selectedOperatingHourId })
         .then((result) => {
-            console.log('Optained the region'+ result);
             this.storeRegionOptions = result;
 
         })
         .catch((error) => {
-            console.log('Exception on the region fetch' + error);
             this.storeRegionOptions = [];
         });
     }
@@ -360,7 +341,6 @@ export default class TestApptResourceAbsence extends LightningElement {
     }
 
     removeElementAt(arr, index) {
-        console.log('global selected arr length'+arr.length);
         let frontPart = arr.slice(0, index);
         let lastPart  = arr.slice( index+1 ); // index to end of array
         return [...frontPart, ...lastPart];
@@ -371,7 +351,7 @@ export default class TestApptResourceAbsence extends LightningElement {
         if (data) {
             this.userTimezone = data;
         } else if (error) {
-            console.error('Error fetching user account timezone', error);
+            this.userTimezone = null;
         }
     }
 

@@ -161,5 +161,10 @@ public class Appt_ConstantValues {
     //Appt 3.0 - End point settings to make CAR order histories outbound call
     public static final String INTEGRATION_SETTING_ORDER_HISTORIES_URL = 'Order_Histories_Url';
     //Appt 3.0 - End point settings to make consolidated CAR outbound inventories call
-    public static final String INTEGRATION_SETTING_INVENTORIES_URL = 'Inventories_Url';    
+    public static final String INTEGRATION_SETTING_INVENTORIES_URL = 'Inventories_Url';  
+    
+    //Resource absence lwc related data
+    public static final String ABSENCE_TYPE_HOLIDAY = 'Holiday';
+    public static final String TIME_AM = 'AM';
+    public static final String TIME_PM = 'PM';
 }
