@@ -17,9 +17,12 @@ public static Logger logInstance = Logger.getInstance();
 
 // This method will get list of stores on component and filter store based on region and search key
     @AuraEnabled(cacheable=true)
-    public static List<ServiceTerritory> getAllStores(String searchKey , String region){
+    public static List<ServiceTerritory> getAllStores(String operatingHourId , String region, String searchKey){
         List<ServiceTerritory> serviceList = new List<ServiceTerritory>();
         String soqlQuery = 'SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone,Site_Account__r.Store_Region__c FROM ServiceTerritory where IsActive = true';
+        if (!String.isEmpty(operatingHourId)) {
+            soqlQuery += ' and OperatingHoursId=\'' + operatingHourId + '\'';
+        }
         if (!String.isEmpty(searchKey)) {
             soqlQuery += ' and Name LIKE \'%' + searchKey + '%\'';
         }

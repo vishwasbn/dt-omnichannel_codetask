@@ -74,7 +74,7 @@ private class Appt_ResourceAbsenceController_Test {
 		insert servTerr;     
         List<ServiceTerritory> serviceList;
         Test.startTest();
-        serviceList = Appt_ResourceAbsenceController.getAllStores('Test', '');
+        serviceList = Appt_ResourceAbsenceController.getAllStores('', '', 'Test');
         Test.stopTest();
         System.assertEquals(true, serviceList.size() == 1);
     }

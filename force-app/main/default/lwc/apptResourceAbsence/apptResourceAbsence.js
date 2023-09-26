@@ -38,7 +38,7 @@ export default class TestApptResourceAbsence extends LightningElement {
     isSuccess = false;
     showSpinner = false; // to show loading spinner
     operatingHourOptions = [];
-    selectedOperatingHourId;
+    selectedOperatingHourId = '';
     storeRegionOptions = [];
     selectedRegion = '';
     userTimezone;
@@ -123,7 +123,7 @@ export default class TestApptResourceAbsence extends LightningElement {
         });
     }
 
-    @wire(getAccounts, { searchKey: '$searchKey', region: '$selectedRegion' }) wiredAccounts({ data, error }) {
+    @wire(getAccounts, { operatingHourId: '$selectedOperatingHourId', region: '$selectedRegion', searchKey: '$searchKey' }) wiredAccounts({ data, error }) {
         this.showSpinner = true;
         if (data) {
 
@@ -312,7 +312,9 @@ export default class TestApptResourceAbsence extends LightningElement {
     @wire(getOperatingHourOptions)
     wiredAccountOptions({ data, error }) {
         if (data) {
-            this.operatingHourOptions = data;
+            var options = [{'label' : 'All', 'value' : 'All'}];
+            options.push(...data);
+            this.operatingHourOptions = options;
         } else if (error) {
             this.operatingHourOptions = [];
         }
@@ -330,7 +332,8 @@ export default class TestApptResourceAbsence extends LightningElement {
     }
 
     handleOperatingHourChange(event) {
-        this.selectedOperatingHourId = event.detail.value;
+        var valueSeleted = event.detail.value
+        this.selectedOperatingHourId = valueSeleted == 'All' ? '' : valueSeleted;
         this.selectedRegion ='';
         this.storeRegionOptions =[];
         this.getSiteRegions();
