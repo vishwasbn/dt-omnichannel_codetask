@@ -165,6 +165,4 @@ public class Appt_ConstantValues {
     
     //Resource absence lwc related data
     public static final String ABSENCE_TYPE_HOLIDAY = 'Holiday';
-    public static final String TIME_AM = 'AM';
-    public static final String TIME_PM = 'PM';
 }

@@ -90,13 +90,7 @@ public static Logger logInstance = Logger.getInstance();
 
     //This method is used to convert the date and time string value to datetime in the loggedin timezone
     public static DateTime getDateTimeValue(String timeString,String dateString){
-        // Integer timeonly = Integer.valueOf(timeValue.substring(0,2));
-        // String ampm = '';
-        // ampm = timeOnly >= 12 ? Appt_ConstantValues.TIME_PM : Appt_ConstantValues.TIME_AM;
-        // Integer hours = 0;
-        // hours = timeOnly > 12 ? timeOnly-12 : timeOnly;
-        // return DateTime.parse(DateValue.Substring(5,7)+'/'+DateValue.Substring(8,10)+'/'+DateValue.Substring(0,4)+', '+hours+':'+timeValue.substring(3,5)+ ' ' +ampm);
-
+        
         Date dateValue = Date.valueOf(dateString);
         Integer hour = Integer.valueOf(timeString.substring(0,2));
         Integer minute = Integer.valueOf(timeString.substring(3,5));
@@ -146,7 +140,7 @@ public static Logger logInstance = Logger.getInstance();
         }
     }
 
-    //This method is used to trrived retrive logged in user timezone.
+    //This method is used to retrive logged in user timezone.
     @AuraEnabled(cacheable=true)
     public static String getUserAccountTimezone() {
         String userTimeZone = '';
