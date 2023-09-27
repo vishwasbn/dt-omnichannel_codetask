@@ -51,7 +51,7 @@ public static Logger logInstance = Logger.getInstance();
                 serviceResourceNames.add(obj.StoreId);
                 storeIdMap.put(obj.id,obj);
             }
-            for(ServiceTerritoryMember memberObj : [SELECT Id, ServiceTerritoryId,ServiceTerritory.Name, ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Name in : serviceResourceNames AND ServiceResource.IsActive=true]){
+            for(ServiceTerritoryMember memberObj : [SELECT Id, ServiceTerritoryId,ServiceTerritory.Name, ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Name in : serviceResourceNames AND ServiceResource.IsActive = true AND ServiceResource.Type__c = 'Back Room']){
                 ResourceAbsence resourceAbsenceObj = new ResourceAbsence();
                 resourceAbsenceObj.Type = Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY;
                 resourceAbsenceObj.Start = getDateTimeValue(storeIdMap.get(memberObj.ServiceTerritoryId).StartTime,storeIdMap.get(memberObj.ServiceTerritoryId).StoreDate);
