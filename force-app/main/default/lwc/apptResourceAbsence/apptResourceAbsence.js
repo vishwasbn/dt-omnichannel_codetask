@@ -20,19 +20,13 @@ export default class TestApptResourceAbsence extends LightningElement {
     isSecondScreen;
     isThirdScreen;
     _isValidationError = false;
-    buttonLabel = 'Next';
-    queryTerm;
-    data = [];
-    insertableData = [];
+    storeList = [];
     _firstTimeRun = true;
     _firstTimeAllData = [];
-    @track
-    allData = [];
     today = '';
     dateParty = null;
-    checkedRows = [];
-    recordsData = [];
-    selectedRows = [];
+    checkedRows = []; //used to hold the select store id from filter data
+    resourceAbsenceRec = [];
     searchKey = '';
     columns = columns;
     isSuccess = false;
@@ -42,59 +36,162 @@ export default class TestApptResourceAbsence extends LightningElement {
     storeRegionOptions = [];
     selectedRegion = '';
     userTimezone;
+    globalRowValueSelected = []; //used to hold all selected stores
 
 
     get disableButton() {
-        return (this.globalrowvalueselected.length == 0 || this.dateParty == null);
+        return (this.globalRowValueSelected.length == 0 || this.dateParty == null);
     }
 
     get regionOptDisable(){
         return this.storeRegionOptions.length == 0;
     }
 
+    //used to get the current date
     connectedCallback() {
         this.today = new Date().toJSON().slice(0, 10);
     }
 
-    getDateParty(event) {
-        this.dateParty = event.target.value;
+    /**
+     * Used to get the logged in user org timezone
+     */
+    @wire(getUserAccountTimezone)
+    wiredUserTimezone({ data, error }) {
+        if (data) {
+            this.userTimezone = data;
+        } else if (error) {
+            this.userTimezone = null;
+        }
     }
 
-    globalrowvalueselected = [];
+    /**
+     * Used to get the Store operating Hour Value
+     * For filter Store based on operating hours
+     */
+    @wire(getOperatingHourOptions)
+    wiredAccountOptions({ data, error }) {
+        if (data) {
+            var options = [{'label' : 'All', 'value' : 'All'}]; // Add 'All' option to Operating Hour dropdown to query All Stores  
+            options.push(...data);
+            this.operatingHourOptions = options;
+        } else if (error) {
+            this.operatingHourOptions = [];
+        }
+    }
 
+    /**
+     * * This wire function is used to get the store and list in ui
+     * also handles the filtering option
+     * @param 'operatingHourId' Operating hour dropdown value 'selectedRegion' Storeregion from dropdown 'searchKey' Store name
+     */
+    @wire(getAccounts, { operatingHourId: '$selectedOperatingHourId', region: '$selectedRegion', searchKey: '$searchKey' }) wiredStores({ data, error }) {
+        this.showSpinner = true;
+        if (data) {
+
+            var storeObjList = [];
+            this.checkedRows = [];
+            data.forEach(currentItem => {
+
+                let storeObj = new Object();
+                storeObj.serviceTeritoryId = currentItem.Id;
+                storeObj.Name = currentItem.Name;
+                storeObj.StoreId = currentItem.Site_Account__r.Store_ID__c;
+                storeObj.OpeartingHours = currentItem.OperatingHours.Name;
+                storeObj.region = currentItem.Site_Account__r.Store_Region__c;
+                storeObj.StartTime = null;
+                storeObj.EndTime = null;
+                storeObj.id = currentItem.Id;
+                storeObj.StoreTimeZone = currentItem.OperatingHours.TimeZone;
+                storeObj.StoreDate = new Date().toISOString();
+
+                if(this.globalRowValueSelected.indexOf(storeObj.id) !== -1){
+                    this.checkedRows.push(storeObj.id);
+                }
+
+                storeObjList.push(storeObj);
+            });
+
+            if (this._firstTimeRun && storeObjList.length > 0) {
+                this._firstTimeRun = false;
+                this._firstTimeAllData = storeObjList;
+            }
+            this.storeList = storeObjList;
+            this.showSpinner = false;
+        } else if (error) {
+            this.showSpinner = false;
+        }
+    }
+
+    // set the selected Party date
+    getDateParty(event) {
+        this.dateParty = event.target.value;
+    }   
+
+    //on search button click sets the search key value, this will trigger wire wiredStores function
+    searchStore(evt) {
+        this.searchKey = this.template.querySelector('lightning-input[data-id=searchtext]').value;
+    }
+
+    //handles Operating hour dropdown value selection
+    handleOperatingHourChange(event) {
+        var valueSeleted = event.detail.value
+        this.selectedOperatingHourId = valueSeleted == 'All' ? '' : valueSeleted;
+        this.selectedRegion =''; //resets the Store region selection
+        this.storeRegionOptions =[]; //resets the Store region dropdown value
+        this.getSiteRegions(); //fetch the Store region associated with the user selected Operating Hour 
+    }
+
+    /** function used to get all store region operating on selected Operating Hour dropdown  */
+    getSiteRegions(){
+        getSiteRegions({ operatingHourId : this.selectedOperatingHourId })
+        .then((result) => {
+            this.storeRegionOptions = result;
+
+        })
+        .catch((error) => {
+            this.storeRegionOptions = [];
+        });
+    }
+
+    //sets the id of Store Region dropdown selectionvalue, this will trigger wire wiredStores function
+    handleRegionChange(event) {
+        this.selectedRegion = event.detail.value;        
+    }
+
+
+    //Handles the Store selection for the Resource Absence creation
     rowSelected(event) {
 
-        var eventdetails = JSON.parse(JSON.stringify(event.detail)).config;
+        var eventdetails = JSON.parse(JSON.stringify(event.detail)).config; //identifies the user action 
         if(eventdetails.action != undefined){
             if(eventdetails.action == 'deselectAllRows'){
-                const allSiteIds = this.data.map(site => site.id);
+                const allSiteIds = this.storeList.map(site => site.id); // get all stores dispalyed for the users filter
                 allSiteIds.forEach(currentItem => {
-                    if (this.globalrowvalueselected.indexOf(currentItem) !== -1) {
-                        this.globalrowvalueselected = this.removeElementAt(this.globalrowvalueselected, this.globalrowvalueselected.indexOf(currentItem));
+                    if (this.globalRowValueSelected.indexOf(currentItem) !== -1) {
+                        this.globalRowValueSelected = this.removeElementAt(this.globalRowValueSelected, this.globalRowValueSelected.indexOf(currentItem));// remove the Store id from global selection
                         
                     }
                 });
-                this.modifyCheckedRow();
+                this.modifyCheckedRow();// Update the store selection for current screen
             }
             else if(eventdetails.action == 'selectAllRows'){
-                const allSiteIds = this.data.map(site => site.id);
+                const allSiteIds = this.storeList.map(site => site.id); // get all stores dispalyed for the users filter
                 allSiteIds.forEach(currentItem => {
-                    if (this.globalrowvalueselected.indexOf(currentItem) === -1) {
-                        this.globalrowvalueselected.push(currentItem);
-                        
+                    if (this.globalRowValueSelected.indexOf(currentItem) === -1) {
+                        this.globalRowValueSelected.push(currentItem); //add the Store id to global selection                     
                         
                     }
                 });
-                this.modifyCheckedRow();
+                this.modifyCheckedRow();// Update the store selection for current screen
             }
             else if(eventdetails.action == 'rowDeselect'){
-                const allSiteIds = this.data.map(site => site.id);
-                var selectedrowObj = JSON.parse(JSON.stringify(this.template.querySelector("lightning-datatable").getSelectedRows()));
-                var selectedrow = selectedrowObj.map(rowentry => rowentry.id);
+                const allSiteIds = this.storeList.map(site => site.id); // get all stores dispalyed for the users filter
+                var selectedRowObj = JSON.parse(JSON.stringify(this.template.querySelector("lightning-datatable").getSelectedRows())); //get the selected store id from datatable 
+                var selectedRowMap = selectedRowObj.map(rowentry => rowentry.id);
                 allSiteIds.forEach(currentItem => {
-                    if(selectedrow.indexOf(currentItem) === -1){
-                        if (this.globalrowvalueselected.indexOf(currentItem) !== -1) {
-                            this.globalrowvalueselected = this.removeElementAt(this.globalrowvalueselected, this.globalrowvalueselected.indexOf(currentItem));
+                    if(selectedRowMap.indexOf(currentItem) === -1){
+                        if (this.globalRowValueSelected.indexOf(currentItem) !== -1) {
+                            this.globalRowValueSelected = this.removeElementAt(this.globalRowValueSelected, this.globalRowValueSelected.indexOf(currentItem));
                             
                         }
                     }
@@ -102,75 +199,37 @@ export default class TestApptResourceAbsence extends LightningElement {
                 });
             }
             else if (eventdetails.action == 'rowSelect') {
-                var selectedrow = this.template.querySelector("lightning-datatable").getSelectedRows();
-                JSON.parse(JSON.stringify(selectedrow)).forEach(currentItem => {
-                    if (this.globalrowvalueselected.indexOf(currentItem.serviceTeritoryId) === -1) {
-                        this.globalrowvalueselected.push(currentItem.serviceTeritoryId);
+                var selectedRowMap = this.template.querySelector("lightning-datatable").getSelectedRows(); //get the selected store id from datatable 
+                JSON.parse(JSON.stringify(selectedRowMap)).forEach(currentItem => {
+                    if (this.globalRowValueSelected.indexOf(currentItem.serviceTeritoryId) === -1) {
+                        this.globalRowValueSelected.push(currentItem.serviceTeritoryId); //add the Store id to global selection
                         
                     }
                 });
-                this.modifyCheckedRow();
+                this.modifyCheckedRow(); // Update the store selection for current screen
             }
         }
     }
 
+    //generic method to remove a value form the array
+    removeElementAt(arr, index) {
+        let frontPart = arr.slice(0, index);
+        let lastPart  = arr.slice( index+1 ); // index to end of array
+        return [...frontPart, ...lastPart];
+     }
+
     modifyCheckedRow(){
         this.checkedRows = [];
-        this.data.forEach(currentItem => {
-            if (this.globalrowvalueselected.indexOf(currentItem.id) !== -1) {
-                this.checkedRows.push(currentItem.id);
+        this.storeList.forEach(currentItem => {
+            if (this.globalRowValueSelected.indexOf(currentItem.id) !== -1) {
+                this.checkedRows.push(currentItem.id); // update the row selection for current screen
             }
         });
     }
 
-    @wire(getAccounts, { operatingHourId: '$selectedOperatingHourId', region: '$selectedRegion', searchKey: '$searchKey' }) wiredAccounts({ data, error }) {
-        this.showSpinner = true;
-        if (data) {
-
-            this.allData = [];
-            this.checkedRows = [];
-            data.forEach(currentItem => {
-
-                let objSR = new Object();
-                objSR.serviceTeritoryId = currentItem.Id;
-                objSR.Name = currentItem.Name;
-                objSR.StoreId = currentItem.Site_Account__r.Store_ID__c;
-                objSR.OpeartingHours = currentItem.OperatingHours.Name;
-                objSR.region = currentItem.Site_Account__r.Store_Region__c;
-                objSR.StartTime = null;
-                objSR.EndTime = null;
-                objSR.id = currentItem.Id;
-                objSR.StoreTimeZone = currentItem.OperatingHours.TimeZone;
-                objSR.StoreDate = new Date().toISOString();
-                if (this.globalrowvalueselected.indexOf(objSR.id) === -1) {
-                    objSR.isChecked = false;
-                } else {
-                    objSR.isChecked = true;
-                }
-                
-                if(this.globalrowvalueselected.indexOf(objSR.id) !== -1){
-                    this.checkedRows.push(objSR.id);
-                }
-                this.allData.push(objSR);
-            });
-
-            if (this._firstTimeRun && this.allData.length > 0) {
-                this._firstTimeRun = false;
-                this._firstTimeAllData = this.allData;
-            }
-            this.data = this.allData;
-            this.showSpinner = false;
-        } else if (error) {
-            this.showSpinner = false;
-        }
-    }
-
-    searchStore(evt) {
-        this.searchKey = this.template.querySelector('lightning-input[data-id=searchtext]').value;
-    }
-
+    //
     handleFirstScreen() {
-        
+        // Validate the Party date selection
         if (new Date(this.dateParty).toJSON().slice(0, 10) < new Date().toJSON().slice(0, 10)) {
             this.dispatchEvent(
                 new ShowToastEvent({
@@ -181,24 +240,25 @@ export default class TestApptResourceAbsence extends LightningElement {
             );
             return;
         }
-        this.recordsData = [];
+        this.resourceAbsenceRec = [];
         this._firstTimeAllData.forEach(currentItem => {
-            if (this.globalrowvalueselected.indexOf(currentItem.id) !== -1) {
+            if (this.globalRowValueSelected.indexOf(currentItem.id) !== -1) {
                 currentItem.StoreDate = this.dateParty;
-                this.recordsData.push(currentItem);
+                this.resourceAbsenceRec.push(currentItem); // data for the second screen, add only the Store seleted from first screen 
             }
         });
         this.isFirstScreen = false;
         this.isSecondScreen = true;
     }
 
+    //Used to redirect to Store selection page
     goBack() {
         this.isFirstScreen = true;
         this.isSecondScreen = false;
     }
 
     handleSecondScreen() {
-
+        //Used to validate the required fields values from the resource absence data capture screen
         const allValid = [...this.template.querySelectorAll('.absencevalidation')]
             .reduce((validSoFar, inputCmp) => {
                 inputCmp.reportValidity();
@@ -206,11 +266,9 @@ export default class TestApptResourceAbsence extends LightningElement {
             }, true);
 
             if(allValid){
-
-            this.insertableData = [];
-            this.recordsData.forEach(currentItem => {
-
-
+                
+                this.resourceAbsenceRec.forEach(currentItem => {
+                // Used to validate the resource absence entry data
                 if (typeof currentItem.StartTime === 'undefined' || currentItem.StartTime == null) {
                     this.dispatchEvent(
                         new ShowToastEvent({
@@ -258,7 +316,7 @@ export default class TestApptResourceAbsence extends LightningElement {
                 return;
             }
                 this.showSpinner = true;
-                createAbsence({ requestData: JSON.stringify(this.recordsData) })
+                createAbsence({ requestData: JSON.stringify(this.resourceAbsenceRec) })
                     .then(result => {
 
                         if (!result.isError) {
@@ -274,7 +332,6 @@ export default class TestApptResourceAbsence extends LightningElement {
                     })
                     .catch(error => {
 
-
                         this.isSuccess = false;
                         this.isSecondScreen = false;
                         this.isThirdScreen = true;
@@ -285,79 +342,34 @@ export default class TestApptResourceAbsence extends LightningElement {
 
     }
 
+    // used to handle the start time update for resource absence entry data
     handleStartTimeChange(event) {
 
-        let element = this.recordsData.find(ele => ele.id === event.currentTarget.dataset.id);
+        let element = this.resourceAbsenceRec.find(ele => ele.id === event.currentTarget.dataset.id);
         element.StartTime = event.target.value;
-        this.recordsData = [...this.recordsData];
+        this.resourceAbsenceRec = [...this.resourceAbsenceRec];
 
     }
     
+    // used to handle the end time update for resource absence entry data
     handleEndTimeChange(event) {
 
-        let element = this.recordsData.find(ele => ele.id === event.currentTarget.dataset.id);
+        let element = this.resourceAbsenceRec.find(ele => ele.id === event.currentTarget.dataset.id);
         element.EndTime = event.target.value;
-        this.recordsData = [...this.recordsData];
+        this.resourceAbsenceRec = [...this.resourceAbsenceRec];
 
     }
     
+    // used to handle the date update for resource absence entry data
     handleStoreDateChange(event) {
 
-        let element = this.recordsData.find(ele => ele.id === event.currentTarget.dataset.id);
+        let element = this.resourceAbsenceRec.find(ele => ele.id === event.currentTarget.dataset.id);
         element.StoreDate = event.target.value;
-        this.recordsData = [...this.recordsData];
+        this.resourceAbsenceRec = [...this.resourceAbsenceRec];
 
     }
 
-    @wire(getOperatingHourOptions)
-    wiredAccountOptions({ data, error }) {
-        if (data) {
-            var options = [{'label' : 'All', 'value' : 'All'}];
-            options.push(...data);
-            this.operatingHourOptions = options;
-        } else if (error) {
-            this.operatingHourOptions = [];
-        }
-    }
-
-    getSiteRegions(){
-        getSiteRegions({ operatingHourId : this.selectedOperatingHourId })
-        .then((result) => {
-            this.storeRegionOptions = result;
-
-        })
-        .catch((error) => {
-            this.storeRegionOptions = [];
-        });
-    }
-
-    handleOperatingHourChange(event) {
-        var valueSeleted = event.detail.value
-        this.selectedOperatingHourId = valueSeleted == 'All' ? '' : valueSeleted;
-        this.selectedRegion ='';
-        this.storeRegionOptions =[];
-        this.getSiteRegions();
-    }
-
-    handleRegionChange(event) {
-        this.selectedRegion = event.detail.value;        
-    }
-
-    removeElementAt(arr, index) {
-        let frontPart = arr.slice(0, index);
-        let lastPart  = arr.slice( index+1 ); // index to end of array
-        return [...frontPart, ...lastPart];
-     }
-
-    @wire(getUserAccountTimezone)
-    wiredUserTimezone({ data, error }) {
-        if (data) {
-            this.userTimezone = data;
-        } else if (error) {
-            this.userTimezone = null;
-        }
-    }
-
+    //reload the store selection screen
     reload(){
         location.reload();
     }

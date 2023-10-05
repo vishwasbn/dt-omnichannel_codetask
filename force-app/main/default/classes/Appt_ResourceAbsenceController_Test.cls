@@ -5,16 +5,10 @@ private class Appt_ResourceAbsenceController_Test {
 
         // setup the Account ... Territory ... Resource ... Appoitments... 
         List<ServiceAppointment> servAppts =  Appt_TestUtil.basicAppointment_StoreConfiguration();
-        System.assertEquals(2, servAppts.size(), 'There are not 2 Service Appointments present (tag 1)');
-
         List<User> userList = [SELECT Id, FirstName, LastName FROM User WHERE FirstName= 'John' AND LastName = 'Smith'];
-
         List<ServiceTerritory> servTerrList = [SELECT Id, Name FROM ServiceTerritory];
-
         User resourceUser = Appt_TestUtil.getStandardUser('Bill', 'Johnson');
-
         ServiceResource servResource = Appt_TestUtil.getServiceResource('Resource Front', userList[0].Id , UserInfo.getUserId(), 'T', 'Front Room');
-
         ServiceTerritoryMember servTerritoryMember = Appt_TestUtil.getServiceTerritoryMember(servTerrList[0].Id, servResource.Id, 'P', Datetime.now().addMonths(-2));
 
         // create the testing date
@@ -33,19 +27,19 @@ private class Appt_ResourceAbsenceController_Test {
     @isTest
     static void testCreateAbsenceRecords() {
         Appt_ResourceAbsenceController_Test.setupData();
-        List<Appt_ResourceAbsenceController.RequestData> testData = new List<Appt_ResourceAbsenceController.RequestData>();
-        Appt_ResourceAbsenceController.RequestData testData1 = new Appt_ResourceAbsenceController.RequestData();
-        testData1.ServiceTeritoryId = '1'; // Add the relevant ServiceTerritory Id here
-        testData1.Name = [SELECT Id, Name FROM ServiceTerritory][0].Name;
-        testData1.StoreId = [SELECT Id, Name FROM ServiceTerritory][0].Name;
-        testData1.StartTime = '11:30:00.000Z';
-        testData1.EndTime = '18:30:00.000Z';
-        testData1.StoreDate = '2023-08-03T08:09:56.529Z';
-        testData.add(testData1);
+        List<Appt_ResourceAbsenceController.RAToCreateWrapper> raDataList = new List<Appt_ResourceAbsenceController.RAToCreateWrapper>();
+        Appt_ResourceAbsenceController.RAToCreateWrapper raData = new Appt_ResourceAbsenceController.RAToCreateWrapper();
+        raData.ServiceTeritoryId = '1'; // Add the relevant ServiceTerritory Id here
+        raData.Name = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData.StoreId = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData.StartTime = '11:30:00.000Z';
+        raData.EndTime = '18:30:00.000Z';
+        raData.StoreDate = '2023-08-03T08:09:56.529Z';
+        raDataList.add(raData);
 
 
         Test.startTest();
-        String requestDataJSON = JSON.serialize(testData);
+        String requestDataJSON = JSON.serialize(raDataList);
         Appt_ResourceAbsenceController.createAbsenceRecords(requestDataJSON);
         Test.stopTest();
 
@@ -119,11 +113,22 @@ private class Appt_ResourceAbsenceController_Test {
 
     @isTest(SeeAllData=true)
     static void getOperatingHourOptions() {
-        List<AggregateResult> aggr = [select OperatingHours.Name , OperatingHoursId from ServiceTerritory where IsActive = true  group by OperatingHours.Name, OperatingHoursId  Order by OperatingHours.Name ASC];
-        List<Appt_ResourceAbsenceController.Option> options= new List<Appt_ResourceAbsenceController.Option>();
+        List<OperatingHours> ohList = [SELECT Id, Name FROM OperatingHours WHERE Type__c ='Store Hours'];
+        List<Appt_ResourceAbsenceController.Option> ohOptions= new List<Appt_ResourceAbsenceController.Option>();
         Test.startTest();
-        options = Appt_ResourceAbsenceController.getOperatingHourOptions();
+        ohOptions = Appt_ResourceAbsenceController.getOperatingHourOptions();
         Test.stopTest();
-        System.assertEquals(aggr.size(), options.size());
+        System.assertEquals(ohList.size(), ohOptions.size());
+    }
+
+    @isTest(SeeAllData=true)
+    static void getStoreRegionOptions() {
+        OperatingHours opHr = [SELECT Name,id from OperatingHours WHERE Type__c ='Store Hours' LIMIT 1];
+        List<AggregateResult> regionList = [SELECT Site_Account__r.Store_Region__c  FROM ServiceTerritory WHERE IsActive = true AND OperatingHours.id = :opHr.Id GROUP BY Site_Account__r.Store_Region__c ];
+        List<Appt_ResourceAbsenceController.Option> regionOptions= new List<Appt_ResourceAbsenceController.Option>();
+        Test.startTest();
+        regionOptions = Appt_ResourceAbsenceController.getSiteRegions(opHr.Id);
+        Test.stopTest();
+        System.assertEquals(regionList.size(), regionOptions.size());
     }
 }

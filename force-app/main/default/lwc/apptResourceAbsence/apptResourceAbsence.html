@@ -19,6 +19,7 @@
             <template if:false={userTimezone}>
                 <p class="timezoneText" style="text-align: center;color: #4000ca">No account timezone found for the logged-in user.</p>
             </template>
+            <p style="text-align: center;color: #da1b1b"><b>Please configure the user's timezone to match the store timezone for which the RA needs to be created.</b></p>
         </div>
     </lightning-card>
     <div class="main">
@@ -78,7 +79,7 @@
 
                     <lightning-layout-item size="12" padding="around-small">
                         <div style="height:250px;" class="slds-scrollable">
-                            <lightning-datatable key-field="id" data={data} columns={columns} selected-rows={checkedRows}
+                            <lightning-datatable key-field="id" data={storeList} columns={columns} selected-rows={checkedRows}
                                 onrowselection={rowSelected} resize-column-disabled>
                             </lightning-datatable>                                
                         </div>
@@ -112,7 +113,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <template for:each={recordsData} for:item="data" for:index="i">
+                                    <template for:each={resourceAbsenceRec} for:item="data" for:index="i">
                                         <tr class="slds-hint-parent" key={data.id}>
                                             <th data-label="Store ID" scope="row">
                                                 <div class="slds-truncate" title="Store-ID">
@@ -163,14 +164,14 @@
                         <template if:true={isSuccess}>
                             <div style="color:green;text-align:center;font-weight: 600;font-size: large;"
                                 class="slds-p-top_large">
-                                Stores have been successfully blocked the time as per the store time zone.
+                                Stores have been successfully blocked.
                             </div>
                             <lightning-button label="Create New Absence" variant="brand" class="slds-m-around_small slds-align_absolute-center" onclick={reload}></lightning-button>
                         </template>
                         <template if:false={isSuccess}>
                             <div style="color:red;text-align:center;font-weight: 600;font-size: large;"
                                 class="slds-p-top_large">
-                                Errors are getting while blocking time for stores.
+                                Errors occured while blocking time for stores.
                             </div>
                         </template>
                     </lightning-layout-item>
