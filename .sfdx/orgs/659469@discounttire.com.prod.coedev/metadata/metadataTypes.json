@@ -670,14 +670,6 @@
         "childXmlNames": []
       },
       {
-        "directoryName": "authproviders",
-        "inFolder": false,
-        "metaFile": false,
-        "suffix": "authprovider",
-        "xmlName": "AuthProvider",
-        "childXmlNames": []
-      },
-      {
         "directoryName": "eclair",
         "inFolder": false,
         "metaFile": true,

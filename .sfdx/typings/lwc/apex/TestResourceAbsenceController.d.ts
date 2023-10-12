@@ -1,5 +1,8 @@
+declare module "@salesforce/apex/TestResourceAbsenceController.getAllStores1_z" {
+  export default function getAllStores1_z(param: {searchKey: any}): Promise<any>;
+}
 declare module "@salesforce/apex/TestResourceAbsenceController.getAllStores" {
-  export default function getAllStores(param: {searchKey: any}): Promise<any>;
+  export default function getAllStores(param: {operatingHourId: any, region: any, searchKey: any}): Promise<any>;
 }
 declare module "@salesforce/apex/TestResourceAbsenceController.createAbsenceRecords" {
   export default function createAbsenceRecords(param: {requestData: any}): Promise<any>;
