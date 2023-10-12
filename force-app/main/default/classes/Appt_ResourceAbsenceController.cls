@@ -42,14 +42,14 @@ public static Logger logInstance = Logger.getInstance();
         ResponseWrapper rw = new ResponseWrapper();
         try{
             List<RAToCreateWrapper> resourceAbsenceDataList = (List<RAToCreateWrapper>) JSON.deserialize(requestData,List<RAToCreateWrapper>.class);
-            Set<String> serviceResourceNames = New Set<String>();
+            Set<String> serviceTerritoryId = New Set<String>();
             Map<String,RAToCreateWrapper> resourceAbsenceDataMap = new Map<String,RAToCreateWrapper>();
             List<ResourceAbsence> raToInsert = new List<ResourceAbsence>();
             for(RAToCreateWrapper obj : resourceAbsenceDataList){
-                serviceResourceNames.add(obj.StoreId); //holds the Store name 
+                serviceTerritoryId.add(obj.id); //holds the Store name 
                 resourceAbsenceDataMap.put(obj.id,obj); //map of territorry id and the resource absence data
             }
-            for(ServiceTerritoryMember memberObj : [SELECT Id, ServiceTerritoryId,ServiceTerritory.Name, ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Name in : serviceResourceNames AND ServiceResource.IsActive = true AND ServiceResource.Type__c = 'Back Room']){
+            for(ServiceTerritoryMember memberObj : [SELECT Id, ServiceTerritoryId,ServiceTerritory.Name, ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Id in : serviceTerritoryId AND ServiceResource.IsActive = true AND ServiceResource.Type__c = 'Back Room']){
                 ResourceAbsence ra = new ResourceAbsence();
                 ra.Type = Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY;
                 ra.Start = getDateTimeValue(resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StartTime,resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StoreDate);//sets start time in the datetime in logged in user time locale
