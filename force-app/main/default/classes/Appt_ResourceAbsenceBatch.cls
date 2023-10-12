@@ -6,13 +6,13 @@ public class Appt_ResourceAbsenceBatch implements Database.Batchable<sObject>, D
     public List<StoreHolidays__c> storeHolidays;
     public Database.QueryLocator start(Database.BatchableContext bc){
         //Querying StoreHolidays__c from custom setting which are active and holiday start date greater than or equal to today
-        storeHolidays = [SELECT id, Active__c, End__c,Name, Start__c  FROM StoreHolidays__c WHERE Active__c = true AND Start__c >= TODAY];
+        storeHolidays = [SELECT id, Active__c, End__c, Name, Start__c  FROM StoreHolidays__c WHERE Active__c = true AND Start__c >= TODAY];
         //storeHolidays = [SELECT id, Active__c, End__c, Holiday_Name__c, Start__c , Is_Processed__c FROM StoreHolidays__c WHERE Active__c = true AND createdDate = TODAY];
         
         //checking if there is atelast a single record in the custom setting so batch can start processing
         if(storeHolidays.size()>0){
             //Getting records from ServiceResource(one store will have two serviceresource records one is front and other is back) along with existing resource absences(if any) and ServiceTerritories(for email process)
-            string qry = 'SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences)  FROM ServiceResource WHERE IsActive = true';
+            string qry = 'SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences)  FROM ServiceResource WHERE IsActive = true';
             return Database.getQueryLocator(qry);    
         }
         //If there are no custom setting records meeting our criteria then batch should not run
@@ -75,7 +75,7 @@ public class Appt_ResourceAbsenceBatch implements Database.Batchable<sObject>, D
     public void finish(Database.BatchableContext bc){
         //using database .stateful we are maintaining the state of storeAbsenceMap so that we can send email finally in the finish method
         if(storeAbsenceMap != null && storeAbsenceMap.size()>0){
-         	sendEmailToAdmin(storeAbsenceMap);   
+           sendEmailToAdmin(storeAbsenceMap);   
         }
     }
     public static List<ResourceAbsence> assignResourceAbsences(List<StoreHolidays__c> storeHolidays, ServiceResource resource, map<string, integer> strAbsenceMap){
@@ -92,14 +92,26 @@ public class Appt_ResourceAbsenceBatch implements Database.Batchable<sObject>, D
         return resourceAbsenceList;
     }
     public static ResourceAbsence assignResourceAbsence(StoreHolidays__c storeHoliday, ServiceResource resource){
-        ResourceAbsence rAbsence = new ResourceAbsence(
-            ResourceId = resource.id,
-            start = storeHoliday.Start__c,
-            end = storeHoliday.End__c,
-            Type='Holiday',
-            RecordtypeId = Schema.SObjectType.ResourceAbsence.getRecordTypeInfosByDeveloperName().get('Non_Availability').getRecordTypeId()
-        );
-        return rAbsence;
+        ResourceAbsence rAbsence;
+        if(resource.ServiceTerritories.size() > 0) {
+       string storeTimezoneName = resource.ServiceTerritories[0].ServiceTerritory.OperatingHours.TimeZone;    
+             rAbsence = new ResourceAbsence(
+                ResourceId = resource.id,
+                start = convertToStoreTime(storeHoliday.Start__c, storeTimezoneName),
+                end =  convertToStoreTime(storeHoliday.End__c, storeTimezoneName),
+                Type='Holiday',
+                RecordtypeId = Schema.SObjectType.ResourceAbsence.getRecordTypeInfosByDeveloperName().get('Non_Availability').getRecordTypeId()
+            );
+        } else {
+            rAbsence = new ResourceAbsence(
+                ResourceId = resource.id,
+                start = storeHoliday.Start__c,
+                end =  storeHoliday.End__c,
+                Type='Holiday',
+                RecordtypeId = Schema.SObjectType.ResourceAbsence.getRecordTypeInfosByDeveloperName().get('Non_Availability').getRecordTypeId()
+            );
+        }
+  return rAbsence;
     }
     public static string frameUniqueHoliday(StoreHolidays__c storeHoliday){
         string fKey = '';
@@ -122,4 +134,21 @@ public class Appt_ResourceAbsenceBatch implements Database.Batchable<sObject>, D
         mail.setFileAttachments( new Messaging.EmailFileAttachment[]{ attachment } );
         Messaging.sendEmail( new Messaging.SingleEmailMessage[] { mail } );
     }
+    public static DateTime convertToStoreTime(DateTime dt,string tzName)  
+    {
+        TimeZone tzCurrentUser = UserInfo.getTimeZone();
+        //Get the timStore which is the timezone record of the store ex: For CST - GMT...America/El_Salvador..
+        TimeZone tzStore = TimeZone.getTimeZone(tzName);
+        //format will change the UTC time to running user's time
+        string dateInCurrentUserTimeZone = dt.format('yyyy-MM-dd HH:mm:ss');
+        //system.debug('Date In Current User '+tzCurrentUser.getDisplayName()+' TimeZone ' + dateInCurrentUserTimeZone);
+        string dateInStoreTimeZone = dt.format('yyyy-MM-dd HH:mm:ss', tzName);
+        //system.debug('Date In Store '+tzStore.getDisplayName()+' TimeZone ' + dateInStoreTimeZone);
+        Integer diff = Integer.valueOf((DateTime.valueOfGmt(dateInCurrentUserTimeZone).getTime() - DateTime.valueOfGmt(dateInStoreTimeZone).getTime())/(1000*60*60));
+        //system.debug(diff);
+        DateTime adjustedDateTime = dt.addHours(diff);
+        //system.debug(adjustedDateTime.format('yyyy-MM-dd HH:mm:ss'));
+        //Note: The adjustedDateTime is still in UTC
+        return adjustedDateTime;
+    }    
 }
