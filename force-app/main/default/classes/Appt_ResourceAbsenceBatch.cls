@@ -41,15 +41,14 @@ public class Appt_ResourceAbsenceBatch implements Database.Batchable<sObject>, D
             //for freshly created service resource record we are creating all the Absence records from the storeHolidays list
             if(sr.ResourceAbsences != null && sr.ResourceAbsences.size()>0){
                 //creating a set to strore the existing resource absence records with the unique key framework to compare with holidayKeyHolidayRecMap
-                String timeZone;
+                String storeTimeZone;
                 if(sr.ServiceTerritories.size() > 0) {
-                    timeZone = sr.ServiceTerritories[0].ServiceTerritory.OperatingHours.TimeZone;
+                    storeTimeZone = sr.ServiceTerritories[0].ServiceTerritory.OperatingHours.TimeZone;
                 }
                 set<string> absenceKeySet = new set<string>();
                 for(ResourceAbsence absence : sr.ResourceAbsences){
-                    //absenceKeySet.add(absence.Start+'-'+absence.End);//Vishwas commented
-                    if(timeZone != null){
-                        absenceKeySet.add(convertToCurrentUserTime(absence.Start, timeZone)+'-'+convertToCurrentUserTime(absence.End, timeZone));
+                    if(storeTimeZone != null){
+                        absenceKeySet.add(convertToCurrentUserTime(absence.Start, storeTimeZone)+'-'+convertToCurrentUserTime(absence.End, storeTimeZone));
                     }                    
                     else{
                         absenceKeySet.add(absence.Start+'-'+absence.End);
