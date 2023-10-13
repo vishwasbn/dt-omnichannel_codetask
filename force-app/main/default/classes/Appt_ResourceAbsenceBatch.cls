@@ -41,9 +41,20 @@ public class Appt_ResourceAbsenceBatch implements Database.Batchable<sObject>, D
             //for freshly created service resource record we are creating all the Absence records from the storeHolidays list
             if(sr.ResourceAbsences != null && sr.ResourceAbsences.size()>0){
                 //creating a set to strore the existing resource absence records with the unique key framework to compare with holidayKeyHolidayRecMap
+                String timeZone;
+                if(sr.ServiceTerritories.size() > 0) {
+                    timeZone = sr.ServiceTerritories[0].ServiceTerritory.OperatingHours.TimeZone;
+                }
                 set<string> absenceKeySet = new set<string>();
                 for(ResourceAbsence absence : sr.ResourceAbsences){
-                    absenceKeySet.add(absence.Start+'-'+absence.End);
+                    //absenceKeySet.add(absence.Start+'-'+absence.End);//Vishwas commented
+                    if(timeZone != null){
+                        absenceKeySet.add(convertToCurrentUserTime(absence.Start, timeZone)+'-'+convertToCurrentUserTime(absence.End, timeZone));
+                    }                    
+                    else{
+                        absenceKeySet.add(absence.Start+'-'+absence.End);
+                    }
+                    
                 }
                 //iterating the holidayKeyHolidayRecMap for creating Resource Absence records
                 for(string fKey : holidayKeyHolidayRecMap.keySet()){
@@ -150,5 +161,18 @@ public class Appt_ResourceAbsenceBatch implements Database.Batchable<sObject>, D
         //system.debug(adjustedDateTime.format('yyyy-MM-dd HH:mm:ss'));
         //Note: The adjustedDateTime is still in UTC
         return adjustedDateTime;
-    }    
+    }  
+    
+    public static DateTime convertToCurrentUserTime(DateTime dt,string tzName)  
+    {
+        //Get the timStore which is the timezone record of the store ex: For CST - GMT...America/El_Salvador..
+        TimeZone tzStore = TimeZone.getTimeZone(tzName);
+        //format will change the UTC time to running user's time
+        string dateInCurrentUserTimeZone = dt.format('yyyy-MM-dd HH:mm:ss');
+        string dateInStoreTimeZone = dt.format('yyyy-MM-dd HH:mm:ss', tzName);
+        Integer diff = Integer.valueOf((DateTime.valueOfGmt(dateInStoreTimeZone).getTime() - DateTime.valueOfGmt(dateInCurrentUserTimeZone).getTime())/(1000*60));
+        DateTime adjustedDateTime = dt.addMinutes(diff);
+        //Note: The adjustedDateTime is still in UTC
+        return adjustedDateTime;
+    }
 }
