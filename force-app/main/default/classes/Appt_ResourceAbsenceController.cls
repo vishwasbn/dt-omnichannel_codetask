@@ -19,7 +19,7 @@ public static Logger logInstance = Logger.getInstance();
     @AuraEnabled(cacheable=true)
     public static List<ServiceTerritory> getAllStores(String operatingHourId , String region, String searchKey){
         List<ServiceTerritory> storeList = new List<ServiceTerritory>();
-        String soqlQuery = 'SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone,Site_Account__r.Store_Region__c FROM ServiceTerritory where IsActive = true';
+        String soqlQuery = 'SELECT Id,Name,Site_Account__r.Store_ID__c,OperatingHours.Name , OperatingHours.TimeZone,Site_Account__r.Store_Region__c FROM ServiceTerritory where IsActive = true and Site_Account__r.RecordType.Name = \'Site\'';
         if (!String.isEmpty(operatingHourId)) {
             soqlQuery += ' and OperatingHoursId=\'' + operatingHourId + '\'';
         }
