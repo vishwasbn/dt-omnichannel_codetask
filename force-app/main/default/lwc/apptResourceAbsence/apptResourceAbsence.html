@@ -11,7 +11,7 @@
      </div>
      <!--Show spinner end-->
 
-    <lightning-card>
+    <lightning-card if:true={isFirstScreen}>
         <div class="slds-p-around_small">
             <template if:true={userTimezone}>
                 <p class="timezoneText" style="text-align: center;color: #4000ca">The logged-in user's account timezone is: <b>{userTimezone}</b></p>
@@ -19,7 +19,7 @@
             <template if:false={userTimezone}>
                 <p class="timezoneText" style="text-align: center;color: #4000ca">No account timezone found for the logged-in user.</p>
             </template>
-            <p style="text-align: center;color: #da1b1b"><b>Please configure the user's timezone to match the store timezone for which the RA needs to be created.</b></p>
+            <p style="text-align: center;color: #da1b1b"><b>Please configure the user's timezone to match the store timezone for which the RA needs to be created.</b><lightning-icon icon-name="utility:info" alternative-text="Info" size="x-small" title="x-small size"></lightning-icon></p>
         </div>
     </lightning-card>
     <div class="main">
