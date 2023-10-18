@@ -19,17 +19,7 @@
             <template if:false={userTimezone}>
                 <p class="timezoneText" style="text-align: center;color: #4000ca">No account timezone found for the logged-in user.</p>
             </template>
-            <div class="info-container">
-                <p style="text-align: center;color: #da1b1b"><b>Please configure the user's timezone to match the store timezone for
-                        which the RA needs to be created.</b></p>
-                <lightning-icon icon-name="utility:info" alternative-text="Info" size="x-small"></lightning-icon>
-                <div class="tooltip">
-                    Click the avatar icon and click Settings.<br />
-                    Click My Personal Information > Language & Time Zone.<br />
-                    Select the time zone you wish to use.<br />
-                    Click Save.
-                </div>
-            </div>
+            <p style="text-align: center;color: #da1b1b"><b>Please configure the user's timezone to match the store timezone for which the RA needs to be created.</b><c-info-tooltip></c-info-tooltip></p>
         </div>
     </lightning-card>
     <div class="main">
