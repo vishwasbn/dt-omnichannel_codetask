@@ -18,3 +18,26 @@
 .picklist {
     width: 100%;
 }
+
+.info-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    color: #fff;
+    padding: 8px;
+    border-radius: 4px;
+    width: 220px;
+    top: 30px; /* Adjust the top position as needed */
+    left: 0;
+    z-index: 1;
+}
+
+.info-container:hover .tooltip {
+    display: block;
+}
