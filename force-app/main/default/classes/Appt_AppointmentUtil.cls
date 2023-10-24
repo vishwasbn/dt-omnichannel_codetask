@@ -1,6 +1,8 @@
 public class Appt_AppointmentUtil {
     
-    public static String lprefix = 'Appt_AUtil: ';    
+    public static String lprefix = 'Appt_AUtil: '; 
+    // SO-41 START:  Added logInstance
+    public static Logger logInstance = Logger.getInstance();    
 
     //---Returns number of hours to add to adjust for a store's time zone on today's date
     public static Integer getTimeZoneOffset(String siteId) {
@@ -38,6 +40,12 @@ public class Appt_AppointmentUtil {
             return timeOffset;
         } catch (Exception e) {
             System.debug(lprefix + ' Unable to calculate time zone offset : ' + e.getMessage());
+            // SO-41 - Start
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentUtil.class.getName(), errDetails); // SO-41 END
             return null;
         }
         
@@ -91,6 +99,12 @@ public class Appt_AppointmentUtil {
             return returnModel;
         } catch (Exception e) {
             System.debug(lprefix + ' Unable to calculate time zone offset : ' + e.getMessage());
+            // SO-41 - Start
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentUtil.class.getName(), errDetails); // SO-41 END
             return null;
         }
         
@@ -123,6 +137,12 @@ public class Appt_AppointmentUtil {
             return dtGMTwOffset;
         } catch (Exception e) {
             System.debug(lprefix + ' Invalid date/time formatting or invalid offset: ' + e.getMessage());
+            // SO-41 - Start
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentUtil.class.getName(), errDetails); // SO-41 END
             return null;
         } 
     }
@@ -166,6 +186,12 @@ public class Appt_AppointmentUtil {
 
         } catch (Exception e) {
             System.debug(lprefix + ' Invalid appointment Date Time or offset: ' + e.getMessage());
+            // SO-41 - Start
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentUtil.class.getName(), errDetails); // SO-41 END
             return null;
         }
     }

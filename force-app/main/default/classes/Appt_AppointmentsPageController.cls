@@ -49,6 +49,14 @@ public without sharing class Appt_AppointmentsPageController {
             intMessage.Status__c = 'Error';
             intMessage.Salesforce_Error__c = e.getMessage();
             if (intMessage.Payload__c == null || intMessage.Payload__c == '' && rawIncomingParameters != null) intMessage.Payload__c = 'Raw Paramaters: ' +rawIncomingParameters;
+            // SO-41 START:  Added logInstance 
+            String LPREFIX = 'Appt_AppointmentsPageController :';
+    		Logger logInstance = Logger.getInstance();
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentsPageController.class.getName(), errDetails); // SO-41 END
         }
     }
 

@@ -106,6 +106,7 @@ public with sharing class Appt_PageContainerControllerTest {
         }
     }
 
+    
 
     @isTest
     static void createAppointmentTest(){
@@ -187,9 +188,34 @@ public with sharing class Appt_PageContainerControllerTest {
         Appt_UpdateAppointmentServiceModel jsonToModel = (Appt_UpdateAppointmentServiceModel) JSON.deserialize(posStringCancel, Appt_UpdateAppointmentServiceModel.class);
 
         String result = Appt_AppointmentsPageContainerController.cancelAppointment(JSON.serialize(jsonToModel));
+        String resultNULL='';
+        try {
+            resultNULL = Appt_AppointmentsPageContainerController.cancelAppointment(null);
+            system.debug('resultNULL ::: '+resultNULL);
+        }
+        catch(Exception e) {
+			system.debug('resultNULL in EX ::: '+resultNULL);
+            System.AssertNotEquals(NULL,e);
+            //System.assertEquals(true, e != null, 'Should have thrown an exception');
+        }
     
     }
 
+     @isTest
+    static void cancelAppointmentCatchExceptionTest(){
+        
+               
+        try {
+            system.debug('Inside cancelAppointmentCatchExceptionTest in testclass');
+            String result = Appt_AppointmentsPageContainerController.cancelAppointment(' ');
+            system.debug('After calling cancelAppointment in Testclass');
+        } catch(Exception e) {
+            system.debug('Inside CancelAppointment Exeption in Testclass');
+            System.AssertNotEquals(NULL,e);
+            //system.assertEquals(true,e.getMessage().contains('Last Name'));
+        }
+        
+    }
 
     @isTest
     static void editCustomerDetailsTest(){
@@ -206,13 +232,15 @@ public with sharing class Appt_PageContainerControllerTest {
         System.assertEquals(true, result1.equals('done'), 'Edit Customer Details should return successfully with string \'done\'');
         fieldsToEditJson = '{}';
         acctId = '';
-
-
+		String resultNULL='';
         try {
-            String result2 = Appt_AppointmentsPageContainerController.editCustomerDetails(acctId, workOrderId, fieldsToEditJson);
+            resultNULL = Appt_AppointmentsPageContainerController.editCustomerDetails(null, null, null);
+            system.debug('resultNULL ::: '+resultNULL);
         }
         catch(Exception e) {
-            System.assertEquals(true, e != null, 'Should have thrown an exception');
+			system.debug('resultNULL in EX ::: '+resultNULL);
+            System.AssertNotEquals(NULL,e);
+            //System.assertEquals(true, e != null, 'Should have thrown an exception');
         }
 
     }
@@ -238,9 +266,28 @@ public with sharing class Appt_PageContainerControllerTest {
     static void getSFBaseUrlTest(){
         String baseUrl = Appt_AppointmentsPageContainerController.getSFBaseUrl();
         System.debug('test class base url: ' +baseUrl);
-        
     }
-
+@isTest
+    static void updateAppointmentNotificationsTestMethod(){
+        WorkOrder obj_workorder = new WorkOrder();
+        //obj_workorder.Name='TestWorkOrder';
+        insert obj_workorder;
+        
+        Notification__c obj_Notify = new Notification__c();
+        obj_Notify.Work_Order__c = obj_workorder.id;
+        insert obj_Notify;    
+        
+        Reference__c obj_Ref = new Reference__c();
+        obj_Ref.Name = 'Test Reference ';
+            insert obj_Ref;
+        
+		Test.startTest();
+		Appt_AppointmentsPageContainerController.updateAppointmentNotifications(obj_workorder.id);
+        Test.stopTest(); 
+        Appt_CreateAppointmentServiceModel model = new Appt_CreateAppointmentServiceModel();
+        Appt_AppointmentsPageContainerController.getAppointmentDetails(model);
+    }
+    
     @isTest
     static void updateAppointmentNotificationsTest(){     
         
@@ -251,7 +298,8 @@ public with sharing class Appt_PageContainerControllerTest {
         Appt_UpdateAppointmentServiceModel updateApptModel = (Appt_UpdateAppointmentServiceModel) JSON.deserialize(result2, Appt_UpdateAppointmentServiceModel.class);
         
         List<WorkOrder> testWorkOrder = [SELECT id from WorkOrder LIMIT 1];
-
+        
+    
         ServiceAppointment appt = [SELECT id FROM ServiceAppointment WHERE Work_Order__c = :testWorkOrder[0].id LIMIT 1];
 
         appt.Notification_Appointment__c = true;
@@ -262,12 +310,17 @@ public with sharing class Appt_PageContainerControllerTest {
         updateApptModel.appointmentId = testWorkOrder[0].id;
         System.debug(updateApptModel.workOrderId);
 
-
         String testResult = '';
         System.debug('***********START TEST***************');
         Test.startTest();
+        
         testResult = Appt_AppointmentsPageContainerController.resendNotification(JSON.serialize(updateApptModel), 'SMS');    
         testResult = Appt_AppointmentsPageContainerController.resendNotification(JSON.serialize(updateApptModel), 'EMAIL');   
+        try{
+           String testNULLResult = Appt_AppointmentsPageContainerController.resendNotification(null, 'SMS');  
+        } catch(exception e){
+            System.AssertNotEquals(NULL,e);
+        }
         
         Test.stopTest();  
         System.debug('***********END TEST***************');

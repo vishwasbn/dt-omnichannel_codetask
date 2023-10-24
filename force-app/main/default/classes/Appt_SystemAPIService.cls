@@ -2,6 +2,9 @@
 global class Appt_SystemAPIService {
     public static String lprefix = 'LOG Appt_SystemAPIService: ';
     public static Boolean intMsgEnabled = true;
+    
+    // SO-41 START:  Added logInstance 
+    Public Static Logger logInstance = Logger.getInstance();
 
     /* 
         API endpoints - note two POST methods cannot exist in the same class
@@ -49,6 +52,12 @@ global class Appt_SystemAPIService {
             statusCode = 500;
             Appt_SystemAPIServiceHandler.setSFError(intMsg, 'createIncomingAppointment', 'Error parsing payload ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
             System.debug(lprefix + 'error parsing Create Appointment Request or Service Model: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+            // SO-41 START:  Added logInstance 
+			String errDetails = 'Cause: '+ ex.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ ex.getMessage();
+            logInstance.Log(LPREFIX, Appt_SystemAPIService.class.getName(), errDetails); // SO-41 END
         }
 
         
@@ -68,10 +77,25 @@ global class Appt_SystemAPIService {
                 statusCode = (ex.errorCode != null) ? ex.errorCode: 500; // Set as incoming value or default as 500
                 Appt_SystemAPIServiceHandler.setSFError(intMsg, 'createIncomingAppointment', 'Exception Thrown during createAppointment(): ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
                 System.debug(lprefix + 'error parsing updated Create Appointment model: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+                
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ ex.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ ex.getMessage();
+                logInstance.Log(LPREFIX, Appt_SystemAPIService.class.getName(), errDetails); // SO-41 END
+                
             } catch (Exception ex) {
                 statusCode = 500; // Set any unhandled exceptions as 500
                 Appt_SystemAPIServiceHandler.setSFError(intMsg, 'createIncomingAppointment', 'Error processing appointment: ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
                 System.debug(lprefix + 'error Processing Appointment: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+                
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ ex.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ ex.getMessage();
+                logInstance.Log(LPREFIX, Appt_SystemAPIService.class.getName(), errDetails); // SO-41 END
             }
         }
         
@@ -86,6 +110,13 @@ global class Appt_SystemAPIService {
                 statusCode = 500;
                 Appt_SystemAPIServiceHandler.setSFError(intMsg, 'createIncomingAppointment', 'Error creating appointment response ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
                 System.debug(lprefix + 'error parsing updated Create Appointment model: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+                
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ ex.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ ex.getMessage();
+                logInstance.Log(LPREFIX, Appt_SystemAPIService.class.getName(), errDetails); // SO-41 END
             }
         }
 
@@ -144,6 +175,13 @@ global class Appt_SystemAPIService {
             statusCode = 500;
             Appt_SystemAPIServiceHandler.setSFError(intMsg, 'updateIncomingAppointment', 'Error parsing payload ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
             System.debug(lprefix + 'error parsing update Appointment Request or Service Model: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+            
+            // SO-41 START:  Added logInstance 
+			String errDetails = 'Cause: '+ ex.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ ex.getMessage();
+            logInstance.Log(LPREFIX, Appt_SystemAPIService.class.getName(), errDetails); // SO-41 END
         }
 
 
@@ -161,11 +199,25 @@ global class Appt_SystemAPIService {
                 statusCode = (ex.errorCode != null) ? ex.errorCode: 500; // Set as incoming value or default as 500
                 Appt_SystemAPIServiceHandler.setSFError(intMsg, 'createIncomingAppointment', 'Error updating appointment response ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
                 System.debug(lprefix + 'error parsing updated Appointment model: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+                
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ ex.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ ex.getMessage();
+                logInstance.Log(LPREFIX, Appt_SystemAPIService.class.getName(), errDetails); // SO-41 END
+                
             } catch (Exception ex) {
                 // Set any unhandled exceptions as 500
                 statusCode = 500;
                 Appt_SystemAPIServiceHandler.setSFError(intMsg, 'updateIncomingAppointment', 'Error processing appointment ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
                 System.debug(lprefix + 'error Processing Appointment: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ ex.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ ex.getMessage();
+                logInstance.Log(LPREFIX, Appt_SystemAPIService.class.getName(), errDetails); // SO-41 END
             }
         }
 
@@ -181,6 +233,12 @@ global class Appt_SystemAPIService {
                 statusCode = 500;
                 Appt_SystemAPIServiceHandler.setSFError(intMsg, 'updateIncomingAppointment', 'Error processing update response ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
                 System.debug(lprefix + 'error parsing updated Appointment model: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ ex.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ ex.getMessage();
+                logInstance.Log(LPREFIX, Appt_SystemAPIService.class.getName(), errDetails); // SO-41 END
             }
         }
 

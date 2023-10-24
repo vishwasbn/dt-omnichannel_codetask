@@ -17,6 +17,13 @@ public class Appt_ApptDayOfReminderBatch  implements Database.Batchable<sObject>
         // the batch will set the Reminder sent on the Service Appointment to signal completion
 
         Datetime currentTimeUtc = Datetime.now();
+        
+        //SO-891 send Notification remainder till 48 hrs - Start Add
+		Datetime dt_calculateHrs;
+		Integer i_maxhrs = Integer.valueOf( Appt_SettingUtil.getSettingValue( Appt_ConstantValues.MAX_NOTIFICATION_REMAINDER_HRS) );
+        dt_calculateHrs = currentTimeUtc.addhours(i_maxhrs);
+        System.debug('**dt_calculateHrs: ' + dt_calculateHrs+ ' **i_maxhrs: '+ i_maxhrs);
+		//SO-891 send Notification remainder till 48 hrs - End Add
 
         // create current UTC time for testing
         if(Test.isRunningTest()){

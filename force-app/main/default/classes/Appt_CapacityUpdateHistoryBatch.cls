@@ -132,6 +132,7 @@ public class Appt_CapacityUpdateHistoryBatch implements Database.Batchable<sObje
 
         System.debug('>>>> Records To Be Deleted Size: ' + deleteList.size());
         System.debug('>>>> Records To Be Deleted: ' + deleteList);
+        
         // limits it to 10k records to keep from running into a DML limit if it was to ever happen. The records not found would be picked up in the next run
         if (deleteList.size() > 10000) {
             for(Integer i = deleteList.size() - 1; i >= 0; i--){
@@ -147,6 +148,14 @@ public class Appt_CapacityUpdateHistoryBatch implements Database.Batchable<sObje
                 delete deleteList;
             } catch (Exception e) {
                 System.debug('>>>> Delete Error: ' + e.getMessage());
+                // SO-41 START:  Added logInstance 
+                String lprefix = 'Appt_CapacityUpdateHistoryBatch : ';
+                Logger logInstance = Logger.getInstance();
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_CapacityUpdateHistoryBatch.class.getName(), errDetails); // SO-41 END
             }
             
         }

@@ -46,6 +46,13 @@ public class Appt_OrderLineItemsUtil {
                 System.debug('Sort Priority: ' + sortPriority);
             }catch(Exception e){
                 System.debug(lprefix + ' getOrderLineItemsConfig:' + e.getMessage());
+                // SO-41 START:  Added logInstance 
+                Logger logInstance = Logger.getInstance();
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_OrderLineItemsUtil.class.getName(), errDetails); // SO-41 END
             }            
         }
     }

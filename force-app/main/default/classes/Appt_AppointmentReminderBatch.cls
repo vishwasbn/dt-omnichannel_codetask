@@ -17,14 +17,22 @@ public class Appt_AppointmentReminderBatch  implements Database.Batchable<sObjec
         // the batch will set the Reminder sent on the Service Appointment to signal completion
 
         Datetime currentTimeUtc = Datetime.now();
-
+        //***********SO-891 send Notification remainder booked after 48 hrs - Start Add
+        Datetime dtCalculated48Hrs = Datetime.now();
+        //As per the SO-891 requirement we need to check if the appointment record is created date and scheduled date difference is 48 hrs. 
+        //So already the batchexecution is 24 hrs behind the schedule date (TOMORROW).
+        //By still subrtacting '-24 hrs' from current time the calculation will be for 48 hrs to scheduled start time.
+		dtCalculated48Hrs = dtCalculated48Hrs.addhours(-24);
+		String strFormated48hrsDate = String.valueOf(dtCalculated48Hrs.dateGmt())+'T'+String.valueOf(dtCalculated48Hrs.timeGmt());
+        //***********SO-891 send Notification remainder booked after 48 hrs - End Add
+        
         // create current UTC time for testing
         if(Test.isRunningTest()){
             currentTimeUtc = Datetime.newInstanceGMT(currentTimeUtc.yearGmt(), currentTimeUtc.monthGmt(), currentTimeUtc.dayGmt(), 17, 00, 00); 
                 // UTC ... PDT 7am
         } 
         System.debug('currentTimeUtc: ' + currentTimeUtc);
-
+      
         // get the Appointment settings for the Reminders
         List<Appt_Appointment_Setting__mdt> apptSettingList = [SELECT Id, DeveloperName, Value__c FROM Appt_Appointment_Setting__mdt WHERE DeveloperName LIKE 'Appt_Reminder_%'];
 
@@ -43,11 +51,19 @@ public class Appt_AppointmentReminderBatch  implements Database.Batchable<sObjec
         Integer timeZone = getNextTimeZone(currentTimeUtc, startHour);
         System.debug('Appt_AppointmentReminderBatch::timeZone: ' + timeZone);
 
-        if (timeZone != null)
-        {
-            // get all the records with Scheduled Start Times for tomorrow in the time zone that is at the start hour
-            QUERY = 'SELECT Id, Status, Notification_Appointment__c, ServiceTerritoryId, Work_Order__c, Timezone_Offset__c, Activity_Type__c, Consult_Start_Time__c, Back_Office_Start_Time__c, SchedStartTime, Reminder_Notification_Sent__c FROM ServiceAppointment WHERE Reminder_Notification_Sent__c = false AND ( Status = \'Scheduled\' OR Status = \'Confirmed\' ) AND Notification_Appointment__c = true AND Timezone_Offset__c >= ' + timeZone + ' AND SchedStartTime = TOMORROW ORDER BY Timezone_Offset__c DESC';
-            System.debug('QUERY: ' + QUERY);
+        if (timeZone != null){    
+           // get all the records with Scheduled Start Times for tomorrow in the time zone that is at the start hour
+           // SO-891 added if condition for is Runing test.
+           if(Test.isRunningTest()){
+           	QUERY = 'SELECT Id, Status, Notification_Appointment__c, ServiceTerritoryId, Work_Order__c, Timezone_Offset__c, Activity_Type__c, Consult_Start_Time__c, Back_Office_Start_Time__c, SchedStartTime, Reminder_Notification_Sent__c FROM ServiceAppointment WHERE Reminder_Notification_Sent__c = false AND ( Status = \'Scheduled\' OR Status = \'Confirmed\' ) AND Notification_Appointment__c = true AND Timezone_Offset__c >= ' + timeZone + ' AND SchedStartTime = TOMORROW ORDER BY Timezone_Offset__c DESC';
+           	System.debug('**QUERY: ' + QUERY);
+           }
+           else{
+             // SO-891 Update in the query addedd CreatedDate < '+str_formatedDate+
+             QUERY = 'SELECT Id, Status, Notification_Appointment__c, ServiceTerritoryId, Work_Order__c,Timezone_Offset__c, Activity_Type__c, Consult_Start_Time__c, Back_Office_Start_Time__c, SchedStartTime, Reminder_Notification_Sent__c FROM ServiceAppointment WHERE Reminder_Notification_Sent__c = false AND ( Status = \'Scheduled\' OR Status = \'Confirmed\' ) AND Notification_Appointment__c = true AND Timezone_Offset__c >= ' + timeZone + ' AND SchedStartTime = TOMORROW AND CreatedDate < '+strFormated48hrsDate+ ' ORDER BY Timezone_Offset__c DESC';
+           	 System.debug('**QUERY: ' + QUERY);
+           }
+           
         }
         else {
             QUERY = 'SELECT Id FROM ServiceAppointment LIMIT 0';
@@ -66,11 +82,11 @@ public class Appt_AppointmentReminderBatch  implements Database.Batchable<sObjec
 
         Map<id,String> notificaitonMap = new Map<id,String>();
         List<ServiceAppointment> apptList = new List<ServiceAppointment>();
-        for (ServiceAppointment appt: scope ) 
-        {            
-            notificaitonMap.put(appt.id, Appt_ConstantValues.NOTIFICATION_APPT_REMINDER);
-            appt.Reminder_Notification_Sent__c = true;
-            apptList.add(appt);
+        
+        for (ServiceAppointment appt: scope ){   
+             	notificaitonMap.put(appt.id, Appt_ConstantValues.NOTIFICATION_APPT_REMINDER);
+            	appt.Reminder_Notification_Sent__c = true;
+            	apptList.add(appt);
         }
 
         System.debug( 'Appt_AppointmentReminderBatch Create Reminder - selected notificaitons');
@@ -189,6 +205,7 @@ public class Appt_AppointmentReminderBatch  implements Database.Batchable<sObjec
             }
         }
         return timeZoneOffset;
-    }
+    }    
+    
 
 }

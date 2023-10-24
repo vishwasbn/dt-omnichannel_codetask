@@ -122,7 +122,8 @@ public class InmomentAPIUtilityTest{
         
        
         Test.startTest();
-        Fleet_ContactTriggerHandler.handle(oldMap, oldMap, System.TriggerOperation.BEFORE_DELETE);
+        //SF-991 changes: Ritika: added correct signature for Fleet_ContactTriggerHandler.handle
+		Fleet_ContactTriggerHandler.handle(new List<Contact>(), oldMap, oldMap, System.TriggerOperation.BEFORE_DELETE);
         Fleet_ContactTriggerHandler.processDeleteContactForECC(conmap);
         Fleet_ContactTriggerHandler.sendOutboundForContactECCSynch(b2bContact);
         Fleet_ContactTriggerHandler.sendOutboundForAccountECCSynch(newAccount.id);

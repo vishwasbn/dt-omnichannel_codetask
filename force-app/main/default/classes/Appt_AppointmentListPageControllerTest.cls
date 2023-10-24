@@ -5,6 +5,7 @@ public class Appt_AppointmentListPageControllerTest
     static void setupData()
     {
         List<ServiceAppointment> appts = Appt_TestUtil.basicAppointment_storeConfiguration();
+        appts = Appt_TestUtil.basicFleetAppointment_StoreConfiguration();
         for (ServiceAppointment sa: appts)
         {
             System.debug('ServAppt: ' + sa);
@@ -12,7 +13,7 @@ public class Appt_AppointmentListPageControllerTest
         }
         update appts;
 
-        System.assertEquals(2, appts.size(), 'There are not 2 Service Appointments present (tag 1)');
+        System.assertEquals(4, appts.size(), 'There are not 4 Service Appointments present (tag 1)');
     }
 
     @isTest 
@@ -29,6 +30,7 @@ public class Appt_AppointmentListPageControllerTest
 
         // pass parameters are SiteId and LOCAL Time for date string
         String apptListPg = Appt_AppointmentListPageController.getAppointmentListBySiteId( acctList[0].SAP_STORE_ID__c, Datetime.now().format('yyyy-MM-dd') );
+        Appt_AppointmentListPageController.getAppointmentListBySiteId( acctList[1].SAP_STORE_ID__c, Datetime.now().format('yyyy-MM-dd') );
         System.debug('checkMethods-ApptList: ' + apptListPg);
 
         // System.debug('Appointment List: ' + apptListPg);
@@ -107,7 +109,10 @@ public class Appt_AppointmentListPageControllerTest
         String onHandFor = Appt_AppointmentListPageController.getOnHandForLineItems(acctList[0].SAP_STORE_ID__c, JSON.serialize(lineItm));
         System.debug('checkMethods-onHandFor: ' + onHandFor);
         System.assertEquals('Failed to retrieve', onHandFor, 'unexpected response from inventory api');
-
+         
+        String onHandFor1 = Appt_AppointmentListPageController.getOnHandForLineItems(null, null);
+        System.debug('checkMethods-onHandFor: ' + onHandFor1);
+        
         List<Appt_InvoiceDetailModel.LineItems> itemList = new List<Appt_InvoiceDetailModel.LineItems>();
         itemList.add(lineItm);
 

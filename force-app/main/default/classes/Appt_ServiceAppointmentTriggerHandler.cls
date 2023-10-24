@@ -1,6 +1,7 @@
 public class Appt_ServiceAppointmentTriggerHandler {
     public static String lprefix = 'LOG_ServApptTH:';
-
+    //PT change
+    Public static String version_check= 'APPT3.0';
     //---Primary ServiceAppointment Trigger Handler for Appointment
     public static void handle(Map<Id, ServiceAppointment> oldMap, Map<Id, ServiceAppointment> newMap, System.TriggerOperation triggerEvent )
     {
@@ -10,6 +11,10 @@ public class Appt_ServiceAppointmentTriggerHandler {
         {
             when AFTER_INSERT {
                 createApptTimeSpotAfterCreateAppointment(oldMap, newMap);
+                //APPT3-449
+                //to serialize parameters and pass into future method which is used to add woli and then send Platform events.
+                serializeParams(oldMap, newMap, triggerEvent, Appt_AppointmentHandler.articlesList, Appt_AppointmentHandler.woid);
+                //APPT3-449
                 createAppointmentNotifications(oldMap, newMap);
             }
             when BEFORE_UPDATE {
@@ -17,6 +22,10 @@ public class Appt_ServiceAppointmentTriggerHandler {
             }
             when AFTER_UPDATE {
                 updateApptTimeSpotAfterUpdateAppointment(oldMap, newMap);
+                //APPT3-449
+                // to serialize parameters and pass into future method which is used to add woli and then send Platform events.
+                serializeParams(oldMap, newMap, triggerEvent, Appt_AppointmentUpdateHandler.articlesList, Appt_AppointmentUpdateHandler.woid);
+                //APPT3-449
                 updateAppointmentNotifications(oldMap, newMap);
             }
             when BEFORE_DELETE{
@@ -128,6 +137,25 @@ public class Appt_ServiceAppointmentTriggerHandler {
                         if (endTime == null) {
                             endTime = newAppt.Back_Office_End_Time__c;
                         }
+                        
+                        //PT change- Executed only when Custom label(PT_VersionController) is APPT3.0
+                        if(system.label.PT_VersionController==version_check){
+                            // Appt 3.0 Changes - Start TO Check the Time slot Dates during Reschedule	
+                            if(Appt_ConstantValues.isVisionFeature && !String.isBlank(newAppt.Selected_Slot_Start_Time_String__c)) {	
+                                
+                                if(newAppt.Back_Office_Start_Time__c > newAppt.Selected_Slot_Start_Time_String__c.trim()) {                                	
+                                    startTime = newAppt.Back_Office_Start_Time__c;	
+                                } else {	
+                                    startTime = newAppt.Selected_Slot_Start_Time_String__c.trim();	
+                                }	
+                                endTime = newAppt.Back_Office_End_Time__c;	
+                            } else if (Appt_ConstantValues.isVisionFeature && String.isBlank(newAppt.Selected_Slot_Start_Time_String__c)){	
+                                startTime = newAppt.Back_Office_Start_Time__c;	
+                                endTime = newAppt.Back_Office_End_Time__c;     	
+                            }	
+                            // Appt 3.0 Changes - End   
+                        }
+                        
 
                         //-- convert times to store's timezone
                         apptStartDateTime = Appt_AppointmentUtil.convertTime(newAppt.Date_String__c, startTime, Integer.valueOf(newAppt.Timezone_Offset__c));
@@ -144,7 +172,7 @@ public class Appt_ServiceAppointmentTriggerHandler {
                 
                         for (Appt_Time_Slot__c slot: foundApptSlots) {
                             Appt_Time_Spot__c newSpot = new Appt_Time_Spot__c();
-                            newSpot.Bucket__c = getBucket(newAppt);
+                            newSpot.Bucket__c = getBucket(newAppt, slot);
                             newSpot.Appt_Time_Slot__c = slot.Id;
                             newSpot.Service_Appointment__c = newAppt.Id;
                             System.debug( lprefix + '    adding to newSpotList newAppt.Id='+newAppt.Id);
@@ -234,7 +262,23 @@ public class Appt_ServiceAppointmentTriggerHandler {
                     if (endTime == null) {
                         endTime = newAppt.Back_Office_End_Time__c;
                     }
-
+                   
+                    //PT change- Executed only when Custom label(PT_VersionController) is APPT3.0
+                    if(system.label.PT_VersionController==version_check){
+                        // Appt 3.0 Changes - Start - To Check Time slot selected during create	
+                        if(Appt_ConstantValues.isVisionFeature && !String.isBlank(newAppt.Selected_Slot_Start_Time_String__c)) {	
+                            if(newAppt.Back_Office_Start_Time__c > newAppt.Selected_Slot_Start_Time_String__c.trim()) {	
+                                startTime = newAppt.Back_Office_Start_Time__c;	
+                            } else {	
+                                startTime = newAppt.Selected_Slot_Start_Time_String__c.trim();	
+                            }	
+                            endTime = newAppt.Back_Office_End_Time__c;	
+                        } else if (Appt_ConstantValues.isVisionFeature && String.isBlank(newAppt.Selected_Slot_Start_Time_String__c)){	
+                            startTime = newAppt.Back_Office_Start_Time__c;	
+                            endTime = newAppt.Back_Office_End_Time__c;     	
+                        }	
+                        // Appt 3.0 Changes - End	
+                    }
                     apptStartDateTime = Appt_AppointmentUtil.convertTime(newAppt.Date_String__c, startTime, Integer.valueOf(newAppt.Timezone_Offset__c));
                     apptEndDateTime = Appt_AppointmentUtil.convertTime(newAppt.Date_String__c, endTime, Integer.valueOf(newAppt.Timezone_Offset__c));
 
@@ -249,7 +293,7 @@ public class Appt_ServiceAppointmentTriggerHandler {
                 
                     for (Appt_Time_Slot__c slot: foundApptSlots) {
                         Appt_Time_Spot__c newSpot = new Appt_Time_Spot__c();
-                        newSpot.Bucket__c = getBucket(newAppt);
+                        newSpot.Bucket__c = getBucket(newAppt, slot);
                         newSpot.Appt_Time_Slot__c = slot.Id;
                         newSpot.Service_Appointment__c = newAppt.Id;
                         spotsToBeUpdatedList.add(newSpot);
@@ -261,8 +305,8 @@ public class Appt_ServiceAppointmentTriggerHandler {
         insert spotsToBeUpdatedList;
 
     }
-
-    private static String getBucket(ServiceAppointment appt) {
+        
+    private static String getBucket(ServiceAppointment appt, Appt_Time_Slot__c slot) {
         String frontBackChar;
         String sourceChar;
         String customerTypeChar;
@@ -274,7 +318,9 @@ public class Appt_ServiceAppointmentTriggerHandler {
             frontBackChar = Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR;
         }
 
-        if (appt.Source__c == Appt_ConstantValues.APPOINTMENT_SOURCE_WEB || appt.Source__c == Appt_ConstantValues.APPOINTMENT_SOURCE_CSR || appt.Source__c == Appt_ConstantValues.APPOINTMENT_SOURCE_FILE) {
+        //SO 502 - Use the web slot if back room slot availability is 0
+        if (appt.Source__c == Appt_ConstantValues.APPOINTMENT_SOURCE_WEB || appt.Source__c == Appt_ConstantValues.APPOINTMENT_SOURCE_CSR || appt.Source__c == Appt_ConstantValues.APPOINTMENT_SOURCE_FILE
+            || (appt.Source__c == Appt_ConstantValues.APPOINTMENT_SOURCE_POS && slot.BSR_Available__c == 0)) {
              sourceChar = Appt_ConstantValues.APPOINTMENT_SOURCE_WEB_CHAR;
         }
         else {
@@ -321,7 +367,8 @@ public class Appt_ServiceAppointmentTriggerHandler {
                 System.debug('New appt status: ' +updateAppt.Status);
 
                 // Find appointments that have their status updated to scheduled
-                if(updateAppt.Status == Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED && beforeUpdate.Status != Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED){
+                // SA - 23 && SO-347 Additional SERVICE_APPOINTMENT_STATUS_MISSED condition added so that while reschduling Missed appointment, schuled notification record is not created.
+                if(updateAppt.Status == Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED && beforeUpdate.Status != Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED && beforeUpdate.Status != Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_MISSED ){
                     notificaitonMap.put(updateAppt.id, Appt_ConstantValues.NOTIFICATION_APPT_SCHEDULED);
                     continue;
                 }
@@ -343,7 +390,6 @@ public class Appt_ServiceAppointmentTriggerHandler {
             
         }
 
-        
         System.debug( lprefix + ' Update SA - selected notificaitons');
         System.debug(notificaitonMap);
 
@@ -368,4 +414,43 @@ public class Appt_ServiceAppointmentTriggerHandler {
             }
         }
     }
+
+    /*
+     * @description : serializeParams method serializes the input parameters and invoke future method.
+     * @Param : oldMap, newMap, triggerEvent, articlesList, workOrderId
+     * @return : void
+     */
+    public static void serializeParams(Map<id,ServiceAppointment> oldMap, Map<id,ServiceAppointment> newMap, System.TriggerOperation triggerEvent, List<Appt_CreateAppointmentServiceModel.Articles> articlesList, Id workOrderId){
+        System.debug(lprefix+' serializeParams ENTRY');
+        String jsonOldMap = JSON.serialize(oldMap);
+        String jsonNewMap = JSON.serialize(newMap);
+        String jsontriggerEvent = JSON.serialize(triggerEvent);
+        String jsonArticleList = JSON.serialize(articlesList);
+        if(System.isBatch() || System.isQueueable() || System.isScheduled() || System.isFuture()){
+            String strTriggerEvent = (String) JSON.deserialize(jsontriggerEvent, String.class);
+            PT_AppointmentEventService.createServiceAppointmentPlatformEvents(oldMap,newMap,strTriggerEvent,workOrderId,articlesList);
+        }else{
+            asyncCallForAppointments(jsonOldMap, jsonNewMap, jsontriggerEvent, jsonArticleList, workOrderId);
+        }
+        System.debug(lprefix+' serializeParams EXIT');
+
+    }
+
+    /*
+     * @description : asyncCallForAppointments method deserializes the input parameters and invoke PT_AppointmentEventService class to add/remove woli and publish Platform events.
+     * @Param : stroldMap, strnewMap, strtriggerEvent, strarticleList, woid
+     * @return : void
+     */
+    @future
+    public static void asyncCallForAppointments(String stroldMap, String strnewMap , String strtriggerEvent, String strarticleList, Id woid) {
+        System.debug(lprefix+'asyncCallForAppointments ENTRY');
+        Map<Id, ServiceAppointment> oldMap = (Map<Id, ServiceAppointment>) JSON.deserialize(stroldMap, Map<Id, ServiceAppointment>.class);
+        Map<Id, ServiceAppointment> newMap = (Map<Id, ServiceAppointment>) JSON.deserialize(strnewMap, Map<Id, ServiceAppointment>.class);
+        List<Appt_CreateAppointmentServiceModel.Articles> articleList = (List<Appt_CreateAppointmentServiceModel.Articles>) JSON.deserialize(strarticleList, List<Appt_CreateAppointmentServiceModel.Articles>.class);
+        String triggerEvent = (String) JSON.deserialize(strtriggerEvent, String.class);
+        // send Platform Events 
+        PT_AppointmentEventService.createServiceAppointmentPlatformEvents(oldMap,newMap,triggerEvent,woid,articleList);
+        System.debug(lprefix+'asyncCallForAppointments EXIT');
+    }
+
 }

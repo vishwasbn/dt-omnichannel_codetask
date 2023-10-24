@@ -1,5 +1,7 @@
 public without sharing class Appt_NotificationUtil {
     final static string LPREFIX = 'LOG_Appt_NotificationUtil:';
+    //Addedd for SO-41
+    public static Logger logInstance = Logger.getInstance();
 
     // Future method that accepts a map of ids with a notificaiton type
     @future
@@ -65,16 +67,7 @@ public without sharing class Appt_NotificationUtil {
         //---TODO.SS should a status be changed here for CO#3
 
         //---06.09.22.SS - Switch to new SFMC Email System
-        Boolean useSFMCEmail = Appt_SettingUtil.getSettingBooleanValue( 'Use_SFMC_Email');
-
-        if (useSFMCEmail)
-        {
-            System.debug(LPREFIX + 'Using new SFMC Email, no need for this processing');
-        }
-        else
-        {
-            Appt_EmailOrderEnrichment.buildQueueableJobs(notificaitons);
-        }        
+             
 
         
 
@@ -121,6 +114,7 @@ public without sharing class Appt_NotificationUtil {
 
     public static List<Notification__c>  getUpdatedNotificaitonObject(List<Notification__c> notificaitons){  
         System.debug( LPREFIX + 'getUpdatedNotificaitonObject - Start');
+        // APPT3-364 - Appt3_Valid_Universal_Order_Id__c added to the SOQL query.
         List<Notification__c> updatedNotificationObjects = [SELECT  id, 
                                                                     Appointment_First__c, 
                                                                     Appointment_Date_String__c, 
@@ -185,7 +179,8 @@ public without sharing class Appt_NotificationUtil {
                                                                     Work_Order__r.Alternate_Contact__r.FirstName,
                                                                     Work_Order__r.Alternate_Contact__r.LastName, 
                                                                     Work_Order__r.Alternate_Contact__r.Phone, 
-                                                                    Work_Order__r.Alternate_Contact__r.Email
+                                                                    Work_Order__r.Alternate_Contact__r.Email,
+                                                            		Appt3_Valid_Universal_Order_Id__c
                                                             FROM Notification__c WHERE id IN :notificaitons];
         System.debug( LPREFIX + 'getUpdatedNotificaitonObject - End');
         System.debug(updatedNotificationObjects);
@@ -379,15 +374,27 @@ public without sharing class Appt_NotificationUtil {
             if (initalSMSType) {
                 notification.Initial_PE_SMS_Send_Status__c = invalid;
                 System.debug('error: ' +e.getMessage() +'\nline: ' +e.getLineNumber());
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_NotificationUtil.class.getName(), errDetails); // SO-41 END
             } else if (replySMSType){
                 notification.Reply_PE_Send_Status__c = invalid;
                 System.debug('error: ' +e.getMessage() +'\nline: ' +e.getLineNumber());
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_NotificationUtil.class.getName(), errDetails); // SO-41 END
             }
         }
         System.debug(LPREFIX + ' End buildSMSPayload');
         System.debug(notification.Reply_PE_Send_Status__c);
         System.debug(notification);
-        return notification;
+        return notification;  
     }
 
 
@@ -402,7 +409,19 @@ public without sharing class Appt_NotificationUtil {
             // Get the Order type from the Work Order and format it to all caps
             String workOrderType = notification.Work_Order__r.Order_Type__c?.toUppercase();
             if(String.isNotBlank(workOrderType)){
-                workOrderType = (workOrderType == 'SERVICEAPPOINTMENT' ? 'SERVICE_APPOINTMENT' : workOrderType); // Add underscore if it is SERVICEAPPOINTMENT
+                //APPT3-364 - Added STORE_ORDER conversion
+                //workOrderType = (workOrderType == 'SERVICEAPPOINTMENT' ? 'SERVICE_APPOINTMENT' : workOrderType); // Add underscore if it is SERVICEAPPOINTMENT
+                switch on workOrderType{
+                    when 'SERVICEAPPOINTMENT' {
+                        workOrderType = 'SERVICE_APPOINTMENT';
+                    }
+                    when 'STOREORDER' {
+                        workOrderType = 'STORE_ORDER';
+                    }                  
+                    when else {
+                        workOrderType = workOrderType;
+                    }
+                }
             }
 
             Appt_NotificationEmailPayload emailPayloadObj = new Appt_NotificationEmailPayload();
@@ -458,6 +477,8 @@ public without sharing class Appt_NotificationUtil {
                 emailPayloadObj.clientId = 'AT';
             }
             emailPayloadObj.customerKey = 'OrderConfirmationTSDv2';
+            //APPT3-364 - Mapping that tells whether this appointment is generated with unviersal SalesOrderId or not
+            emailPayloadObj.isUniversalOrderId = notification.Appt3_Valid_Universal_Order_Id__c;
             
             notification.Initial_PE_Email_Payload__c = Appt_NotificationEmailPayload.compose(emailPayloadObj);
             System.debug('@@ Notification: ' + notification.Initial_PE_Email_Payload__c);
@@ -465,10 +486,17 @@ public without sharing class Appt_NotificationUtil {
         }catch(Exception e){
             notification.Initial_Email_Send_Status__c = invalid;
             String errorMessage = 'Unexpected error creating Email Payload; '+e.getStackTraceString();
-        
+
             if(errorMessage.length() > 60){
                 errorMessage = errorMessage.substring(0, 60) + '...';
             }
+            
+            // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_NotificationUtil.class.getName(), errDetails); // SO-41 END
 
             notification.Last_Error_Message__c = notification.Last_Error_Message__c == null ? errorMessage : notification.Last_Error_Message__c + errorMessage;
 
@@ -486,7 +514,6 @@ public without sharing class Appt_NotificationUtil {
         System.debug('Start Appt_NotificationUtil:resendNotification() - workOrder: ' + workOrderId + ' ch: ' + channel);
     
         //---06.09.22.SS - Switch to new SFMC Email System
-        Boolean useSFMCEmail = Appt_SettingUtil.getSettingBooleanValue( 'Use_SFMC_Email');
 
         if ( String.isBlank(workOrderId) ) return;
 
@@ -495,6 +522,7 @@ public without sharing class Appt_NotificationUtil {
         List<Notification__c> notificaitonList = new List<Notification__c>();
 
         // get Notification object associate with the Appointment
+        // APPT3-364 - Appt3_Valid_Universal_Order_Id__c added to the SOQL query.
         notificaitonList = [SELECT  Id, 
                                     Appointment_First__c, 
                                     Appointment_Date_String__c, 
@@ -526,7 +554,8 @@ public without sharing class Appt_NotificationUtil {
                                     Work_Order__r.Source__c, 
                                     Work_Order__r.Alternate_Contact__c, 
                                     Work_Order__r.ContactId,
-                                    Work_Order__r.Order_Type__c
+                                    Work_Order__r.Order_Type__c,
+                            		Appt3_Valid_Universal_Order_Id__c
                                     FROM Notification__c WHERE Service_Appointment__r.Work_Order__c = :workOrderId AND Service_Appointment__r.Notification_Appointment__c = true AND (Channels__c Like '%EMAIL%' OR Channels__c Like '%SMS%') Order By CreatedDate DESC LIMIT 1];
         System.debug('*****START*****');
         // if there is Notificaiton object - resend it by setting the Status to Pending or failure for SMS
@@ -542,14 +571,6 @@ public without sharing class Appt_NotificationUtil {
 
 
                 //---06.09.22.SS - Switch to new SFMC Email System
-                if (!useSFMCEmail)
-                {
-                    // added logic to retry getting order information if it wasn't there to start with
-                    if(notificaitonList[0].Invoice_Status__c != Appt_ConstantValues.NOTIFICATION_INVOICE_STATUS_SUCCESSFUL){
-                        notificaitonList[0].Invoice_Status__c = Appt_ConstantValues.NOTIFICATION_STATUS_PENDING;
-                        updateOrderInfo.add(notificaitonList[0]);
-                    }
-                }
             } else if (channel == 'SMS'){
                 System.debug('*****START*****');
                 // if notification is an SMS rebuild the payload on resend based on the state of the notification                                                            
@@ -560,19 +581,7 @@ public without sharing class Appt_NotificationUtil {
             }
             update notificaitonList[0];
 
-
-            
-
-            if (useSFMCEmail)
-            {
-                System.debug(LPREFIX + 'Using new SFMC Email, no need for this processing');
-            }
-            else
-            {
-                if(updateOrderInfo.size() > 0){
-                    Appt_EmailOrderEnrichment.buildQueueableJobs(updateOrderInfo);
-                }
-            }            
+      
         } else {
             Map<id,String> notificaitonMap = new Map<id,String>();
            

@@ -15,6 +15,15 @@ public with sharing class Appt_AppointmentUpdateHandlerTest {
             System.debug(lprefix + 'Appointment: ' + sa);
         }
 
+        //merge code start
+
+        Appt_CreateAppointmentServiceModel.Articles item = new Appt_CreateAppointmentServiceModel.Articles();
+        item.articleId = '98911';
+
+        Appt_CreateAppointmentServiceModel.Articles item2 = new Appt_CreateAppointmentServiceModel.Articles();
+        item2.articleId = '98977';
+        //merge code end
+
         Appt_CreateAppointmentServiceModel model1 = Appt_TestUtil.getCreateAppointmentServiceModel();
 
         // create back only
@@ -135,16 +144,30 @@ public with sharing class Appt_AppointmentUpdateHandlerTest {
         model1.siteId = apptList[0].Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c;
         model1.appointmentStatus = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CONFIRMED;
         model1.emailAddress = 'test@test.com';
+        model1.recipientEmail= 'testupdate@test.com';  // appt 3.0 change
 
         Test.startTest();
 
         Appt_UpdateAppointmentServiceModel apptServMdl = Appt_AppointmentUpdateHandler.updateAppointment(model1);
-        
+        // appt 3.0 changes start
+        model1.appointmentId = apptList[0].ParentRecordId;
+        model1.ServiceTerritoryId = apptList[0].Work_Order__r.ServiceTerritoryId;
+        model1.siteId = apptList[0].Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c;
+        model1.recipientFirstName='ram';
+        model1.recipientLastName='s';
+        model1.recipientPhone='1234567890';
+        Appt_UpdateAppointmentServiceModel apptServMdl_2 = Appt_AppointmentUpdateHandler.updateAppointment(model1);
+        // appt 3.0 changes end
         Test.stopTest();  
 
         System.debug( lprefix + 'updateAppointmentWithAppointmentTest::result: ' + apptServMdl);
         System.assertEquals('Success', apptServMdl.status, 'update Appointment with Appointment failed');
-
+        // appt 3.0 changes start
+        System.assertEquals('Success', apptServMdl_2.status, 'update Appointment with Appointment failed');
+        List<Contact> contacts;
+        contacts = [SELECT FirstName, lastName, Email, Phone, MobilePhone FROM Contact WHERE Email ='testupdate@test.com'];
+        System.assertEquals('ram', contacts[0].FirstName, 'updating Appointment contact info failed');
+        // appt 3.0 changes end
         System.debug( lprefix + '***********END updateAppointmentWithAppointmentTest***************');
 
     } // End of updateAppointmentWithAppointmentTest()
@@ -242,6 +265,28 @@ public with sharing class Appt_AppointmentUpdateHandlerTest {
         System.debug( lprefix +  'Appointment: ' + apptList.size());
         System.assertEquals(1, apptList.size(), 'not the expected number of Service Appointments');
 
+        //Code merge start
+        List<ServiceAppointment> apptList2 = [SELECT Id, ParentRecordId, Status, Notification_Appointment__c, Activity_Type__c, SchedStartTime, SchedEndTime, ContactId, Work_Order__r.ServiceTerritoryId, Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c FROM ServiceAppointment];
+        FSL.GlobalAPIS.addStatusTransition(Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_PENDING, Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CONFIRMED);
+
+        Appt_UpdateAppointmentServiceModel model2 = new Appt_UpdateAppointmentServiceModel();
+
+        // update for customer created in setup
+        model2.appointmentId = apptList2[0].ParentRecordId;
+        model2.ServiceTerritoryId = apptList2[0].Work_Order__r.ServiceTerritoryId;
+        model2.siteId = apptList2[0].Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c;
+        //model2.appointmentStatus = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CONFIRMED;
+        Date startdate = Date.today().addDays(14);
+        Date starteOfWeek = startdate.toStartOfWeek();
+        Date tday = starteOfWeek.addDays(1);
+        model2.appointmentDate = tday;
+        model2.consultStartTime = '';
+        model2.consultEndTime = '';
+        model2.backOfficeStartTime = '1640';
+        model2.backOfficeEndTime = '1700';
+        model2.orderType = 'BOPIS';
+        //Code merge end
+
         for (ServiceAppointment sa: apptList){
             System.debug( lprefix + 'ServAppt: ' + sa);
         }
@@ -250,7 +295,22 @@ public with sharing class Appt_AppointmentUpdateHandlerTest {
 
         model1.backOfficeStartTime = apptList[0].SchedStartTime.addMinutes(60).format('HHmm');
         model1.backOfficeEndTime = apptList[0].SchedEndTime.addMinutes(60).format('HHmm');
-
+       //Code merge start
+        Appt_UpdateAppointmentServiceModel modelUpdate = new Appt_UpdateAppointmentServiceModel();
+        
+        modelUpdate.source = Appt_ConstantValues.APPOINTMENT_SOURCE_WEB;
+        modelUpdate.orderType = 'ROPIS';
+        Date tooday = Date.today();
+        modelUpdate.appointmentDate = tooday.addDays(1);
+        modelUpdate.consultStartTime = '1520';
+        modelUpdate.consultEndTime = '1540';
+        modelUpdate.backOfficeStartTime = '1540';
+        modelUpdate.backOfficeEndTime = '1600';
+       
+       
+        //model2.consultStartTime = apptList[0].SchedStartTime.addMinutes(60).format('HHmm');
+        //model2.consultEndTime = apptList[0].SchedEndTime.addMinutes(60).format('HHmm');
+        //Code merge End
 
         Test.startTest();
 
@@ -258,6 +318,17 @@ public with sharing class Appt_AppointmentUpdateHandlerTest {
         
         System.debug('updateAppointmentWithBackOnlyTest::ServModel: ' + apptServMdl);
         System.assertEquals('Success', apptServMdl.status, 'update Appointment with Back only failed');
+
+         //Code Merge Start
+        modelUpdate.appointmentId = apptServMdl.appointmentId;
+        Appt_UpdateAppointmentServiceModel apptUpdateMdl2 = Appt_AppointmentUpdateHandler.updateAppointment(modelUpdate);
+        System.assertEquals('Success', apptUpdateMdl2.status, 'update Appointment with Back only failed');
+
+        
+        Appt_UpdateAppointmentServiceModel apptUpdateMdl = Appt_AppointmentUpdateHandler.updateAppointment(model2);
+        System.assertEquals('Success', apptUpdateMdl.status, 'update Appointment with Back only failed');
+        //Code Merge End
+
 
         Test.stopTest();  
 
@@ -304,5 +375,52 @@ public with sharing class Appt_AppointmentUpdateHandlerTest {
         System.debug(lprefix + '***********END appointmentUpdateHandlerTest***************');
 
     } // End of appointmentUpdateHandlerTest()
-
+    
+    
+  @isTest static void updateAppointmentCancelledTest()
+    {   
+        List<ServiceAppointment> apptList = [SELECT Id, ParentRecordId, Status, AccountId, Work_Order__r.AssetId,  Site_Id__c, Source__c, Order_Type__c, Notification_Appointment__c, Activity_Type__c, SchedStartTime, SchedEndTime, Consult_Start_Time__c, Consult_End_Time__c, Back_Office_Start_Time__c, Back_Office_End_Time__c, ContactId, Work_Order__c, Work_Order__r.ServiceTerritoryId, Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c, Customer_Type__c, Timezone_Offset__c FROM ServiceAppointment WHERE Source__c='POS'];
+        System.debug( lprefix +  'Appointment: ' + apptList.size());
+        System.assertEquals(1, apptList.size(), 'not the expected number of Service Appointments');
+        Appt_UpdateAppointmentServiceModel modelUpdate1 = new Appt_UpdateAppointmentServiceModel();
+        modelUpdate1.appointmentStatus = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CANCELED;
+        modelUpdate1.cancelReasonText = 'Test';
+        modelUpdate1.cancelReason = 'Other';
+        Appt_UpdateAppointmentServiceModel modelUpdate2 = new Appt_UpdateAppointmentServiceModel();
+        modelUpdate2.appointmentId = apptList[0].Work_Order__c;
+        modelUpdate2.accountId = apptList[0].AccountId;
+        modelUpdate2.contactId = apptList[0].ContactId;
+        String existingApptStatus = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED;
+        Test.startTest();
+		Appt_AppointmentUpdateHandler.updateWorkOrder(modelUpdate1, existingApptStatus, modelUpdate2 );
+        existingApptStatus = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CANCELED;
+        modelUpdate1.appointmentStatus = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED;
+        Appt_AppointmentUpdateHandler.updateWorkOrder(modelUpdate1, existingApptStatus, modelUpdate2 );
+        Test.stopTest();  
+    } 
+    
+    
+     @isTest static void updateServiceAppointmentsCatchException()
+    {   
+        List<ServiceAppointment> apptList = [SELECT Id, ParentRecordId, Status, Site_Id__c, Source__c, Order_Type__c, Notification_Appointment__c, Activity_Type__c, SchedStartTime, SchedEndTime, Consult_Start_Time__c, Consult_End_Time__c, Back_Office_Start_Time__c, Back_Office_End_Time__c, ContactId, Work_Order__c, Work_Order__r.ServiceTerritoryId, Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c, Customer_Type__c, Timezone_Offset__c FROM ServiceAppointment WHERE Source__c='POS'];
+        System.debug( lprefix +  'Appointment: ' + apptList.size());
+        System.assertEquals(1, apptList.size(), 'not the expected number of Service Appointments');
+        
+        Appt_UpdateAppointmentServiceModel model1 = Appt_TestUtil.convertServiceAppointmentToModel( apptList[0] );
+		model1.appointmentStatus ='Canceled';
+        model1.cancelReason ='Other';
+        model1.cancelReasonText ='test class';
+    
+        
+        Test.startTest();
+        try{
+         Appt_UpdateAppointmentServiceModel apptServMdl = Appt_AppointmentUpdateHandler.updateAppointment(model1);
+        }
+        catch(Exception e){
+            System.assertEquals(true, e != null, 'Should be an exception thrown');
+        }
+        Test.stopTest();  
+   
+    }
+    
 }

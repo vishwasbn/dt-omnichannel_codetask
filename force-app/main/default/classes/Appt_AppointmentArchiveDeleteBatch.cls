@@ -55,6 +55,14 @@ public class Appt_AppointmentArchiveDeleteBatch  implements Database.Batchable<S
                     getUpdatedArchiveIdsForAccount(sa, acctIdMap);
                 } catch (exception e) {
                     System.debug(LPREFIX + 'error updating Account Archive Ids (SA.Id: ' + sa.Id + '): ' + e.getMessage());
+                    //Addedd for SO-41
+                    Logger logInstance = Logger.getInstance();
+                    
+                    String errDetails = 'Cause: '+ e.getCause() +'\n';
+                    errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                    errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                    errDetails = errDetails + 'Message: '+ e.getMessage();
+                    logInstance.Log(LPREFIX, Appt_AppointmentArchiveDeleteBatch.class.getName(), errDetails); // SO-41 END
                 }
                 
                 // populate SA and WOs to delete

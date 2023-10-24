@@ -207,6 +207,13 @@ public class Appt_ResourceAbsenceTriggerHandler
         } catch (Exception e) {
             //-- caught exception, do nothing
             system.debug('getTimeSlotsSets() - WARNING! Caught exception executing SOQL, returning null - e: ' + e.getMessage());
+            // SO-41 START:  Added logInstance 
+            Logger logInstance = Logger.getInstance();
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log('Appt_ResourceAbsenceTriggerHandler : ',Appt_ResourceAbsenceTriggerHandler.class.getName(), errDetails); // SO-41 END
         }
 
         return tmeSlots;

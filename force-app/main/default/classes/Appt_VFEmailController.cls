@@ -195,6 +195,14 @@ public class Appt_VFEmailController
 
         } catch (Exception e){
             System.debug('try to convert order date failed: ' + e.getMessage());
+            //Addedd for SO-41:  Added logInstance 
+    		Logger logInstance = Logger.getInstance();
+			String LPREFIX = 'Appt_VFEmailController :';
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_VFEmailController.class.getName(), errDetails); // SO-41 END
         }
         
         return orderDateStr;

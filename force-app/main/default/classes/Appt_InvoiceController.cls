@@ -17,10 +17,16 @@ public class Appt_InvoiceController {
             System.debug( lprefix + '    ERROR - returnErrorModel: ' + returnDetailModel);
             return returnDetailModel;
 
-        } else if (idType == Appt_ConstantValues.INVOICE_ID_TYPE_INVOICE_NUMBER) {
+        } else if (idType == Appt_ConstantValues.INVOICE_ID_TYPE_INVOICE_NUMBER) { 
             return Appt_InvoiceService.getInvoiceDetail(siteId, id, invoiceDate);
         } else {
             return Appt_InvoiceService.getInvoiceDetail(siteId, id, idType);
         }
+    }
+    
+    //Appt 3.0 - Pass through method that calls another method to fetch order history details from SAP CAR  
+    public static Appt_InvoiceDetailModel getOrderHistoryDetails(String siteId, String salesOrderId, String orderType){	
+        System.debug(lprefix+'getOrderHistoryDetails():ENTRY siteId=' + siteId + ', salesOrderId='+salesOrderId);
+		return Appt_InvoiceService.getOrderHistoryDetails(siteId, salesOrderId, orderType);
     }
 }

@@ -16,8 +16,10 @@ public class Appt_ApptDayOfReminderBatchTest
         // change the appointment time so it passes whenever the test is run
         //    the test will fail in off hours otherwise.
         Datetime currentDatetime = Datetime.now();
-        //currentDatetime = Datetime.newInstanceGMT(currentDatetime.yearGmt(), currentDatetime.monthGmt(), currentDatetime.dayGmt(), 16, 00, 00); // 9am MST
+        //uncommented the below line for SO-258
+        currentDatetime = Datetime.newInstanceGMT(currentDatetime.yearGmt(), currentDatetime.monthGmt(), currentDatetime.dayGmt(), 16, 00, 00); // 9am MST
 
+        
         servAppts[0].SchedStartTime = currentDatetime;
         servAppts[0].SchedEndTime = currentDatetime.addMinutes(20);
         
@@ -68,10 +70,11 @@ public class Appt_ApptDayOfReminderBatchTest
         Test.stopTest();
 
         List<Notification__c> noteList = [SELECT Id, Initial_Email_Send_Status__c, Alternate_Contact__c, Channels__c, Communication_Type__c, Email_Template__c, Notification_Type__c  FROM Notification__c WHERE Notification_Type__c='JT_REMINDER'];
-
+		 
         for (Notification__c note: noteList){
             System.debug(LPREFIX + 'Notification__c: ' + note);
         }
+        
         System.assertEquals(2, noteList.size(), 'the number of Notificaiton objects is not correct');
 
         System.debug(LPREFIX + 'checkConfirmedScheduled end');

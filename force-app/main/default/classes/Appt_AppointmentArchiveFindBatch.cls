@@ -13,7 +13,8 @@ public class Appt_AppointmentArchiveFindBatch  implements Database.Batchable<SOb
         List<Appt_Appointment_Setting__mdt> settings = Appt_SettingUtil.getApptSettings();
         Integer daysToArchive = Integer.valueOf(Appt_SettingUtil.getSettingValue( Appt_ConstantValues.ARCHIVE_NUMBER_OF_DAYS, settings));
         Datetime archiveDate = System.today().addDays( ( daysToArchive * -1 ) );
-        QUERY = 'SELECT Id from ServiceAppointment WHERE Date_String__c != null AND SchedStartTime < ' + archiveDate.format('yyyy-MM-dd\'T\'HH:mm:\'00Z\'','UTC') + ' AND Archive_Status__c = null ORDER BY Date_String__c ASC';
+        //APP3-302 : Changed the filter from SchedStartTime to "DueDate" field in Where clause as SchedStartTime field value is  blank in some cases.
+        QUERY = 'SELECT Id from ServiceAppointment WHERE Date_String__c != null AND DueDate < ' + archiveDate.format('yyyy-MM-dd\'T\'HH:mm:\'00Z\'','UTC') + ' AND Archive_Status__c = null ORDER BY Date_String__c ASC';
         System.debug('QUERY: ' + QUERY);
     }
 

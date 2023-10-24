@@ -15,9 +15,9 @@ public class Appt_AppointmentReminderBatchTest
         servAppts[1].Status = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CONFIRMED;
         // change the appointment time so it passes whenever the test is run
         //    the test will fail in off hours otherwise.
-        Datetime tomorrowDatetime = Datetime.now().addDays(1);
-
-        //tomorrowDatetime = Datetime.newInstanceGMT(tomorrowDateTime.yearGmt(), tomorrowDatetime.monthGmt(), tomorrowDatetime.dayGmt(), 16, 00, 00); // 9am MST
+        
+		Datetime tomorrowDatetime = Datetime.now().addHours(12); //Used AddHours(12) for SO-258 
+        tomorrowDatetime = Datetime.newInstanceGMT(tomorrowDateTime.yearGmt(), tomorrowDatetime.monthGmt(), tomorrowDatetime.dayGmt(), 16, 00, 00); // 9am MST
 
         servAppts[0].SchedStartTime = tomorrowDatetime;
         servAppts[0].SchedEndTime = tomorrowDatetime.addMinutes(20);
@@ -52,8 +52,9 @@ public class Appt_AppointmentReminderBatchTest
 
         // Schedule the test job
         Datetime dateNow = system.now();
-        // dateNow = dateNow.addDays(1);
-        dateNow = dateNow.addSeconds(10);
+         //dateNow = dateNow.addDays(-1);
+         //dateNow = dateNow.addhours(12);//12
+         dateNow = dateNow.addSeconds(10);
         // Seconds Minutes Hours Day_of_month Month Day_of_week optional_year
         String cronExp = dateNow.second() + ' ' + dateNow.minute() + ' ' + dateNow.hour() + ' ' + dateNow.day() + ' ' + dateNow.month() + ' ? ' + dateNow.year();
         System.debug(LPREFIX + 'Chron: ' + cronExp);

@@ -12,12 +12,15 @@ public without sharing class Appt_AppointmentLogControllerTest {
         FSL.GlobalAPIS.addStatusTransition(Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_PENDING, Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_COMPLETED);
         //FSL.GlobalAPIS.addStatusTransition(Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED, Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_COMPLETED ); //commenting since next line method create the same status transition
         List<ServiceAppointment> servAppts =  Appt_TestUtil.basicAppointment_StoreConfiguration();
+        servAppts = Appt_TestUtil.basicFleetAppointment_StoreConfiguration();
 
         System.debug(servAppts);
 
         // progress Appointment to Scheduled & Confirmed
         servAppts[0].Status = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CANCELED;
         servAppts[1].Status = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_MISSED;
+        servAppts[2].Status = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CANCELED;
+        servAppts[3].Status = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_MISSED;
         // change the appointment time so it passes whenever the test is run
         //    the test will fail in off hours otherwise.
         Datetime currentDatetime = Datetime.now().addDays(-1);
@@ -28,6 +31,7 @@ public without sharing class Appt_AppointmentLogControllerTest {
         servAppts[1].SchedEndTime = currentDatetime.addMinutes(40);
         servAppts[0].Date_String__c = dateString;
         servAppts[1].Date_String__c = dateString;
+        
         update servAppts;
     }
 
@@ -56,8 +60,13 @@ public without sharing class Appt_AppointmentLogControllerTest {
         String testResult = '';
         Test.startTest();
         testResult = Appt_AppointmentLogController.getAppointments(siteId, startDate, endDate, appointmentStatuses, rescheduleFilter);
+        Appt_AppointmentLogController.getAppointments(servAppts[3].Site_Id__c, startDate, endDate, appointmentStatuses, rescheduleFilter);
         Test.stopTest();
 
+        String startDate1 = String.valueOf(System.Today() + 10);
+        String endDate1 = String.valueOf(System.Today() + 1);
+        Appt_AppointmentLogController.getAppointments(siteId, startDate1, endDate1, appointmentStatuses, null);
+        
         Appt_AppointmentLogController.Appt_ArchiveLogContainer container = (Appt_AppointmentLogController.Appt_ArchiveLogContainer) JSON.deserialize(testResult, Appt_AppointmentLogController.Appt_ArchiveLogContainer.class);
 
         System.assert(container != null && container.loggedAppointments != null);

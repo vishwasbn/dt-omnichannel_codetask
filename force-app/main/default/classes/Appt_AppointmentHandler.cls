@@ -1,8 +1,14 @@
-public without sharing class Appt_AppointmentHandler {
-   
+public without sharing class Appt_AppointmentHandler{
+  
     public static String lprefix = 'Appt_ApptH: ';
+    //APPT3-449 - Declaration of woid and articlesList static variables. These variables are used in addition of work order line items.
+    public static List<Appt_CreateAppointmentServiceModel.Articles> articlesList = new List<Appt_CreateAppointmentServiceModel.Articles>();
+	public static ID woid;
+    //APPT3-449
+    //Addedd for SO-41
+    public static Logger logInstance = Logger.getInstance();
 
-    //Create appointment for Site, Customer and Vehicle if the appointment is still available.
+    //Create appointment for Site, Customer and Vehicle if tQueueable he appointment is still available.
     public static Appt_CreateAppointmentServiceModel createAppointment(Appt_CreateAppointmentServiceModel apptModel){
 
         //start timer for performance loging
@@ -108,6 +114,19 @@ public without sharing class Appt_AppointmentHandler {
         //  7. create and save the Work Order and then put Id on model
         //LIMIT NOTE - 1 insert
         createWorkOrder(apptModel);
+        
+        // Appt 3.0 Changes - Add articles to WOLI for Hybris/GK/Alert Cen
+       // Added to check the source 
+        if((apptModel.isVisionFeature != null && apptModel.isVisionFeature) || (apptModel.salesOrderId != null) || apptModel.source == Appt_ConstantValues.APPOINTMENT_SOURCE_WEB)
+        {
+            if ( apptModel.articles != null && apptModel.articles.size() > 0) {
+                //APPT3-449 Assign woid and articlesList static variables
+                woid = apptModel.workOrderId;
+                articlesList.addAll(apptModel.articles);  
+                //APPT3-449
+            }
+        }
+        // Appt 3.0 Changes - End
 
         Int_Values.addTiming('ApptHandler.CrAppt.SaveWO',startTimePart, Datetime.now());
         //startTimePart = Datetime.now(); 
@@ -305,7 +324,14 @@ public without sharing class Appt_AppointmentHandler {
             } catch (Exception e) {
                 System.debug(lprefix+'     EXCEPTION when updating, SECOND ATTEMPT to update existing Account. Exception:'+e);
                 update custAccount;
-                System.debug(lprefix+'     successfully update on SECOND ATTEMPT AccountId:'+custAccount.Id);
+                
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_AppointmentHandler.class.getName(), errDetails); // SO-41 END
+
             }
 
         } else {
@@ -327,7 +353,14 @@ public without sharing class Appt_AppointmentHandler {
             } catch (Exception e) {
                 System.debug(lprefix+'     EXCEPTION when inserting, SECOND ATTEMPT to save newly created Account. Exception:'+e);
                 insert custAccount;
-                System.debug(lprefix+'     successfully saved on SECOND ATTEMPT AccountId:'+custAccount.Id);
+                
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_AppointmentHandler.class.getName(), errDetails); // SO-41 END
+
             }
         }
 
@@ -412,6 +445,7 @@ public without sharing class Appt_AppointmentHandler {
             apptModel.contactId = Appt_AppointmentDataProcessUtil.getPersonContactId(apptModel.accountId);
             System.debug(lprefix+'PersonContactId=null, but after re-query PersonContactId=:'+apptModel.contactId);
         }
+       
 
         WorkOrder wo = new WorkOrder();
         // NOTE: status on WorkOrder isn't being used, so commenting out setting of WorkOrder.status
@@ -434,6 +468,9 @@ public without sharing class Appt_AppointmentHandler {
         wo.Order_Date__c = !String.isBlank(apptModel.orderDate) ? Date.valueOf(apptModel.orderDate) : null;
         wo.Vehicle__c = apptModel.assetId;
         wo.Alternate_Contact__c = apptModel.alternateContactId;
+        //Appt3.0 Changes Start 
+        if (String.isNotBlank(apptModel.salesOrderId)) wo.Appt3_Sales_Order_Id__c = apptModel.salesOrderId;
+        //Appt3.0 Changes End
         //--DTA-261 - use smsPhoneNumber if populated, otherwise use mobile phone in WO SMS field (if  populated)
         if (!String.isBlank(apptModel.smsPhoneNumber)) wo.SMS_Phone__c = apptModel.smsPhoneNumber;
         else if (!String.isBlank(apptModel.mobilePhoneNumber)) wo.SMS_Phone__c = apptModel.mobilePhoneNumber;
@@ -441,6 +478,13 @@ public without sharing class Appt_AppointmentHandler {
         //-- Set the owner of the WorkOrder to be the Store's record owner user (like POS user) so that the store can see all of its Service Appointment
         //--  records, but only the stores' Service Appointment records - DTA-353
         if (!String.isBlank(apptModel.appointmentRecordOwnerId)) wo.OwnerId = apptModel.appointmentRecordOwnerId;
+        
+        //Appt 3.0 Changes - Populate MDM Sales Order Id when its available.
+        if((apptModel.isVisionFeature != null && apptModel.isVisionFeature) || apptModel.salesOrderId != null) {
+        	if (apptModel.salesOrderId != null && !String.isBlank(apptModel.salesOrderId)) wo.Appt3_Sales_Order_Id__c = apptModel.salesOrderId;
+            if (apptModel.unPaid != null) wo.Appt3_UnPaid__c = apptModel.unPaid;
+        }
+        //Appt 3.0 Changes - End
 
         //-- SAVE RECORD
         System.debug(lprefix+'     about to save newly created WorkOrder:'+wo);
@@ -530,7 +574,11 @@ public without sharing class Appt_AppointmentHandler {
             //-- put ServiceAppointment on list for bulk insert later
             saList.add(bsa);
         }
-
+        
+		// Appt 3.0 Changes - On the fly flag enabled during Service Appointment creation. This will be used in SA trigger to enable the consumption of multiple time slots for Vision
+        if(apptModel.isVisionFeature != null && apptModel.isVisionFeature) {Appt_ConstantValues.isVisionFeature = true;}
+        // Appt 3.0 Changes - End
+         
         //-- Insert the ServiceAppointments on the list. IN past inserts occasionally failed on first attempt, so try again if exception
         try {
             System.debug(lprefix+'     about to save newly created List of ServiceAppointment with '+saList.size()+ ' items:'+saList);
@@ -539,7 +587,14 @@ public without sharing class Appt_AppointmentHandler {
         } catch(Exception e) {
             System.debug(lprefix+'     EXCEPTION when inserting List of ServiceAppointment, SECOND ATTEMPT. Exception:'+e);
             insert saList;
-            System.debug(lprefix+'     successfully saved on SECOND ATTEMPT List of ServiceAppointmentId:'+saList);
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentHandler.class.getName(), errDetails); // SO-41 END
+	    
+	    
         }
 
         //-- Set IDs from inserted ServiceAppointment records on model
@@ -564,7 +619,14 @@ public without sharing class Appt_AppointmentHandler {
             } catch(Exception e) {
                 System.debug(lprefix+'     EXCEPTION when updating to link SAs, SECOND ATTEMPT to UPDATE. Exception:'+e);
                 update bulkUpdateList;
-                System.debug(lprefix+'     successfully UPDATED on SECOND ATTEMPT');
+		
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_AppointmentHandler.class.getName(), errDetails); // SO-41 END                
+
             }
         }
 
@@ -623,7 +685,12 @@ public without sharing class Appt_AppointmentHandler {
             apptModel.schedulingPolicyId = siteAppointmentInfo.get(0).ServiceTerritory.Scheduling_Policy__c;
             apptModel.frontroomWorkTypeId = siteAppointmentInfo.get(0).ServiceTerritory.Front_Appointment_Work_Type__c;
             apptModel.backroomWorkTypeId = siteAppointmentInfo.get(0).ServiceTerritory.Back_Appointment_Work_Type__c;
-            apptModel.appointmentRecordOwnerId = siteAppointmentInfo.get(0).ServiceTerritory.Appt_Record_Owner__c;
+            
+            // Appt 3.0 Changes - Record owner will individual user when calling application is either GK or Alert Center. For Legacy, the record owner will still be the generic POS terminal user
+            if(apptModel.isVisionFeature == null || !apptModel.isVisionFeature){
+            	apptModel.appointmentRecordOwnerId = siteAppointmentInfo.get(0).ServiceTerritory.Appt_Record_Owner__c;    
+            }
+            // Appt 3.0 Changes - End
 
             //loop through list to populate frontroom and backroom service resource ids
             for (ServiceTerritoryMember info: siteAppointmentInfo) {
@@ -648,10 +715,11 @@ public without sharing class Appt_AppointmentHandler {
         if (custAccount == null) {
             Id personAccountRecordTypeId =  Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('PersonAccount').getRecordTypeId();
             custAccount = new Account(RecordTypeId = personAccountRecordTypeId);
-        }
-
+        } 
+        
         if (apptModel.firstName != null) custAccount.FirstName = apptModel.firstName;
         if (apptModel.lastName != null) custAccount.LastName = apptModel.lastName;
+        
         if (apptModel.emailAddress != null) {
             custAccount.Email__c = apptModel.emailAddress;
             custAccount.PersonEmail = apptModel.emailAddress;
@@ -683,6 +751,18 @@ public without sharing class Appt_AppointmentHandler {
         if (apptModel.customerType != null) custAccount.Appt_Customer_Type__c = apptModel.customerType;
         if (apptModel.emailAddressOptIn != null) custAccount.Appt_Email_Opt_In__pc = apptModel.emailAddressOptIn;
         if (apptModel.textOptIn != null) custAccount.Appt_SMS_Opt_In__pc = apptModel.textOptIn;
+        
+        // Appt 3.0 Changes - Map new customer fields sent as part of GK and Alert Center payload.
+        if(apptModel.isVisionFeature != null && apptModel.isVisionFeature){
+            custAccount.Appt3_My_Account__c = apptModel.showMyAccount;
+            custAccount.Appt3_AAA_Membership__c = apptModel.showAAAMember;
+            custAccount.Appt3_Private_Label_Cardholder__c = apptModel.showDTCC;
+            custAccount.Appt3_Military__c = apptModel.showMilitary;
+            //Vison payload always sends 2 character country code, so fetch country based on state. Fallback is 'United States'.
+            String country = Appt_AppointmentUtil.getCountryByState(apptModel.state.trim());
+            custAccount.put('ShippingCountry', (country != null ? country : 'United States'));
+        }
+        // Appt 3.0 Changes - End
     }
 
     private static Appt_CreateAppointmentServiceModel rollbackReturn (Appt_CreateAppointmentServiceModel returnModel, Savepoint sp, String errorCode, String errorMessage)
@@ -746,4 +826,47 @@ public without sharing class Appt_AppointmentHandler {
 
         return apptModel;
     }
+
+    
+    // Appt 3.0 - Adds articles to WOLI object during appointment create and reschedule.
+ 
+    public static void addArticlesToWOLI(List<Appt_CreateAppointmentServiceModel.Articles> articlesList, Id woId) {
+    System.debug(lprefix+'addArticlesToWOLI() ENTRY -  articlesList:'+articlesList+'Work Order ID '+woId);
+        List<WorkOrderLineItem> workLineArticles = new List<WorkOrderLineItem>();
+        Id apptRecordTypeId = Schema.SObjectType.WorkOrderLineItem.getRecordTypeInfosByDeveloperName().get('Appt3_Appointment_Articles').getRecordTypeId();
+       for(Appt_CreateAppointmentServiceModel.Articles itemArticle : articlesList){
+            if (!String.isBlank(itemArticle.articleId)){
+                WorkOrderLineItem lineItem = new WorkOrderLineItem();           
+                lineItem.RecordTypeId = apptRecordTypeId;
+                lineItem.WorkOrderId = woId;
+               lineItem.WOM_Article_Description__c = itemArticle.articleDescription;
+                lineItem.WOM_Article_Number__c = itemArticle.articleId;                 
+                if (!String.isBlank(itemArticle.articleCount)) lineItem.WOM_Article_Quantity__c = Integer.valueOf(itemArticle.articleCount);
+                lineItem.WOM_ArticleSize__c = itemArticle.articleSize;
+                lineItem.Appt3_Article_Type__c = itemArticle.articleType;
+                if (itemArticle.tredWell != null) lineItem.Appt3_Treadwell__c = itemArticle.tredWell;   
+                workLineArticles.add(lineItem); 
+            }
+        }  
+        if (workLineArticles.size() > 0) {
+            insert workLineArticles;
+        }
+        System.debug(lprefix+'addArticlesToWOLI() EXIT');
+    }
+    
+    // Appt 3.0 Changes - End
+    
+    // Appt 3.0 - Removes WOLIs that are stored during appointment creation so that incoming articles are added freshly during appointment update.
+    
+    public static void removeArticlesFromWOLI(Id woId) {
+        System.debug(lprefix+'removeArticlesFromWOLI() ENTRY -  Work Order ID:'+woId);
+        Id apptRecordTypeId = Schema.SObjectType.WorkOrderLineItem.getRecordTypeInfosByDeveloperName().get('Appt3_Appointment_Articles').getRecordTypeId();
+        List<WorkOrderLineItem> deleteArticles = [SELECT Id FROM WorkOrderLineItem WHERE WorkOrderId =:woId AND RecordTypeId =:apptRecordTypeId]; 
+        if(deleteArticles.size() > 0) {
+            delete deleteArticles;
+        }
+        System.debug(lprefix+'removeArticlesFromWOLI() EXIT');
+    }
+    // Appt 3.0 Changes - End  
+  
 }

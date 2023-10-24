@@ -23,7 +23,11 @@ public class Appt_GetAvailabilityServiceModel extends Appt_BaseModel{
     public String backOfficeEndTime;
     public String backOfficeDuration;
     public Date appointmentDate;
-
+    
+    // Appt 3.0 Changes - Start On the fly flag 
+    public Boolean isVisionFeature;
+    // Appt 3.0 Changes - End
+    
 	public class Items {
 		public String requestType;
 		public String articleId;

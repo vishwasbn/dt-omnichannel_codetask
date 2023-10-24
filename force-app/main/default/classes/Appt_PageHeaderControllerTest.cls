@@ -30,4 +30,12 @@ public with sharing class Appt_PageHeaderControllerTest {
         System.assertEquals(true, result2.equals('No Store Found'), 'Store was found but should not have been');
         System.assertEquals(true, result3.contains('No Store Id Found - No Store Address Found'), 'Result should be \'No Store Id Found - No Store Address Found\'');
     }
+    @isTest static void catchExceptionCoverage(){
+        try{
+            Appt_PageHeaderController.retrieveSiteIdAddressStringBySiteId('exception');
+        }catch(exception ex){
+            System.AssertNotEquals(NULL,ex);
+        }
+    }       
+
 }

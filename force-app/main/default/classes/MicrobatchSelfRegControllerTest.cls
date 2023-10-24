@@ -1,5 +1,6 @@
+//SF-991 changes: Ritika: added without sharing in class 
 @IsTest
- public with sharing class MicrobatchSelfRegControllerTest {
+ public without sharing class MicrobatchSelfRegControllerTest {
       @IsTest(SeeAllData=true)
      public static void testMicrobatchSelfRegController() {
          MicrobatchSelfRegController controller = new MicrobatchSelfRegController();

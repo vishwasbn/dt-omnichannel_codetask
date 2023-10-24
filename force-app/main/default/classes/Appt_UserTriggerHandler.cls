@@ -234,6 +234,14 @@ public without sharing class Appt_UserTriggerHandler {
             }    
             
         } catch (Exception e) {
+            //Addedd for SO-41 :  Added logInstance 
+            Logger logInstance = Logger.getInstance();            
+            
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_UserTriggerHandler.class.getName(), errDetails); // SO-41 END 
             Database.rollback( sp );
             System.debug(lprefix + ' DML Exception: ' + e.getMessage());
         }

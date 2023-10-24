@@ -48,4 +48,40 @@ public class Appt_InventoryService extends Appt_BaseIntegrationService{
         System.debug(lprefix+'getInventory():EXIT - return inventoryModel:' + inventoryModel);
         return inventoryModel;
     }
+    
+    //Appt 3.0 - Consolidate CAR call to get the on hand invetory for all the items in the list 
+    public static Appt3_InventoriesModelResponse getInventoryDetails(Appt3_InventoriesModelRequest inventoryLineItems){ 
+        System.debug( lprefix + 'getInventoryDetails() ENTRY -  inventoryLineItems=' + inventoryLineItems);
+        Appt3_InventoriesModelResponse inventoryModel = new Appt3_InventoriesModelResponse();
+        String endUrl = BaseIntegrationUtil.getSettingValue( Appt_ConstantValues.INTEGRATION_SETTING_INVENTORIES_URL, Appt_ConstantValues.INTEGRATION_SETTING_SYSTEM_APPOINTMENT);
+        System.debug( lprefix + 'APPT Consolidated Inventories Integration endUrl: ' + endUrl);
+        Int_Message__c intMsg = new Int_Message__c(Type__c=Int_Values.TYPE_INVENTORIES, Status__c=Int_Values.STATUS_PENDING, Url__c=endUrl);
+        String body = '';
+        if (isTest) {
+            body = testPayload;
+        } else {
+            HttpRequest req = buildAppointmentHttpReq(endUrl);
+            req.setMethod('POST');
+            req.setHeader('Content-Type', 'application/json');
+            body = JSON.serialize(inventoryLineItems).replace('number_x', 'number');
+            req.setBody(body);
+            System.debug( lprefix + 'HttpRequest: '+req);
+            System.debug( lprefix + 'HttpRequest body: '+req.getBody());
+            System.debug( lprefix + 'HttpRequest end point: '+req.getEndpoint());
+            
+            body = BaseIntegrationUtil.getRequestBody(req, intMsg);
+            System.debug( lprefix + 'Response Body: '+body);
+            upsert intMsg;
+            
+            if (body == null || body == '') {
+                inventoryModel.setError(Appt_ConstantValues.RESPONSE_ERROR_STATUSCODE_SYSTEM_ERROR, 'Request for getting inventories in a consolidated call FAILED' + inventoryLineItems);
+                System.debug( lprefix + 'ERROR - inventoryModel: ' + inventoryModel);
+                return inventoryModel;
+            }
+        }
+
+        inventoryModel = Appt3_InventoriesModelResponse.parse(body);
+        inventoryModel.status = Appt_ConstantValues.RESPONSE_STATUS_SUCCESS;    
+        return inventoryModel;
+    }
 }

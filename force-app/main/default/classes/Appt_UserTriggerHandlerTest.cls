@@ -45,5 +45,6 @@ public with sharing class Appt_UserTriggerHandlerTest {
         System.debug('ShareRecord: ' +existingSharedStoresList);
         System.assert(existingSharedStoresList[0].UserOrGroupId == u.id, 'Checks for user id match');
         System.assert(existingSharedStoresList[0].ParentId == configTerritory[0].id, 'Checks for territory id match');
-    }
+        
+    }    
 }

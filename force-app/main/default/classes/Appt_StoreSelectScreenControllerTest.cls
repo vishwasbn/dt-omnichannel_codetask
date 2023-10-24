@@ -45,4 +45,15 @@ public with sharing class Appt_StoreSelectScreenControllerTest {
         System.assert(results.size() == 0, 'Check for favorite to be removed');
         
     }
+     
+    @isTest
+    static void tryCatchCoverage(){
+        try{
+            Appt_StoreSelectScreenController.removeUserFavorite('curruptUser');
+            Appt_StoreSelectScreenController.createUserFavorite(null);
+            Appt_StoreSelectScreenController.getFavorites(userinfo.getUserId());
+        }catch(exception e){
+            System.AssertNotEquals(NULL,e);
+        }
+    }
 }

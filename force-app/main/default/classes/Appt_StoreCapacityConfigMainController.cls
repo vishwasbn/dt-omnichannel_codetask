@@ -7,6 +7,9 @@
 */
 public with sharing class Appt_StoreCapacityConfigMainController {
 
+    // SO-41
+    public static String LPREFIX = 'Appt_StoreCapacityConfigMainController :';
+    public static Logger logInstance = Logger.getInstance();
     // Method used to get the list of stores that the user has access to
     @AuraEnabled
     public static string getStores(String searchString){
@@ -15,6 +18,12 @@ public with sharing class Appt_StoreCapacityConfigMainController {
             stores = getStoreData(searchString);
         } catch (Exception e) {
             System.debug(e.getMessage());
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_StoreCapacityConfigMainController.class.getName(), errDetails); // SO-41 END
         }
         
         String results = JSON.serialize(stores);
@@ -30,7 +39,14 @@ public with sharing class Appt_StoreCapacityConfigMainController {
             Appt_StoreConfigs newConfig = new Appt_StoreConfigs(serviceTerritory, selectedDay);
             storesConfig = newConfig;
         } catch (Exception e) {
-            System.debug(e.getMessage());   
+            System.debug(e.getMessage());
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_StoreCapacityConfigMainController.class.getName(), errDetails); // SO-41 END
+
             storesConfig.success = false;
             storesConfig.errorMessage = e.getMessage();     
         }
@@ -53,6 +69,13 @@ public with sharing class Appt_StoreCapacityConfigMainController {
             System.debug(storesConfig.ApptTimeSlotCapacities[0]);
         } catch (Exception e) {
             System.debug(e);
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_StoreCapacityConfigMainController.class.getName(), errDetails); // SO-41 END
+            
             updateResults.success = false;
             updateResults.errorMessage = e.getMessage();
         }

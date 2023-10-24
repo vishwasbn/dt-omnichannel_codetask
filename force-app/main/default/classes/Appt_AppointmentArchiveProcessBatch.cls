@@ -1,17 +1,30 @@
-/**
- * @author: Craig Petersen (craig.petersen@appsassociates.com)
- * @date: 6/14/22
- * @description:   This Batch queries all the ServiceAppointments and the associated Work Order data that have an archive status of "Processing".  The Batch builds Big Object archive records for each ServiceAppointment record and updates the ServiceAppointment records Archive status to "Completed" (unless there is a failure in which case there is a failure counter and when that count is reached the Archive Status is set to "Failure").  When all the records have been process the Big Objects (a-Master, b-workorder, c, d) are DMLed immediately.  Then the ServiceAppointment records are updated.
- */
+/******************************************************************************************************
+* Project : Appointment3.0
+*******************************************************************************************************
+* Business Owner : 
+* Purpose        : This Batch queries all the ServiceAppointments and the associated Work Order data that have an archive status of "Processing".  The Batch builds Big Object archive records for each ServiceAppointment record and updates the ServiceAppointment records Archive status to "Completed" (unless there is a failure in which case there is a failure counter and when that count is reached the Archive Status is set to "Failure").  When all the records have been process the Big Objects (a-Master, b-workorder, c, d) are DMLed immediately.  Then the ServiceAppointment records are updated.
+*******************************************************************************************************
+* Version   Date          Updated By            		 	Test        Target        Comments
+* 1.0		06/14/2022    craig.petersen@appsassociates.com
+* 2.0       12/27/2022    prakhar.shukla@capgemini.com   	92% 
+********************************************************************************************************/
 public class Appt_AppointmentArchiveProcessBatch  implements Database.Batchable<SObject>, Database.Stateful, Database.RaisesPlatformEvents
 {
     final static string LPREFIX = 'LOG Appt_AppointmentArchiveProcessBatch: ';
     public Integer maxRetryCount;
+    
+    //Addedd for SO-41
+    public static Logger logInstance = Logger.getInstance();
 
     public final String QUERY;
     public Appt_AppointmentArchiveProcessBatch() {
-
-        QUERY = 'SELECT Archive_Status__c, Archive_Try_Count__c, Status, Work_Order__c, Related_Appointment__c, id, Date_String__c, SchedStartTime, ' +
+		// Updated query with new Appt 3.0 fields
+        QUERY = 'SELECT id, Archive_Status__c, Archive_Try_Count__c, Status, Work_Order__c, Related_Appointment__c, Work_Order__r.Appt3_Sales_Order_Id__c, Work_Order__r.Account.Appt3_Fleet_Number__c, ' +
+                'Work_Order__r.Account.Appt3_Customer_Id__c, Work_Order__r.Account.Appt3_AAA_Membership__c, Work_Order__r.Account.Appt3_Military__c, Work_Order__r.Account.Appt3_Private_Label_Cardholder__c, ' +
+                'Work_Order__r.Vehicle__r.Appt3_Fitment_Lift_Id__c, Work_Order__r.Account.Appt3_Company_Name__c, Work_Order__r.Vehicle__r.Appt3_Front_Tire_Size__c, Work_Order__r.Vehicle__r.Appt3_Rear_Tire_Size__c, ' +
+                'Work_Order__r.Vehicle__r.Appt3_Front_Tire_Diameter__c, Work_Order__r.Vehicle__r.Appt3_Rear_Tire_Diameter__c, Work_Order__r.Vehicle__r.Appt3_Assembly_Type__c, ' +
+                'Work_Order__r.Vehicle__r.Appt3_Color__c, Work_Order__r.Vehicle__r.Appt3_Generic_Vehicle_Category__c, Work_Order__r.Vehicle__r.Appt3_Generic_Vehicle_SubCategory__c, ' +
+                'Work_Order__r.Vehicle__r.Appt3_Customer_Vehicle_Id__c, Work_Order__r.Vehicle__r.Appt3_Type_Of_Vehicle__c, Date_String__c, SchedStartTime, ' +
                 'Consult_Start_Time__c, Consult_End_Time__c, Back_Office_Start_Time__c, Back_Office_End_Time__c, Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c, ' +
                 'Appt_Appointment_Last_Modified_By__c, Appt_Appointment_Last_Modified_Date__c, Appointment_Rescheduled__c, Original_Date_String__c, Original_End_Time_String__c, Original_Start_Time_String__c, ' +
                 'Work_Order__r.Account.Appt_Customer_Type__c, Work_Order__r.AccountId, Work_Order__r.Account.POS_Customer_Id__c, Work_Order__r.Account.Hybris_Customer_Id__c, ' +
@@ -24,7 +37,6 @@ public class Appt_AppointmentArchiveProcessBatch  implements Database.Batchable<
                 'WHERE Archive_Status__c = \'' + Appt_ConstantValues.ARCHIVE_STATUS_PROCESSING + '\'';
 
         System.debug('QUERY: ' + QUERY);
-
         List<Appt_Appointment_Setting__mdt> settings = Appt_SettingUtil.getApptSettings();
         maxRetryCount = Integer.valueOf(Appt_SettingUtil.getSettingValue( Appt_ConstantValues.ARCHIVE_MAX_ATTEMPTS, settings));
     } // End of Appt_AppointmentArchiveProcessBatch() - constructor
@@ -41,10 +53,19 @@ public class Appt_AppointmentArchiveProcessBatch  implements Database.Batchable<
     public void execute(Database.BatchableContext bc, List<ServiceAppointment> scope)
     {
         System.debug( LPREFIX + 'start execute');
+        // Appt 3.0 - Appt3-140 change -start
+        List<id> workOrderId=new List<id>();        
+        //List of work order ids from service appointments above 
+        for(ServiceAppointment s: scope){
+            workOrderId.add(s.Work_Order__c);
+        }
+        
+        //Creating Map of work order id and related WorkOrderLineItems 
+        Map<Id, WorkOrder> woMap = new Map<Id, WorkOrder>([SELECT Id, (SELECT Id, WOM_Article_Number__c, Appt3_Article_Type__c, WOM_Article_Description__c, WOM_Article_Quantity__c,WOM_ArticleSize__c,Appt3_Treadwell__c FROM WorkOrderLineItems WHERE RecordType.DeveloperName ='Appt3_Appointment_Articles') FROM WorkOrder WHERE Id in:workOrderId]);
+        // Appt 3.0 - Appt3-140 change -end
 
         // 0. Create Lists
-        List<ServiceAppointment> saToUpdateList = new List<ServiceAppointment>(); // update Archive Status, and count
-        
+        List<ServiceAppointment> saToUpdateList = new List<ServiceAppointment>(); // update Archive Status, and count        
         List<Appt_Archive_a__b> masterArchiveList = new List<Appt_Archive_a__b>(); // primary archive object with limited Indexes
         List<Appt_Archive_b__b> woArchiveList = new List<Appt_Archive_b__b>(); // copy of master object with work order index
         List<Appt_Archive_c__b> dateArchiveList = new List<Appt_Archive_c__b>(); // copy of master object with date index
@@ -65,9 +86,8 @@ public class Appt_AppointmentArchiveProcessBatch  implements Database.Batchable<
             else 
             {
                 try {
+                    buildArchiveRecords(sa, woMap.get(sa.Work_Order__c).WorkOrderLineItems, masterArchiveList, woArchiveList, dateArchiveList, logArchiveList);
 
-                    buildArchiveRecords(sa, masterArchiveList, woArchiveList, dateArchiveList, logArchiveList);
-                    
                     // update try count and status for all successfully built items
                     // ---TODO: Set try count and complete later if possible---
                     saToUpdateList.add(new ServiceAppointment(
@@ -77,6 +97,14 @@ public class Appt_AppointmentArchiveProcessBatch  implements Database.Batchable<
                     ));
 
                 } catch (exception e) {
+                    //Added loging message for SO-41
+                    String errDetails = 'Cause: '+ e.getCause() +'\n';
+            		errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                    errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            		errDetails = errDetails + 'Message: '+ e.getMessage();
+           			logInstance.Log(LPREFIX, Appt_AppointmentArchiveProcessBatch.class.getName(), errDetails);
+                    
+                    
                     // update try count for all failed records
                     System.debug(LPREFIX + ' error processing big object records for sa: ' + sa.Id + '; ' + e.getMessage());
                     System.debug('Cause: ' + e.getCause());    
@@ -120,6 +148,12 @@ public class Appt_AppointmentArchiveProcessBatch  implements Database.Batchable<
             try {
                 update saToUpdateList;
             } catch (exception e) {
+                //Added loging message for SO-41
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_AppointmentArchiveProcessBatch.class.getName(), errDetails);
                 System.debug('unable to update maxAttemptSA records: ' + e.getMessage());
             }
         }
@@ -139,13 +173,13 @@ public class Appt_AppointmentArchiveProcessBatch  implements Database.Batchable<
         System.debug( LPREFIX + 'stop execute');
     } // End of execute()
 
-
-    private static void buildArchiveRecords(ServiceAppointment sa, List<Appt_Archive_a__b> masterArchiveList, List<Appt_Archive_b__b> woArchiveList, List<Appt_Archive_c__b> dateArchiveList, List<Appt_Archive_d__b> logArchiveList) 
+    // Appt 3.0 - Appt3-140 change - we have added a new argument 'List<WorkOrderLineItem> wo' in this method to include new fields from Work Order Line Item object in this archive process
+	// this method makes new records for big objects
+    private static void buildArchiveRecords(ServiceAppointment sa, List<WorkOrderLineItem> wo, List<Appt_Archive_a__b> masterArchiveList, List<Appt_Archive_b__b> woArchiveList, List<Appt_Archive_c__b> dateArchiveList, List<Appt_Archive_d__b> logArchiveList) 
     {
-
         // Convert SA records to Master Big O
-        Appt_ArchivePayloadModel saArchiveModel = new Appt_ArchivePayloadModel(sa);
-        String jsonModel = JSON.serialize(saArchiveModel);
+       Appt_ArchivePayloadModel saArchiveModel = new Appt_ArchivePayloadModel(sa,wo);      
+       String jsonModel = JSON.serialize(saArchiveModel);
 
         // create master archive
         masterArchiveList.add(new Appt_Archive_a__b(
@@ -154,7 +188,7 @@ public class Appt_AppointmentArchiveProcessBatch  implements Database.Batchable<
             , Id__c = sa.Id
             , Payload__c = jsonModel
             , SchedStartTime__c = sa.SchedStartTime
-            , Site_Id__c = saArchiveModel.siteId
+           , Site_Id__c = saArchiveModel.siteId
             , Status__c = sa.Status
             , Work_Order__c = sa.Work_Order__c
         ));

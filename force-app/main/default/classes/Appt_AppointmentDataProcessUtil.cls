@@ -8,7 +8,7 @@ public without sharing class Appt_AppointmentDataProcessUtil {
     // *********************** Start Vehicle Process Methods ***********************
     // Reusable method that can process vehicle data
     public static Appt_CreateAppointmentServiceModel processVehicleData(Appt_CreateAppointmentServiceModel serviceModel){
-        System.debug(lprefix +' Start - Appt_CreateAppointmentServiceModel');
+        System.debug(lprefix +' Start - Appt_CreateAppointmentServiceModel'+serviceModel);
         processRecord = serviceModel;
         runVehicleProccess();
         return processRecord;
@@ -16,7 +16,7 @@ public without sharing class Appt_AppointmentDataProcessUtil {
 
     // Overloaded method to process the Appt_UpdateAppointmentServiceModel
     public static Appt_UpdateAppointmentServiceModel processVehicleData(Appt_UpdateAppointmentServiceModel serviceModel){        
-        System.debug(lprefix +' Start - Appt_UpdateAppointmentServiceModel');
+        System.debug(lprefix +' Start - Appt_UpdateAppointmentServiceModel'+serviceModel);
         processRecord = (Appt_CreateAppointmentServiceModel) serviceModel;                
         runVehicleProccess();
         serviceModel.assetId = processRecord.assetId;
@@ -34,7 +34,16 @@ public without sharing class Appt_AppointmentDataProcessUtil {
             System.debug(lprefix +' -- Some Fields found to proccess');
 
             // get existing vehicle info from salesforce
-            Asset existingVehicle = checkForExistingVehicle(processRecord.hybrisCustomerVehicleId, processRecord.posCustomerVehicleId, processRecord.accountId);
+            // Appt 3.0 changes - Lookup for vehicle based on MDM vehicle Id if calling applications pass it, otherwise lookup based on legacy fields.
+			Asset existingVehicle;
+            if (String.isNotBlank(processRecord.customerVehicleId)) {
+                existingVehicle = checkForExistingVehicleAppt3(processRecord.customerVehicleId, processRecord.accountId);
+            }
+            
+            if (existingVehicle == null) {
+                existingVehicle = checkForExistingVehicle(processRecord.hybrisCustomerVehicleId, processRecord.posCustomerVehicleId, processRecord.accountId);
+            }
+            // Appt 3.0 changes - End			
 
             // check for field updates
             if(existingVehicle != null){
@@ -86,13 +95,14 @@ public without sharing class Appt_AppointmentDataProcessUtil {
     }
 
     public static Asset buildVehicle(){
-        System.debug(lprefix +' -- build vehicle fields ');        
+        System.debug(lprefix +' -- build vehicle fields ');
+		System.debug(lprefix +' -- before build vehicle fields '+processRecord);        
 
         Id vehRecordTypeId =  Schema.SObjectType.Asset.getRecordTypeInfosByDeveloperName().get('Vehicle').getRecordTypeId();
         if(processRecord.trimId != null || processRecord.vehicleId != null){
             getReferenceInfo();
         }
-        
+        System.debug(lprefix +' -- after build vehicle fields '+processRecord);
         // build vehicle name with a default of Appointment Vehicle
         String vehicleName = 'Appointment Vehicle';
         if(processRecord.year != null && processRecord.make != null && (processRecord.model != null && processRecord.model != '')) {
@@ -105,12 +115,15 @@ public without sharing class Appt_AppointmentDataProcessUtil {
 
         Asset vehicle = new Asset(Name = vehicleName);
         vehicle.RecordTypeId = vehRecordTypeId;
-
+        // Appts 3.0 - In an update scenario where if a asset record is based on MDM vehicle Id , dont update the legacy fields.
+		if (String.isBlank(processRecord.customerVehicleId) || String.isBlank(processRecord.assetId)) {
+            if(processRecord.posCustomerVehicleId != null){vehicle.POS_Customer_Vehicle_Id__c = processRecord.posCustomerVehicleId;}
+            if(processRecord.hybrisCustomerVehicleId != null){vehicle.Hybris_Customer_Vehicle_Id__c = processRecord.hybrisCustomerVehicleId;}
+        }
+		// Appts 3.0 - End
         // check for individual field updates and add them to the vehicle if they have changed
         if(processRecord.accountId != null){vehicle.accountId = processRecord.accountId;}
         if(processRecord.contactId != null){vehicle.contactId = processRecord.contactId;}
-        if(processRecord.posCustomerVehicleId != null){vehicle.POS_Customer_Vehicle_Id__c = processRecord.posCustomerVehicleId;}
-        if(processRecord.hybrisCustomerVehicleId != null){vehicle.Hybris_Customer_Vehicle_Id__c = processRecord.hybrisCustomerVehicleId;}
         if(processRecord.year != null){vehicle.Vehicle_Manufacture_Year__c = processRecord.year;}
         if(processRecord.make != null){vehicle.Vehicle_Make__c = processRecord.make;}
         if(processRecord.model != null){vehicle.Vehicle_Model__c = processRecord.model;}
@@ -119,6 +132,24 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         if(processRecord.trimId != null){vehicle.Trim_Id__c = processRecord.trimId;}
         if(processRecord.vehicleClass != null){vehicle.Vehicle_Class__c = processRecord.vehicleClass;}
         if(processRecord.trimName != null){vehicle.Trim_Name__c = processRecord.trimName;}
+        //Appt 3.0 Changes Start - Fields for Hybris -User Story# APPT3-71/78
+        if(!String.isBlank(processRecord.customerVehicleId)){vehicle.Appt3_Customer_Vehicle_Id__c = processRecord.customerVehicleId.trim();}
+        if (processRecord.isVisionFeature != null && processRecord.isVisionFeature) {
+            vehicle.Appt3_Fitment_Lift_Id__c = processRecord.fitmentLiftId;
+            vehicle.Appt3_Front_Tire_Size__c = processRecord.frontTireSize;
+            vehicle.Appt3_Rear_Tire_Size__c = processRecord.rearTireSize;
+            vehicle.Appt3_Front_Tire_Diameter__c = processRecord.frontTireDiameter;
+            vehicle.Appt3_Rear_Tire_Diameter__c = processRecord.rearTireDiameter;
+            vehicle.Appt3_Assembly_Type__c = processRecord.assemblyType;
+            vehicle.Appt3_Color__c = processRecord.color;
+            vehicle.Appt3_Generic_Vehicle_Category__c = processRecord.genericVehicleCategory;
+            vehicle.Appt3_Generic_Vehicle_SubCategory__c = processRecord.genericVehicleSubCategory;
+            vehicle.Vehicle_License_Plate__c = processRecord.licensePlate;
+            vehicle.Appt3_Type_Of_Vehicle__c = processRecord.vehicleType;
+            vehicle.Appt3_Vehicle_Image_URL__c = processRecord.imageURL;
+          
+        }    
+        // Appt 3.0 changes - End		
 
         return vehicle;
     }
@@ -195,16 +226,16 @@ public without sharing class Appt_AppointmentDataProcessUtil {
             posVehicleIdString = ID_STRING_NOTNULL_NOTUSED;
         }
 
-
+		//Appt 3.0 - Added Appt 3.0 fields to the select clause
         Id vehRecordTypeId =  Schema.SObjectType.Asset.getRecordTypeInfosByDeveloperName().get('Vehicle').getRecordTypeId();
         List<Asset> vehs = [SELECT  Id, 
-                                    Assembly_Id__c, 
-                                    Vehicle_Manufacture_Year__c, 
-                                    Vehicle_Make__c, 
+                                    Assembly_Id__c, Appt3_Fitment_Lift_Id__c, Appt3_Front_Tire_Size__c, Appt3_Rear_Tire_Size__c,
+                                    Vehicle_Manufacture_Year__c, Appt3_Front_Tire_Diameter__c, Appt3_Rear_Tire_Diameter__c, Appt3_Assembly_Type__c, Appt3_Customer_Vehicle_Id__c,
+                                    Vehicle_Make__c, Appt3_Color__c, Appt3_Generic_Vehicle_SubCategory__c, Appt3_Generic_Vehicle_Category__c,
                                     Vehicle_Model__c, 
                                     Trim_Id__c, 
                                     Vehicle_Id__c, 
-                                    Vehicle_Class__c 
+                                    Vehicle_Class__c
                             FROM Asset 
                             WHERE RecordTypeId = :vehRecordTypeId AND (POS_Customer_Vehicle_Id__c = :posVehicleIdString
                             OR Hybris_Customer_Vehicle_Id__c = :hybrisVehicleIdString) 
@@ -231,7 +262,19 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         if(processRecord.assemblyId != null){return true;}
         if(processRecord.vehicleId != null){return true;}
         if(processRecord.trimId != null){return true;}
-        if(processRecord.vehicleClass != null){return true;}     
+        if(processRecord.vehicleClass != null){return true;} 
+        // Appt 3.0 Changes - validations added for Vision fields 
+        if(processRecord.customerVehicleId != null){return true;}
+        if(processRecord.fitmentLiftId != null){return true;}
+        if(processRecord.frontTireSize != null){return true;}
+        if(processRecord.rearTireSize != null){return true;}
+        if(processRecord.frontTireDiameter != null){return true;}
+        if(processRecord.assemblyType != null){return true;}
+        if(processRecord.color != null){return true;}
+        if(processRecord.genericVehicleCategory != null){return true;}
+        if(processRecord.genericVehicleSubCategory!= null){return true;}
+        if(processRecord.licensePlate != null){return true;}        
+        // Appt 3.0 Changes - End 
         System.debug(lprefix +' End - check for field Changes False');
         return false;
     }
@@ -244,9 +287,35 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         if(processRecord.make != existingVehicle.Vehicle_Make__c){return true;}
         if(processRecord.model != existingVehicle.Vehicle_Model__c){return true;}
         if(processRecord.assemblyId != existingVehicle.Assembly_Id__c){return true;}
-        if(processRecord.vehicleId != existingVehicle.Vehicle_Id__c){return true;}
         if(processRecord.trimId != existingVehicle.Trim_Id__c){return true;}
-        if(processRecord.vehicleClass != existingVehicle.Vehicle_Class__c){return true;}  
+
+        //Appt 3.0 Changes - Added this for User Story# APPT3-408  
+        if(processRecord.isVisionFeature == null || !processRecord.isVisionFeature) {
+            if(processRecord.vehicleId != existingVehicle.Vehicle_Id__c){return true;}
+        if(processRecord.vehicleClass != existingVehicle.Vehicle_Class__c){return true;}
+        }
+        //Appt 3.0 Changes - Added this for User Story# APPT3-187  
+        if(processRecord.customerVehicleId != existingVehicle.Appt3_Customer_Vehicle_Id__c){return true;}  
+        //Appt 3.0 Changes End
+        //Appt 3.0 Changes - Vision fields added for validation
+        if(processRecord.isVisionFeature != null && processRecord.isVisionFeature) {
+        	if(processRecord.fitmentLiftId != existingVehicle.Appt3_Fitment_Lift_Id__c){return true;}
+            if(processRecord.frontTireSize != existingVehicle.Appt3_Front_Tire_Size__c){return true;}
+            if(processRecord.rearTireSize != existingVehicle.Appt3_Rear_Tire_Size__c){return true;}
+            if(processRecord.frontTireDiameter != existingVehicle.Appt3_Front_Tire_Diameter__c){return true;}
+            if(processRecord.rearTireDiameter != existingVehicle.Appt3_Rear_Tire_Diameter__c){return true;} // added just now
+            if(processRecord.assemblyType != existingVehicle.Appt3_Assembly_Type__c){return true;}
+            if(processRecord.color != existingVehicle.Appt3_Color__c){return true;}
+            if(processRecord.genericVehicleCategory != existingVehicle.Appt3_Generic_Vehicle_Category__c){return true;}
+            if(processRecord.genericVehicleSubCategory != existingVehicle.Appt3_Generic_Vehicle_SubCategory__c){return true;}
+            if(processRecord.licensePlate != existingVehicle.Vehicle_License_Plate__c){return true;}
+            //Appt 3.0 Changes Start Added for Alert Center -  -User Story# APPT3-187  
+            if(processRecord.hybrisCustomerVehicleId!= existingVehicle.Hybris_Customer_Vehicle_Id__c){return true;}
+            if(processRecord.posCustomerVehicleId!= existingVehicle.POS_Customer_Vehicle_Id__c){return true;}
+            //Appt 3.0 Changes Start Added for Alert Center -  -User Story# APPT3-187  
+            
+        }
+        //Appt 3.0 Changes - End
         System.debug(lprefix +' End - check for existing  field Changes False');
         return false;
     }
@@ -288,10 +357,21 @@ public without sharing class Appt_AppointmentDataProcessUtil {
             System.debug(lprefix +' -- Some Account Fields found to proccess');
 
             // get existing Account info from salesforce
-            Account existingAccount = checkForExistingAccount(processRecord.hybrisCustomerId, processRecord.posCustomerId, processRecord.customerGuid, processRecord.accountId);
+            // Appt 3.0 changes - Lookup for account based on MDM customer Id if calling applications pass it, otherwise lookup will be based on legacy fields.
+            Account existingAccount;
+            if (String.isNotBlank(processRecord.customerId)) {
+                existingAccount = checkForExistingAccountAppt3(processRecord.customerId, processRecord.accountId); 
+            }
+            
+            
+            if (existingAccount == null) {
+                existingAccount = checkForExistingAccount(processRecord.hybrisCustomerId, processRecord.posCustomerId, processRecord.customerGuid, processRecord.accountId);
+            }
+                        
+            // Appt 3.0 changes - End
 
             // check for field updates
-            if(existingAccount != null){
+            if(existingAccount != null){ 
 
                 // set found Account to the processed Record for future updates to have the correct Account id
                 processRecord.accountId = existingAccount.Id;
@@ -312,7 +392,7 @@ public without sharing class Appt_AppointmentDataProcessUtil {
                 // This check for an existing Account match
                 if(processRecord.accountId != null){
                     updateAccount();                
-                }else{              
+                }else {            
                     createAccount();
                 }
             }            
@@ -350,10 +430,13 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         Account acnt = new Account(RecordTypeId = personAccountRecordTypeId);
         
         // check for individual field updates and add them to the Account if they are not null
-        if (processRecord.posCustomerId != null) acnt.POS_Customer_Id__c = processRecord.posCustomerId.trim();
-        if (processRecord.hybrisCustomerId != null) acnt.Hybris_Customer_Id__c = processRecord.hybrisCustomerId.trim();
-        if (processRecord.customerGuid != null) acnt.GUID__c = processRecord.customerGuid.trim();
-
+        // Appts 3.0 - In an update scenario where an account is identified based on MDM Customer ID, dont update the legacy fields that identify the customer.
+        if (String.isBlank(processRecord.accountId ) || String.isBlank(processRecord.customerId )) {
+            if (processRecord.posCustomerId != null) acnt.POS_Customer_Id__c = processRecord.posCustomerId.trim();
+            if (processRecord.hybrisCustomerId != null) acnt.Hybris_Customer_Id__c = processRecord.hybrisCustomerId.trim();
+            if (processRecord.customerGuid != null) acnt.GUID__c = processRecord.customerGuid.trim();
+        }
+        // Appts 3.0 - End
         if (processRecord.firstName != null) acnt.FirstName = processRecord.firstName;
         if (processRecord.lastName != null) acnt.LastName = processRecord.lastName;
         if (processRecord.emailAddress != null) {
@@ -385,6 +468,44 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         if (processRecord.customerType != null) acnt.Appt_Customer_Type__c = processRecord.customerType;
         if (processRecord.emailAddressOptIn != null) acnt.Appt_Email_Opt_In__pc = processRecord.emailAddressOptIn;
         if (processRecord.textOptIn != null) acnt.Appt_SMS_Opt_In__pc = processRecord.textOptIn;
+        // Appt3.0 Changes Start - Fields for Hybris User Story# APPT3-71/78       
+        if (processRecord.companyName != null) {acnt.Appt3_Company_Name__c = processRecord.companyName;}
+        if (processRecord.fleetNumber != null) {acnt.Appt3_Fleet_Number__c = processRecord.fleetNumber;}
+        if (processRecord.customerId != null) {acnt.Appt3_Customer_Id__c = processRecord.customerId.trim();}    
+        // Appt3.0 Changes Start - Fields for Hybris User Story# APPT3-71/78
+        // Appt 3.0 changes - Mapping added for new vision payload fields
+        if (processRecord.isVisionFeature != null && processRecord.isVisionFeature) {
+            if(!String.isBlank(processRecord.customerId)){acnt.Appt3_Customer_Id__c = processRecord.customerId.trim();}
+            if (processRecord.middleInitial != null) acnt.MiddleName = processRecord.middleInitial;
+            if (processRecord.suffix != null) acnt.Suffix = processRecord.suffix;
+            if (processRecord.showMyAccount != null) {acnt.Appt3_My_Account__c = processRecord.showMyAccount;}
+            if (processRecord.showAAAMember != null) {acnt.Appt3_AAA_Membership__c = processRecord.showAAAMember;}
+            if (processRecord.showDTCC != null) {acnt.Appt3_Private_Label_Cardholder__c= processRecord.showDTCC;}
+            if (processRecord.showMilitary != null) {acnt.Appt3_Military__c = processRecord.showMilitary;}
+            if (processRecord.companyName != null) {acnt.Appt3_Company_Name__c = processRecord.companyName;}
+            if (processRecord.companyName2 != null) {acnt.Appt3_Company_Name2__c = processRecord.companyName2;}
+            if (processRecord.fleetNumber != null) {acnt.Appt3_Fleet_Number__c = processRecord.fleetNumber;}     
+                        //Vision payload always sends 2 character country code, so fetch country based on state. Fallback is 'United States'.
+            String country = Appt_AppointmentUtil.getCountryByState(processRecord.state.trim());
+            system.debug('country value is->'+country);
+            acnt.put('ShippingCountry', (country != null ? country : 'United States')); 
+            //Code added for B2B Customers - To poulate Company Name as Last Name
+            if (processRecord.customerType == Appt_ConstantValues.CUSTOMER_TYPE_FLEET )
+            {
+                if ((!String.isBlank(processRecord.companyName))&& (!String.isBlank(processRecord.companyName2)))
+                {
+                    acnt.LastName = processRecord.companyName2;                 
+                    acnt.FirstName = processRecord.companyName;
+                } 
+                else if (!String.isBlank(processRecord.companyName)) {
+                    acnt.LastName = processRecord.companyName;        
+                }  
+                else if (!String.isBlank(processRecord.companyName2)) {
+                    acnt.LastName = processRecord.companyName2;        
+                }    
+            }
+        }    
+        // Appt 3.0 changes - End        
 
         System.debug(lprefix +' -- buildAccount() EXIT, return account RecordTypeId='+acnt.RecordTypeId);  
         return acnt;
@@ -403,9 +524,9 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         }
 
         Account returnAccount;
-
-        String soql = 'SELECT Id, PersonContactId, IsPersonAccount,  RecordTypeId, POS_Customer_Id__c, Hybris_Customer_Id__c, GUID__c, Appt_Customer_Type__c,  FirstName, LastName, Email__c, Appt_Email_Opt_In__pc, ' +
-                            'PersonEmail, PersonMobilePhone, Phone, PersonHomePhone, ShippingStreet, ShippingCity, ShippingState, ShippingPostalCode, ShippingCountry, Appt_SMS_Opt_In__pc FROM Account WHERE ';
+		//Appt 3.0 - Added Appt3.0 fields to the select clause
+        String soql = 'SELECT Id, PersonContactId, IsPersonAccount,  RecordTypeId, POS_Customer_Id__c, Hybris_Customer_Id__c, GUID__c, Appt_Customer_Type__c,  FirstName, LastName, Email__c, Appt_Email_Opt_In__pc, Appt3_Customer_Id__c, Appt3_Military__c, Appt3_AAA_Membership__c, ' +
+                            'PersonEmail, PersonMobilePhone, Phone, PersonHomePhone, ShippingStreet, ShippingCity, ShippingState, ShippingPostalCode, ShippingCountry, Appt_SMS_Opt_In__pc, Appt3_Private_Label_Cardholder__c, Appt3_My_Account__c FROM Account WHERE ';
         String whereClause = buildAccountWhereClause(processRecord);
         System.debug(lprefix+'     getAccount SOQL = '+soql + whereClause);
 
@@ -481,7 +602,7 @@ public without sharing class Appt_AppointmentDataProcessUtil {
 
         if (!String.isBlank(apptModel.posCustomerId)) {
             if (!String.isEmpty(whereClause)) whereClause += ' OR ';
-            whereClause += 'POS_Customer_Id__c = \'' + apptModel.posCustomerId + '\'';
+                whereClause += 'POS_Customer_Id__c = \'' + apptModel.posCustomerId + '\'';
             posUsed = true;
         }
 
@@ -530,6 +651,17 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         if(processRecord.customerType != null){return true;}
         if(processRecord.emailAddressOptIn != null){return true;}
         if(processRecord.textOptIn != null){return true;}
+        
+        // Appt 3.0 Changes - validation added for New customer fields in the payload
+        if(processRecord.customerId != null) {return true;} 
+        if(processRecord.fleetNumber != null) {return true;} 
+        if(processRecord.companyName != null) {return true;} 
+        if(processRecord.showMilitary != null) {return true;}
+        if(processRecord.showAAAMember != null) {return true;}
+        if(processRecord.showDTCC != null) {return true;}            
+        if(processRecord.showMyAccount != null) {return true;}
+        
+        // Appt 3.0 Changes End
 
         System.debug(lprefix +' checkAccountFields() EXIT - returning FALSE');
         return false;
@@ -556,6 +688,15 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         if(processRecord.customerType != existingAccount.Appt_Customer_Type__c){return true;}
         if(processRecord.emailAddressOptIn != existingAccount.Appt_Email_Opt_In__pc){return true;}
         if(processRecord.textOptIn != existingAccount.Appt_SMS_Opt_In__pc){return true;}
+        // Appt 3.0 changes - validation added for New customer fields in the payload
+        if(processRecord.isVisionFeature != null && processRecord.isVisionFeature) {
+        	if(processRecord.customerId != existingAccount.Appt3_Customer_Id__c){return true;}
+            if(processRecord.showMilitary != existingAccount.Appt3_Military__c) {return true;}
+            if(processRecord.showAAAMember != existingAccount.Appt3_AAA_Membership__c) {return true;}
+            if(processRecord.showDTCC != existingAccount.Appt3_Private_Label_Cardholder__c) {return true;} 
+            if(processRecord.showMyAccount != existingAccount.Appt3_My_Account__c) {return true;}
+        }
+        // Appt 3.0 changes - End
         System.debug(lprefix +' checkForExistingAccountChanges() EXIT - returning FALSE');
         return false;
     }
@@ -568,4 +709,74 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         System.debug(lprefix +' getPersonContactId() EXIT - return PersonContactId='+acnt.PersonContactId);
         return acnt.PersonContactId;
     }
+
+    // Appt 3.0 - Check for an existing Account in salesforce based on MDM Customer ID
+    public static Account checkForExistingAccountAppt3(String customerId, Id accountId){
+        System.debug(lprefix+'checkForExistingAccountAppt3() ENTRY - accountId='+ accountId + ', Customer ID='+customerId);
+        Id personAccountRecordTypeId =  Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('PersonAccount').getRecordTypeId(); 
+        Account returnAccount;
+        String whereClause = '';
+        //-- validate that at least one ID field is populated, if not return null
+        if (String.isBlank(customerId) && String.isBlank(accountId)) {
+            System.debug(lprefix+'checkForExistingAccountAppt3() EXIT - no IDs populated, including accountId, returning null');
+            return null;
+        }
+        
+
+        String soql = 'SELECT Id, PersonContactId, IsPersonAccount,  RecordTypeId, POS_Customer_Id__c, Appt3_Customer_Id__c, Appt3_Military__c, Appt3_AAA_Membership__c, '+
+            		  'Hybris_Customer_Id__c, GUID__c, Appt_Customer_Type__c,  FirstName, LastName, Email__c, Appt_Email_Opt_In__pc, Appt3_Private_Label_Cardholder__c, ' +
+                      'PersonEmail, PersonMobilePhone, Phone, PersonHomePhone, ShippingStreet, ShippingCity, ShippingState, ShippingPostalCode, Appt3_My_Account__c, '+
+            		  'ShippingCountry, Appt_SMS_Opt_In__pc,ECC_Account_Number__c,Fleet_AR_App_Status__c FROM Account WHERE ';
+        
+        if(!String.isBlank(accountId)){
+            System.debug('Found matching account id: ' +accountId);
+            whereClause = 'Id=' +'\'' +accountId +'\'';
+        }
+        else if (!String.isBlank(customerId)) {
+            whereClause = 'Appt3_Customer_Id__c = \'' + customerId + '\'     AND RecordTypeId = \''+ personAccountRecordTypeId +'\'' ;
+        }
+        
+        System.debug(lprefix+'     getAccount SOQL = '+soql + whereClause);
+
+        List<Account> custAccounts = (List<Account>)Database.query(soql + whereClause);
+        System.debug(lprefix+'     AFTER SOQL Retrieved Accounts:'+custAccounts);
+        
+        if (custAccounts != null && custAccounts.size() == 1) {
+            System.debug(lprefix+'     AFTER SOQL Retrieved NUMBER of Accounts='+custAccounts.size());
+                returnAccount = custAccounts.get(0);
+        }
+
+        System.debug(lprefix+'checkForExistingAccountAppt3() EXIT - returnAccount:'+returnAccount);
+        return returnAccount;
+    }
+
+    // Appt 3.0 - Check for an existing vehicle in salesforce based on MDM vehicle Id
+    public static Asset checkForExistingVehicleAppt3(String customerVehicleId, Id accountId){
+        Asset returnVehicle;
+        String customerVehicleIdString;
+
+        //-- If not null, make sure no trailing spaces on ID fields. IF NULL, set to unused ID string since null in where clause causes perf issues
+        if (customerVehicleId != null) {
+            customerVehicleIdString = customerVehicleId.trim();
+        } else {
+            customerVehicleIdString = ID_STRING_NOTNULL_NOTUSED;
+        }
+
+        Id vehRecordTypeId =  Schema.SObjectType.Asset.getRecordTypeInfosByDeveloperName().get('Vehicle').getRecordTypeId();
+        List<Asset> vehs = [SELECT  Id, Assembly_Id__c, Appt3_Fitment_Lift_Id__c, Appt3_Front_Tire_Size__c, Appt3_Rear_Tire_Size__c,
+                            Vehicle_Manufacture_Year__c, Appt3_Front_Tire_Diameter__c, Appt3_Rear_Tire_Diameter__c, Appt3_Assembly_Type__c, Appt3_Customer_Vehicle_Id__c,
+                            Vehicle_Make__c, Appt3_Color__c, Appt3_Generic_Vehicle_SubCategory__c, Appt3_Generic_Vehicle_Category__c,
+                            Vehicle_Model__c, Vehicle_License_Plate__c, Trim_Id__c, Vehicle_Id__c,Vehicle_Class__c,Hybris_Customer_Vehicle_Id__c,POS_Customer_Vehicle_Id__c
+                            FROM Asset 
+                            WHERE RecordTypeId = :vehRecordTypeId AND Appt3_Customer_Vehicle_Id__c = :customerVehicleIdString
+                            AND AccountId = :accountId];
+
+        System.debug(lprefix+'     using Customer_Vehicle_Id='+customerVehicleIdString+' Retrieved Vehicle Assets:'+vehs);
+        
+        if (vehs != null && vehs.size() > 0) {
+            returnVehicle = vehs.get(0);
+        }
+
+        return returnVehicle;
+    }    
 }

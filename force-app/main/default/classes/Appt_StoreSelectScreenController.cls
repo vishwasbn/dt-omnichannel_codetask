@@ -1,6 +1,8 @@
 public without sharing class Appt_StoreSelectScreenController {
 
-
+    public static string LPREFIX = 'Appt_StoreSelectScreenController :';
+	//Addedd for SO-41
+    public static Logger logInstance = Logger.getInstance();
     // method to create a new user favorite 
     @AuraEnabled
     public static Boolean createUserFavorite(string serviceTerritoryId) {
@@ -28,6 +30,12 @@ public without sharing class Appt_StoreSelectScreenController {
                 tryCount = 20;
             } catch (Exception e) {               
                 System.debug('try count: ' + tryCount + ' Exception' + e.getMessage());
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ e.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ e.getMessage();
+                logInstance.Log(LPREFIX, Appt_StoreSelectScreenController.class.getName(), errDetails); // SO-41 END
             }
         }              
         
@@ -63,6 +71,12 @@ public without sharing class Appt_StoreSelectScreenController {
                     tryCount = 20;
                 } catch (Exception e) {               
                     System.debug('try count: ' + tryCount + ' Exception' + e.getMessage());
+                    // SO-41 START:  Added logInstance 
+                    String errDetails = 'Cause: '+ e.getCause() +'\n';
+                    errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+                    errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+                    errDetails = errDetails + 'Message: '+ e.getMessage();
+                    logInstance.Log(LPREFIX, Appt_StoreSelectScreenController.class.getName(), errDetails); // SO-41 END
                 }
             }  
         }       

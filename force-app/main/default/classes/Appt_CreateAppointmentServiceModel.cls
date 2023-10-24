@@ -84,6 +84,36 @@ public virtual class Appt_CreateAppointmentServiceModel extends Appt_BaseModel{
     public Date emailConfirmationSent;
     public Boolean checkAvailabilityFirst;
     
+    // Appt 3.0 Changes - New Variables added for Account,WorkOrder,Asset as part of Appt 3.0 Project
+    public String companyName;
+    public String companyName2;
+    public String middleInitial;
+    public String suffix;
+    public String fleetNumber;
+    public Boolean showMyAccount;
+    public Boolean showAAAMember;
+    public Boolean showDTCC;
+    public Boolean showMilitary;
+    public String customerId;
+    public String imageURL;
+    public String fitmentLiftId;
+    public String frontTireSize;
+    public String rearTireSize;
+    public String frontTireDiameter;
+    public String rearTireDiameter;    
+    public String assemblyType;
+    public String color;
+    public String licensePlate;  
+    public String genericVehicleCategory;
+    public String genericVehicleSubCategory;    
+    public String customerVehicleId;
+    public String salesOrderId;
+    public Boolean unPaid;
+    public Boolean isVisionFeature;
+    public List<String> smsNotificationsSent;
+    public List<String> emailNotificationsSent; 
+    // Appt 3.0 Changes - End
+    
     
 	public class Articles {
 		public String requestType;
@@ -92,13 +122,23 @@ public virtual class Appt_CreateAppointmentServiceModel extends Appt_BaseModel{
 		public String articleCount;
 		public String articleSize;
 		public String articleDescription;
+         // Appt 3.0 Changes - New Variables for WOLI added as part of Appt 3.0 Project
+        public Boolean tredWell; 
+        // Appt 3.0 Changes - End
 	}
-
+    
+    // Appt 3.0 Changes - Added this class to Address Notification display on View Appointment Screen. 
+    public class Notifications {
+        public List<String> smsNotificationSent;
+        public List<String> emailNotificationSent;
+    }
+    // Appt 3.0 Changes - End    
+    
     public static Appt_CreateAppointmentServiceModel parseCreateAppointmentRequest(Appt_CreateAppointmentRequest request) {
         
         String requestString = JSON.serialize(request);
-        return (Appt_CreateAppointmentServiceModel) System.JSON.deserialize(requestString, Appt_CreateAppointmentServiceModel.class);
-        
+       return (Appt_CreateAppointmentServiceModel) System.JSON.deserialize(requestString, Appt_CreateAppointmentServiceModel.class);
+               
     }
     
     public Appt_GetAvailabilityServiceModel spawnGetAvailabilityServiceModel(Boolean isAvailbilityCheckOnly) {
@@ -120,6 +160,11 @@ public virtual class Appt_CreateAppointmentServiceModel extends Appt_BaseModel{
         availModel.backOfficeEndTime = this.backOfficeEndTime;
         availModel.backOfficeDuration = this.backOfficeDuration;
         availModel.timeZoneOffset = this.timeZoneOffset;
+        
+        
+        // Appt 3.0 Changes - Enable Vision feature for Appt 3.0
+        availModel.isVisionFeature = this.isVisionFeature;
+        // Appt 3.0 Changes - End
     
         if (articles != null && articles.size() > 0) {
             availModel.items = new List<Appt_GetAvailabilityServiceModel.Items>();

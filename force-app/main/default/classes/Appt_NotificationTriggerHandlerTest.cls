@@ -209,7 +209,9 @@ public class Appt_NotificationTriggerHandlerTest {
     }
 
     @isTest static void responseToNowTest()
-    {           
+    {   
+        //Commenting for SO-891. There is a requirement to stop sending notificaiton for NOTIFICATION_APPT_NOW (for 30 mins.)
+        /*        
         WorkOrder myWorkOrder = [SELECT id, SMS_Phone__c FROM WorkOrder LIMIT 1]; 
         myWorkOrder.SMS_Phone__c = '(602) 683-6565';   
         update myWorkOrder;    
@@ -255,5 +257,5 @@ public class Appt_NotificationTriggerHandlerTest {
         
                      
         System.assertEquals(validateNotification.Response_Status__c, Appt_ConstantValues.NOTIFICATION_STATUS_SUCCESS, 'Check for notificaiton response status to be success');    
-    }
+    */}
 }

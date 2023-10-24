@@ -3,6 +3,114 @@ public without sharing class Appt_TestUtil
 {
     
     final static string lprefix = 'LOG Appt_TestUtil: ';
+        
+    @IsTest
+    public static String  createPayload(){
+        
+        String posString = '{"action": "CRT",'
+        +'"appointmentStatus": "Pending",'   
+        +'"companyName": "",'
+        +'"companyName2": "",'   
+        +'"fleetNumber": "",'
+        +'"firstName": "John",'
+        +'"lastName": "Johnson",'
+        +'"emailAddress": "JOHN@DT.TEST.com",'
+        +'"address1": "1015PricklyPearLane",'
+        +'"address2": "Apt#450",'
+        +'"city": "Phoenix",'
+        +'"state": "AZ",'
+        +'"country": "United States",'
+        +'"zipCode": "85250",'
+        +'"customerType": "Retail",'
+        +'"businessPrimaryPurchasingPhoneCollection":[{'
+        	+'"businessPhoneType": "Mobile",'
+        	+'"businessPhoneNumber": "1234567890",'
+        	+'"businessPhoneExtension": null},'
+   	    +'{"businessPhoneType": "Home",'
+        +'"businessPhoneNumber": "123456789",'
+        +'"businessPhoneExtension": "123"},'
+        +'{"businessPhoneType": null,'
+        +'"businessPhoneNumber": null,'
+        +'"businessPhoneExtension": null}],'
+        +'"phoneDetails":[{'
+        	+'"phoneType": "Mobile",'
+        	+'"phoneNumber": "1234567890"},'
+    		+'{"phoneType": "Home","phoneNumber": "1234567891"},'
+    		+'{"phoneType": "Work","phoneNumber": "1234567898"}],'
+        +'"myAccount":true,'
+        +'"aaaMembershipNumber": "55555",'
+        +'"privateLabelCardholder": "Yes",'
+        +'"military": "Yes",'
+        +'"customerId": "111102",'
+        +'"trimId": "555501",'
+        +'"assemblyId": "A",'
+        +'"year": "2016",'
+        +'"make": "CHEVROLET",'
+        +'"model": "CORVETTE",'
+        +'"fitmentLiftId": "",'
+        +'"frontTireSize": "245/35R19",'
+        +'"rearTireSize": "285/30R20",'
+        +'"frontTireDiameter": "19",'
+        +'"rearTireDiameter": "20",'
+        +'"assemblyType": "O.E.",'
+        +'"color": "Black",'
+        +'"licensePlate": "TYD8270",'
+        +'"vehicleImage": "https://cdn.discounttire.com/sys-master/images/hec/h7c/8910181105694/201810100833_10722_21253.png_dt-vehicle-default-format_dt-vehicle-thumbNail",'
+        +'"vehicleType": "Fitment",'
+        +'"genericVehicleCategory": null,'
+        +'"genericVehicleSubCategory": null,'
+        +'"customerVehicleId": "22201",'
+        +'"orderType": "BOPIS",'
+        +'"salesOrderId": "33301",'
+        +'"siteId": "1235",'
+        +'"articles":[{'
+        	+'"articleId": "000000000000084838",'
+        	+'"articleSize": "",'
+        	+'"articleType": "",'
+        	+'"quantity": "1",'
+        	+'"articleDescription": "FreeFlatRepair,Rotation,Inspection",'
+        	+'"tredWell": false},'
+        +'{"articleId": "000000000000084800",'
+        +'"articleSize": null,'
+        +'"articleType": "",'
+        +'"quantity": "1",'
+        +'"articleDescription": "FreeRotationandRebalance",'
+        +'"tredWell":false},'
+        +'{"articleId": "000000000000080219",'
+        +'"articleSize": "",'
+        +'"articleType": null,'
+        +'"quantity": "3",'
+        +'"articleDescription": "Installation&LifeofTireMaintenance",'
+        +'"tredWell": false},'
+        +'{"articleId": "000000000000041848",'
+        +'"articleSize": "265/70R17115TSLOWL",'
+        +'"articleType": "",'
+        +'"quantity": "3",'
+        +'"articleDescription": "PathfinderHT",'
+        +'"tredWell": true},'
+    	+'{"articleId": "000000000000080017",'
+        +'"articleSize": null,'
+        +'"articleType": "",'
+        +'"quantity": "3",'
+        +'"articleDescription": "CertsforRefund,Replacement",'
+        +'"tredWell": false},'
+    	+'{"articleId": "000000000000080075",'
+        +'"articleSize": "",'
+        +'"articleType": null,'
+        +'"quantity": "3",'
+        +'"articleDescription": "StateRequiredEnvironmentalFee",'
+        +'"tredWell": false},'
+    	+'{"articleId": "000000000000080224",'
+        +'"articleSize": "",'
+        +'"articleType": "",'
+        +'"quantity": "4",'
+        +'"articleDescription": "WasteTireDisposalFee",'
+        +'"tredWell": false}],'
+        +'"unPaid": true,'
+        +'"comments": "test Comment"}';
+        return posString;
+    }
+    
     @IsTest
     public static List<ServiceAppointment> basicAppointment_StoreConfiguration ()
     {
@@ -118,7 +226,7 @@ public without sharing class Appt_TestUtil
         Datetime apptEndDateTime = Datetime.newInstance(currentDate, apptEndTime);
         Integer localTimeZoneOffset = -7;
         Integer appointmentDuration = 20;
-
+        
         // List<ServiceAppointment> servApptList = new List<ServiceAppointment>();
         ServiceAppointment fntServiceAppt = Appt_TestUtil.getServiceAppointment( sysUser.Id, customerWrkOrder.Id, custAccount.Id, orderWorkType.Id, custContacts[0].Id, servTerr.Id, acctObj.SAP_STORE_ID__c, apptStartDateTime, apptEndDateTime, localTimeZoneOffset, appointmentDuration, 'Front Room', schedulePolicy.Id);
         ServiceAppointment bckServiceAppt = Appt_TestUtil.getServiceAppointment( sysUser.Id, customerWrkOrder.Id, custAccount.Id, orderWorkType.Id, custContacts[0].Id, servTerr.Id, acctObj.SAP_STORE_ID__c, apptStartDateTime.addMinutes(20), apptEndDateTime.addMinutes(20), localTimeZoneOffset, appointmentDuration, 'Back Room', schedulePolicy.Id);
@@ -127,7 +235,7 @@ public without sharing class Appt_TestUtil
         // servApptList.add(fntServiceAppt);
         // servApptList.add(bckServiceAppt);
         // insert servApptList;
-
+        
         List<ServiceAppointment> servAppts = [SELECT Id, Status, ParentRecordId FROM ServiceAppointment];
 
         System.assertEquals(2, servAppts.size(), 'No Service Appointment was created by the Work Order creation');
@@ -136,7 +244,83 @@ public without sharing class Appt_TestUtil
 
         return servAppts;
     }
+    //Appt3.0
+   public static void createTimeSlots(ServiceTerritory servTerr){
+         // Store hours... open(startTime)... close(endTime) ...close Saturday (endTimeSaturday)
+        Time startTime = Time.newInstance(8,0,0,0);
+        Time endTime = Time.newInstance(18,0,0,0);
+        Time endTimeSaturday = Time.newInstance(17,0,0,0);
+        OperatingHours operHours =  Appt_TestUtil.getOperatingHours('EST 8-6 Store Hours', 'America/New_York', 'Store Hours');
+        OperatingHours fbTmeSltConfig =  Appt_TestUtil.getOperatingHours('20 Minute Time Slots', 'America/Phoenix', 'Bucket Capacity');
+		//List<TimeSlot> lstTimeslot = new List<TimeSlot>();
+        TimeSlot tsMonday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Monday', 'Normal', startTime, endTime);
+        TimeSlot tsTuesday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Tuesday', 'Normal', startTime, endTime);
+        TimeSlot tsWednesday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Wednesday', 'Normal', startTime, endTime);
+        TimeSlot tsThursday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Thursday', 'Normal', startTime, endTime);
+        TimeSlot tsFriday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Friday', 'Normal', startTime, endTime);
+        TimeSlot tsSaturday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Saturday', 'Normal', startTime, endTimeSaturday);
+        /*lstTimeslot.add(tsMonday);
+        lstTimeslot.add(tsTuesday);
+        lstTimeslot.add(tsWednesday);
+        lstTimeslot.add(tsThursday);
+        lstTimeslot.add(tsFriday);
+        lstTimeslot.add(tsSaturday);
+        Insert lstTimeslot; */
+        // System.debug(lprefix + 'Weekday Time Slots: complete');
 
+        // Time Slots Begin (stEnd) and End (stEnd) slot time
+        Time stEnd = startTime;
+        List<TimeSlot> dailyTimeSlots = new List<TimeSlot>();
+        For (Time stStart = startTime; stStart < endTime; stStart = stStart.addMinutes(20)) 
+        {
+            stEnd = stEnd.addMinutes(20);
+            // System.debug(lprefix + 'Daily: Time Slot, start: ' + stStart + ' end: ' + stEnd);
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Monday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Tuesday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Wednesday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Thursday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Friday', 'Normal', stStart, stEnd, 4));
+            if (stStart < endTimeSaturday){
+                dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Saturday', 'Normal', stStart, stEnd, 4));
+            }
+        }
+        insert dailyTimeSlots;
+
+        // Monthly generated Appt Time Slots... Begin (atsStart) ... End  (atsEnd) slot time
+        // move up the date if it is sunday
+        Date currentDate = (  Datetime.now().format('u') == '7' ) ? Date.today().addDays(1) : Date.today();
+        Datetime atsEnd = Datetime.newInstance(currentDate, startTime); // setup the single slot end datetime
+        Datetime endDateTime = Datetime.newInstance(currentDate.addDays(27), endTime); // setup the month end datetime
+        System.debug(lprefix + 'Weekday: ' + currentDate + ' End: ' + atsEnd + ' MonthEnd: ' + endDateTime + ' StartTime: ' + startTime + ' EndTime: ' + endTime);
+
+        List<Appt_Time_Slot__c> apptTimeSlots = new List<Appt_Time_Slot__c>();
+        For (Datetime atsStart = Datetime.newInstance(currentDate, startTime); atsStart < endDateTime; atsStart = atsStart.addMinutes(20))
+        {
+            // jump over sunday, saturday early close
+            // at close time, jump to open the next day...
+            String weekDay = atsStart.format('u');
+            // System.debug(lprefix + 'Weekday: ' + weekDay + ' : ' + atsStart);
+            if ( ( weekDay == '6' ) && ( atsStart.time() >= endTimeSaturday ) ) {
+                // System.debug(lprefix + 'Weekday - Saturday');
+                atsStart = Datetime.newInstance( atsStart.date().addDays(2), startTime); // jump to monday
+            } else if ( atsStart.time() >= endTime ) {
+                // System.debug(lprefix + 'Weekday - next day');
+                atsStart = Datetime.newInstance( atsStart.date().addDays(1), startTime); // jump to next workday
+            }
+
+            atsEnd = atsStart.addMinutes(20);
+            // System.debug(lprefix + ' StartTime: ' + atsStart + ' EndTime: ' + atsEnd);
+            Appt_Time_Slot__c nextTimeSlot = Appt_TestUtil.createApptTimeSlot(servTerr.Id, atsStart.date(), atsStart, atsEnd, 'Front Room');
+            apptTimeSlots.add(nextTimeSlot);
+            nextTimeSlot = Appt_TestUtil.createApptTimeSlot(servTerr.Id, atsStart.date(), atsStart, atsEnd, 'Back Room');
+            apptTimeSlots.add(nextTimeSlot);
+            // System.debug(lprefix + 'ApptTimeSlot: ' + nextTimeSlot.Start_Time__c + ' to ' + nextTimeSlot.End_Time__c);
+        }
+        insert apptTimeSlots;
+        System.debug('TimeSlotsApt3'+ apptTimeSlots ); 
+
+    }
+//    Appt3.0 
 
     // public static void bulkAppointments()
     // {
@@ -227,6 +411,12 @@ public without sharing class Appt_TestUtil
     {
         return getUser('System Administrator', firstName, lastName);
     }
+    //Appt3.0 changes for POS Store Terminal Profile (Run as user in test class)
+     public static User getPosTerminalUser(String firstName, String lastName)
+    {
+        return getUser('POS Store Terminal', firstName, lastName);
+    }  
+    // chnages Appt3.0 END
 
     /**
     * @Description This method will get a test user that has the Standard User profile.
@@ -244,7 +434,7 @@ public without sharing class Appt_TestUtil
         Id apptRecType = Schema.getGlobalDescribe().get('Account').getDescribe().getRecordTypeInfosByName().get('Site').getRecordTypeId();
 
         Account acct = new Account (
-            Name = aName,
+            Name = aName == 'Test FLEET Account'?aName:aName+'Retail',
             Type = null,
             RecordTypeId = apptRecType,
             ParentId = null,
@@ -252,27 +442,27 @@ public without sharing class Appt_TestUtil
             BillingCity = null,
             BillingState = null,
             BillingPostalCode = null,
-            BillingCountry = 'United States',
+            BillingCountry = aName == 'Test FLEET Account'?'United States':'United States',
             BillingStateCode = null,
             BillingCountryCode = 'US',
             BillingLatitude = null,
             BillingLongitude = null,
             BillingGeocodeAccuracy = null,
-            ShippingStreet = '123 Test',
-            ShippingCity = 'Goodyear',
+            ShippingStreet = aName == 'Test FLEET Account'?'123 FLEET Test':'RETAIL TEST',
+            ShippingCity = aName == 'Test FLEET Account'?'scotsdale':'NYC',
             ShippingState = null,
-            ShippingPostalCode = '85389',
+            ShippingPostalCode = aName == 'Test FLEET Account'?'85389':'85388',
             ShippingCountry = 'United States',
-            ShippingStateCode = 'AZ',
+            ShippingStateCode = aName == 'Test FLEET Account'?'AZ':'NY',
             ShippingCountryCode = 'US',
             ShippingLatitude = null,
             ShippingLongitude = null,
             ShippingGeocodeAccuracy = null,
-            Store_Public_Phone__c = '5555555555',
+            Store_Public_Phone__c = aName == 'Test FLEET Account'?'5555555555':'6666666666',
             Phone = null,
             Fax = null,
             AccountNumber = null,
-            Website = null,
+            Website = aName == 'Test FLEET Account'?'fleet.com':'retail.com',
             Sic = null,
             Industry = null,
             AnnualRevenue = null,
@@ -355,13 +545,14 @@ public without sharing class Appt_TestUtil
             Is_Notify_AR_Application_Received__c = false,
             Legal_Name__c = null,
             PO_Required__c = true,
+            
             Payment_Key_Terms__c = null,
             Payment_Type__c = null,
             Preferred_Store__c = null,
             SAP_Created_Date__c = null,
-            SAP_STORE_ID__c = '1235',
+            SAP_STORE_ID__c = aName == 'Test FLEET Account'?'1235':'1236',
             Store_DBA_Name__c = null,
-            Store_ID__c = 'RIP05',
+            Store_ID__c = aName == 'Test FLEET Account'?'RIP06':'RIP05',
             Tax_Classification__c = null,
             Fleet_POS_Notes_Display__c = null,
             Source__c = null,
@@ -369,7 +560,7 @@ public without sharing class Appt_TestUtil
             GUID__c = null,
             POS_Customer_Id__c = null,
             Hybris_Customer_Id__c = null,
-            Primary_Key__c = '6514654654'
+            Primary_Key__c = aName == 'Test FLEET Account'?'6514654654':'6514654655'
                         
         );
 
@@ -649,27 +840,30 @@ public without sharing class Appt_TestUtil
         Account acc = new Account(
             OwnerId = ownerId,
             FirstName = FirstName,
-            LastName = LastName,
+            LastName = LastName == 'FLEET'? LastName : LastName+'R',
             RecordTypeId = apptRecType,
             Phone = '5555555555',
-            ShippingCity = 'Any City',
-            ShippingState = 'Arizona',
+            ShippingCity = LastName == 'FLEET'?'Any Fleet City':'Any Retail City',
+            ShippingState = LastName == 'FLEET'?'Arizona':'California',
             ShippingStreet = 'Any Street',
             ShippingPostalCode = '47040',
-            PersonMobilePhone = '5555555555',
-            PersonEmail = 'test@test.com',
-            BillingCity = 'Any City',
-            BillingStreet = 'Any Street',
-            BillingState = 'Arizona',
+            PersonMobilePhone = LastName == 'FLEET'?'5555555555':'6666666666',
+            PersonEmail = LastName == 'FLEET'?'testFleet@test.com':'testRetail@test.com',
+            BillingCity = LastName == 'FLEET'?'Any Fleet City':'Any Retail City',
+            BillingStreet = LastName == 'FLEET'?'Any Fleet Street': 'Any Retail Street',
+            BillingState = LastName == 'FLEET'?'Arizona':'California',
             PersonLeadSource = 'Online Inquiry Form',
             AccountSource = 'Online Inquiry Form',
             Fleet_AR_App_Status__c = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_PENDING,
             Fleet_Account_Status__c = 'Prospect',
-            Appt_Customer_Type__c = 'Retail',
-            POS_Customer_Id__c = '15645564',
-            Hybris_Customer_Id__c = '15641654d',
+            Appt_Customer_Type__c = LastName == 'FLEET'?'Fleet':'Retail',
+            POS_Customer_Id__c = LastName == 'FLEET'?'15645564':'15645565',
+            Hybris_Customer_Id__c = LastName == 'FLEET'?'15641654d':'15641655',
             Appt_Email_Opt_In__pc = true,
-            Appt_SMS_Opt_In__pc = true
+            Appt_SMS_Opt_In__pc = true,
+            Appt3_Fleet_Number__c = LastName == 'FLEET'?'123456':'',
+            Appt3_Company_Name__c = LastName == 'FLEET'?'TEST INC':''
+            
         );
 
         insert acc;
@@ -894,7 +1088,7 @@ public without sharing class Appt_TestUtil
             Start_Time_String__c = startTime.format('HHmm'), // '0800',
             End_Time_String__c = endTime.format('HHmm'), // '0820',
             Source__c = null,
-            Customer_Type__c = null,
+            Customer_Type__c = 'Fleet',
             Site_Id__c = siteId,  // beware really is SAP_STORE_ID__c
             Timezone_Offset__c = timeZoneOffset // -7 // beware of TZ
         );
@@ -1151,5 +1345,120 @@ public without sharing class Appt_TestUtil
         return model1;
 
     } // End of convertServiceAppointmentToModel()
+    
+    // SO-559
+    @IsTest
+    public static List<ServiceAppointment> basicFleetAppointment_StoreConfiguration ()
+    {
+
+        User sysUser = Appt_TestUtil.getTestAdminUser( 'John', 'FLEET');
+
+        Account acctObj = Appt_TestUtil.getSiteAccount('Test FLEET Account', sysUser.id);
+
+        OperatingHours operHours =  Appt_TestUtil.getOperatingHours('EST 8-6 Store Hours', 'America/New_York', 'Store Hours');
+        OperatingHours fbTmeSltConfig =  Appt_TestUtil.getOperatingHours('20 Minute Time Slots', 'America/Phoenix', 'Bucket Capacity');
+
+        FSL__Scheduling_Policy__c schPol = Appt_TestUtil.getSchedulingPolicy('Appointment Policy', sysUser.id);
+
+        WorkType fntWrkTyp = Appt_TestUtil.getWorkType('Front Office', sysUser.id, 'Front Office Work Type', 20, 4320);
+        WorkType bckWrkTyp = Appt_TestUtil.getWorkType('Back Office', sysUser.id, 'Back Office Work Type', 20, null);
+
+        // Service Territory setup
+        ServiceTerritory servTerr =  Appt_TestUtil.getServiceTerritory('RIP06', sysUser.Id, operHours.Id, schPol.Id, fbTmeSltConfig.Id, acctObj.Id, fntWrkTyp.Id, bckWrkTyp.Id);
+
+        // Store hours... open(startTime)... close(endTime) ...close Saturday (endTimeSaturday)
+        Time startTime = Time.newInstance(8,0,0,0);
+        Time endTime = Time.newInstance(18,0,0,0);
+        Time endTimeSaturday = Time.newInstance(17,0,0,0);
+
+        TimeSlot tsMonday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Monday', 'Normal', startTime, endTime);
+        TimeSlot tsTuesday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Tuesday', 'Normal', startTime, endTime);
+        TimeSlot tsWednesday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Wednesday', 'Normal', startTime, endTime);
+        TimeSlot tsThursday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Thursday', 'Normal', startTime, endTime);
+        TimeSlot tsFriday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Friday', 'Normal', startTime, endTime);
+        TimeSlot tsSaturday = Appt_TestUtil.createTimeSlotWeekday(operHours.Id, 'Saturday', 'Normal', startTime, endTimeSaturday);
+
+        // Time Slots Begin (stEnd) and End (stEnd) slot time
+        Time stEnd = startTime;
+        List<TimeSlot> dailyTimeSlots = new List<TimeSlot>();
+        For (Time stStart = startTime; stStart < endTime; stStart = stStart.addMinutes(20)) 
+        {
+            stEnd = stEnd.addMinutes(20);
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Monday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Tuesday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Wednesday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Thursday', 'Normal', stStart, stEnd, 4));
+            dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Friday', 'Normal', stStart, stEnd, 4));
+            if (stStart < endTimeSaturday){
+                dailyTimeSlots.add(Appt_TestUtil.createTimeSlotDaily(fbTmeSltConfig.Id, 'Saturday', 'Normal', stStart, stEnd, 4));
+            }
+        }
+        insert dailyTimeSlots;
+
+        // Monthly generated Appt Time Slots... Begin (atsStart) ... End  (atsEnd) slot time
+        // move up the date if it is sunday
+        Date currentDate = (  Datetime.now().format('u') == '7' ) ? Date.today().addDays(1) : Date.today();
+        Datetime atsEnd = Datetime.newInstance(currentDate, startTime); // setup the single slot end datetime
+        Datetime endDateTime = Datetime.newInstance(currentDate.addDays(27), endTime); // setup the month end datetime
+        System.debug(lprefix + 'Weekday: ' + currentDate + ' End: ' + atsEnd + ' MonthEnd: ' + endDateTime + ' StartTime: ' + startTime + ' EndTime: ' + endTime);
+
+        List<Appt_Time_Slot__c> apptTimeSlots = new List<Appt_Time_Slot__c>();
+        For (Datetime atsStart = Datetime.newInstance(currentDate, startTime); atsStart < endDateTime; atsStart = atsStart.addMinutes(20))
+        {
+            // jump over sunday, saturday early close
+            // at close time, jump to open the next day...
+            String weekDay = atsStart.format('u');
+            if ( ( weekDay == '6' ) && ( atsStart.time() >= endTimeSaturday ) ) {
+                atsStart = Datetime.newInstance( atsStart.date().addDays(2), startTime); // jump to monday
+            } else if ( atsStart.time() >= endTime ) {
+                atsStart = Datetime.newInstance( atsStart.date().addDays(1), startTime); // jump to next workday
+            }
+
+            atsEnd = atsStart.addMinutes(20);
+            Appt_Time_Slot__c nextTimeSlot = Appt_TestUtil.createApptTimeSlot(servTerr.Id, atsStart.date(), atsStart, atsEnd, 'Front Room');
+            apptTimeSlots.add(nextTimeSlot);
+            nextTimeSlot = Appt_TestUtil.createApptTimeSlot(servTerr.Id, atsStart.date(), atsStart, atsEnd, 'Back Room');
+            apptTimeSlots.add(nextTimeSlot);
+        }
+        insert apptTimeSlots;
+
+        User resourceUser = Appt_TestUtil.getStandardUser('TomF', 'FLEET');
+
+        ServiceResource servResource = Appt_TestUtil.getServiceResource('Resource Back', sysUser.Id , resourceUser.Id, 'T', 'Back Room');
+
+        ServiceTerritoryMember servTerritoryMember = Appt_TestUtil.getServiceTerritoryMember(servTerr.Id, servResource.Id, 'P', Datetime.now().addMonths(-2));
+
+        Account custAccount = Appt_TestUtil.getCustomerAccount( sysUser.Id, 'Sam', 'FLEET');
+
+        List<Contact> custContacts = [SELECT Id FROM Contact WHERE AccountId =: custAccount.Id];
+        
+        System.assertEquals(1, custContacts.size(), 'No Contact was created by the Person Account creation');
+
+        Asset vehicleAsset = Appt_TestUtil.getVehicle_Asset( sysUser.Id, custAccount.Id, custContacts[0].Id);
+
+        WorkType orderWorkType = Appt_TestUtil.getWorkOrderType('20 Minute Appointment', sysUser.Id, 20, 4320);
+
+        WorkOrder customerWrkOrder = Appt_TestUtil.getWorkOrder( sysUser.Id, custAccount.Id, custContacts[0].Id, 'Two tire change', orderWorkType.Id, servTerr.Id, 'ROPIS', 'WEB', Date.valueOf('2021-01-14'), Date.valueOf('2021-01-14'), vehicleAsset.Id);
+
+        FSL__Scheduling_Policy__c schedulePolicy = Appt_TestUtil.getSchedulingPolicy(sysUser.Id, 'Appointment Policy');
+
+        // can't use current time, the test may not run during "business hours", so there would be no Time Slots
+        Time apptStartTime = Time.newInstance(8,0,0,0);
+        Time apptEndTime = Time.newInstance(8,20,0,0);
+        Datetime apptStartDateTime = Datetime.newInstance(currentDate, apptStartTime);
+        Datetime apptEndDateTime = Datetime.newInstance(currentDate, apptEndTime);
+        Integer localTimeZoneOffset = -7;
+        Integer appointmentDuration = 20;
+        
+        ServiceAppointment fntServiceAppt = Appt_TestUtil.getServiceAppointment( sysUser.Id, customerWrkOrder.Id, custAccount.Id, orderWorkType.Id, custContacts[0].Id, servTerr.Id, acctObj.SAP_STORE_ID__c, apptStartDateTime, apptEndDateTime, localTimeZoneOffset, appointmentDuration, 'Front Room', schedulePolicy.Id);
+        ServiceAppointment bckServiceAppt = Appt_TestUtil.getServiceAppointment( sysUser.Id, customerWrkOrder.Id, custAccount.Id, orderWorkType.Id, custContacts[0].Id, servTerr.Id, acctObj.SAP_STORE_ID__c, apptStartDateTime.addMinutes(20), apptEndDateTime.addMinutes(20), localTimeZoneOffset, appointmentDuration, 'Back Room', schedulePolicy.Id);
+        
+        List<ServiceAppointment> servAppts = [SELECT Id, Status, ParentRecordId FROM ServiceAppointment];
+
+        System.assertEquals( Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_PENDING, servAppts[0].Status, 'Front Room Appointment is the wrong Status, S/B ' + Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_PENDING);
+        System.assertEquals( Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_PENDING, servAppts[1].Status, 'Back Room Appointment is the wrong Status, S/B ' + Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_PENDING);        
+
+        return servAppts;
+    } // SO-559 : For a Fleet type SAs
 
 }

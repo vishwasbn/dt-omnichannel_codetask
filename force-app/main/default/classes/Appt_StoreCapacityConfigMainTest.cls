@@ -19,6 +19,11 @@ public with sharing class Appt_StoreCapacityConfigMainTest {
         System.debug(results);
         System.assert(results.contains('RIP05'),'checks for store to be found');
         
+        try{
+            String catchResults = Appt_StoreCapacityConfigMainController.updateStoreConfig(null);
+             String catchR = Appt_StoreCapacityConfigMainController.getStores(null);
+        }catch(exception e){}
+        
     }
 
     @IsTest

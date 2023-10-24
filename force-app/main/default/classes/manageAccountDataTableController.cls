@@ -10,22 +10,21 @@ public with sharing class manageAccountDataTableController {
         try {
             if(manageAccountDataTableController.throwException){
                 throw new OtherException('Script-thrown exception');
-        }
-        return Schema.SObjectType.Case.getRecordTypeInfosByName().get('Fleet Community Case').getRecordTypeId();
-
+            }
+            Id recordTypeId = [SELECT id from RecordType where Name ='Fleet Community Case'].id;
+            return recordTypeId;
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
     }
     @AuraEnabled(Cacheable = true)
-    public static Id getAccounts(ID userId) {
+    public static Id getAccounts() {
         try {
             if(manageAccountDataTableController.throwException){
                 throw new OtherException('Script-thrown exception');
             }
-            user userData = getContact(userId);
-            Contact conts = [select id, AccountId from Contact where id = :userData.contactId];
-            return conts.AccountId;
+            Account acct = [SELECT Id, Name,OwnerId FROM Account LIMIT 1];
+            return acct.id;
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }

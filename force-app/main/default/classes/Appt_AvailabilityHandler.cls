@@ -122,7 +122,7 @@ public class Appt_AvailabilityHandler {
 
         //if apptModel param is null throw exception
         if (availModel == null) {
-            availModel.setError(Appt_ConstantValues.RESPONSE_ERROR_STATUSCODE_BAD_REQUEST, 'availModel parameter is null');
+            availModel.setError(Appt_ConstantValues.RESPONSE_ERROR_STATUSCODE_BAD_REQUEST, 'availModel parameter is null');   //This is null pointer exception.
             return false;
         }
 
@@ -259,7 +259,8 @@ public class Appt_AvailabilityHandler {
     } 
     
     //---Logic to calculate available slots (Either Front or Back).  This takes into account the 'Web Lead Time' for Store and Web
-    public static List<Appt_Time_Slot__c> getAvailableSlots( List<Appt_Time_Slot__c> allTimeSlots, String frontBackChar, String storeWebChar, String fleetRetailChar, DateTime webCutoffTime, Integer timeZoneOffset, Appt_SiteAvailabilityModel avModel)
+    public static List<Appt_Time_Slot__c> getAvailableSlots( List<Appt_Time_Slot__c> allTimeSlots, String frontBackChar, String storeWebChar, String fleetRetailChar, 
+                                                            DateTime webCutoffTime, Integer timeZoneOffset, Appt_SiteAvailabilityModel avModel)
     {
         Datetime methodTime = Datetime.now();
         List<Appt_Time_Slot__c> returnList = new List<Appt_Time_Slot__c>();    
@@ -423,11 +424,24 @@ public class Appt_AvailabilityHandler {
         System.debug(lprefix+'getSlotsFromStartToEndTime() ENTRY - type='+type+'. siteId='+siteId+', date='+appointmentDate+', startTime='+startTime+', endTime='+endTime);
 
         DateTime startTimeAll = Datetime.now(); 
-
-        List<Appt_Time_Slot__c> returnSlots = [SELECT Type__c, BSF_Available__c, BSR_Available__c, BWF_Available__c, BWR_Available__c, FSF_Available__c, 
-            FSR_Available__c, FWF_Available__c,  FWR_Available__c, Start_Time__c, End_Time__c, Date__c, IsFrontUnavailable__c, isBackUnavailable__c FROM Appt_Time_Slot__c 
-            WHERE Type__c = :type AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c = :appointmentDate 
-            AND (Start_Time__c >= :startTime AND End_Time__c <= :endTime)];
+        //Appt 3.0 - Added Query to consume time slots based on custom time extension.
+        List<Appt_Time_Slot__c> returnSlots;
+        if (Appt_ConstantValues.isVisionFeature && type == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK) {
+            returnSlots =[SELECT Type__c, BSF_Available__c, BSR_Available__c, 
+                          BWF_Available__c, BWR_Available__c, 
+                          FSF_Available__c, FSR_Available__c, 
+                          FWF_Available__c,  FWR_Available__c,
+                          Start_Time__c, 
+                          End_Time__c, 
+                          Date__c, IsFrontUnavailable__c, 
+                          isBackUnavailable__c FROM Appt_Time_Slot__c WHERE Type__c = :type AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c = :appointmentDate AND ((Start_Time__c >= :startTime AND End_Time__c <= :endTime) OR (Start_Time__c < :endTime AND End_Time__c >= :endTime) OR (Start_Time__c <= :startTime AND End_Time__c > :startTime))];
+            System.debug(returnSlots +'myreturnslots');
+                } else {
+                    returnSlots = [SELECT Type__c, BSF_Available__c, BSR_Available__c, BWF_Available__c, BWR_Available__c, FSF_Available__c, 
+                                   FSR_Available__c, FWF_Available__c,  FWR_Available__c, Start_Time__c, End_Time__c, Date__c, IsFrontUnavailable__c, isBackUnavailable__c FROM Appt_Time_Slot__c 
+                                   WHERE Type__c = :type AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c = :appointmentDate 
+                                   AND (Start_Time__c >= :startTime AND End_Time__c <= :endTime)];
+        }
         System.debug(lprefix+'  POST SOQL returnSlots:'+returnSlots);   //TODO - DEBUG - COMMENT OUT
 
         if (returnSlots != null) System.debug(lprefix+'getTimeSlotBySite() EXIT - number of returned Slot = '+returnSlots.size());
@@ -437,8 +451,7 @@ public class Appt_AvailabilityHandler {
 
         return returnSlots;
     }
-
-
+    
     //Figure out what Work Type duration as well as type (back, front, both) is appropriate for the appointment
     public static Appt_workTypeModel calculateWorkType(Appt_GetAvailabilityServiceModel availModel){
         Appt_workTypeModel returnWorkType = new Appt_workTypeModel();
@@ -455,7 +468,9 @@ public class Appt_AvailabilityHandler {
         List<Appt_Appointment_Slot_Calc_Setting__mdt> workTypeCalcs = [SELECT Order_Type__c, Source__c, Product_Items__c, Type__c, MasterLabel FROM Appt_Appointment_Slot_Calc_Setting__mdt 
                                                                     WHERE Order_Type__c = :availModel.orderType AND Source__c = :availModel.source];
         System.debug(lprefix+'       Retrieved Work Type Calculation metadata, workTypeInfo:'+workTypeCalcs);
-
+        //SO-495
+        //SO-811 - revert front room related changes
+        //Boolean  setWorkTypeasBoth = false;
         if (workTypeCalcs != null && workTypeCalcs.size() == 1) {
 
             returnWorkType.type = workTypeCalcs.get(0).Type__c;
@@ -477,12 +492,17 @@ public class Appt_AvailabilityHandler {
                         // if the articeId/productId is a match, then put it's cooresponding type on the temporary storage list
                         if (availModel.isProductInItemList(articleId)) {
                             types.add(type);
-                        }
+                           /* //if type is both  then set the work type as Both below using this flag
+                            if(type == Appt_ConstantValues.WORK_TYPE_TYPE_BOTH) {
+                                setWorkTypeasBoth = true;
+                            } */
+                       }
+
                     }
 
                     // Scan through list of types and set largest on model IF AND ONLY IF all items/articles are matches.
                     //  If there are items/articles in the list that do not match, meaning non-product items, then do not use product item type.
-                    if (productList.size() == availModel.numberOfItems()) {
+                    if (productList.size() == availModel.numberOfItems() ) {
                         if (types.contains(Appt_ConstantValues.WORK_TYPE_TYPE_BOTH) || (types.contains(Appt_ConstantValues.WORK_TYPE_TYPE_FRONT) && types.contains(Appt_ConstantValues.WORK_TYPE_TYPE_BACK))) {
                             returnWorkType.type = Appt_ConstantValues.WORK_TYPE_TYPE_BOTH;
                         } else {
@@ -497,7 +517,7 @@ public class Appt_AvailabilityHandler {
                     }
                 } 
             }
-
+            
             // Use returnWorkType.type to set front and back durations
             if (returnWorkType.type == Appt_ConstantValues.WORK_TYPE_TYPE_FRONT) {
                 returnWorkType.frontOfficeDuration = Appt_ConstantValues.WORK_TYPE_DURATION_FRONT_DEFAULT;
@@ -574,7 +594,7 @@ public class Appt_AvailabilityHandler {
         //  2. If not passed in param, caluclate work types and durations needed to find the right slots, otherwise use the model param
         Appt_workTypeModel wrkTypModel;
         if (WorkTypeModelParam != null && !String.isBlank(WorkTypeModelParam.type)) wrkTypModel = WorkTypeModelParam;
-        else wrkTypModel = calculateWorkType(availModel);
+            else wrkTypModel = calculateWorkType(availModel);
 
         // Get the Appt_Time_Slot(s) for the appointment
         Appt_Time_Slot__c frontTimeSlot;
@@ -625,10 +645,12 @@ public class Appt_AvailabilityHandler {
 
             System.debug(lprefix+'FRONT With timeZoneOffset='+availModel.timeZoneOffset + ' got startDateTime='+startDateTime);
             frontTimeSlot = getTimeSlotBySite(Appt_ConstantValues.APPT_TIME_SLOT_TYPE_FRONT, availModel.siteId, availModel.appointmentDate, startDateTime);
+            System.debug(backTimeSlot + '--FrontTimeSlotVandana');
 
             startDateTime = Appt_AppointmentUtil.convertTime(String.valueOf(availModel.appointmentDate), availModel.backOfficeStartTime, availModel.timeZoneOffset);
             System.debug(lprefix+'BACK With timeZoneOffset='+availModel.timeZoneOffset + ' got startDateTime='+startDateTime);
             backTimeSlot = getTimeSlotBySite(Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK, availModel.siteId, availModel.appointmentDate, startDateTime);
+            System.debug(backTimeSlot + '--backTimeSlotVandana');
 
             // return true only if both slots are availble
             if (isSlotAvailable(frontTimeSlot, availModel.getBucketField(Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR)) && isSlotAvailable(backTimeSlot, availModel.getBucketField(Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR))) {

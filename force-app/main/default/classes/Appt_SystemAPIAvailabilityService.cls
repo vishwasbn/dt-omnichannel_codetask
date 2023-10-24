@@ -2,6 +2,8 @@
 global class Appt_SystemAPIAvailabilityService{
     public static String lprefix = 'LOG Appt_SystemAPIAvailabilityService: ';
     public static Boolean intMsgEnabled = true;
+    //Addedd for SO-41
+    public static Logger logInstance = Logger.getInstance();
    
     @HttpPost
     global static Appt_SiteAvailabilityResponse getAvailability() {
@@ -40,6 +42,12 @@ global class Appt_SystemAPIAvailabilityService{
             statusCode = 500;
             Appt_SystemAPIServiceHandler.setSFError(intMsg, 'getAvailability', 'Error parsing payload ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
             System.debug(lprefix + 'error parsing Create Appointment Request or Service Model: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ ex.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ ex.getMessage();
+            logInstance.Log(LPREFIX, Appt_SystemAPIAvailabilityService.class.getName(), errDetails); // SO-41 END
         }
 
         // 2. Pass Model to createAppointment
@@ -63,6 +71,12 @@ global class Appt_SystemAPIAvailabilityService{
                 statusCode = 500;
                 Appt_SystemAPIServiceHandler.setSFError(intMsg, 'getAvailability', 'Error generating getAvailability() response:' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
                 System.debug(lprefix + 'Error generating getAvailability() response: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ ex.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ ex.getMessage();
+                logInstance.Log(LPREFIX, Appt_SystemAPIAvailabilityService.class.getName(), errDetails); // SO-41 END
             }
         }
         
@@ -82,6 +96,12 @@ global class Appt_SystemAPIAvailabilityService{
                 statusCode = 500;
                 Appt_SystemAPIServiceHandler.setSFError(intMsg, 'getAvailability', 'Error generating getAvailability() response: ' + ex.getMessage() + ' ' + ex.getStackTraceString(), statusCode);
                 System.debug(lprefix + 'Error generating getAvailability() response: ' + ex.getMessage() + ' ' + ex.getStackTraceString());
+                // SO-41 START:  Added logInstance 
+                String errDetails = 'Cause: '+ ex.getCause() +'\n';
+                errDetails = errDetails + 'LineNumber: '+ ex.getLineNumber() +'\n';
+                errDetails = errDetails + 'Stack trace: '+ ex.getStackTraceString()+ '\n';
+                errDetails = errDetails + 'Message: '+ ex.getMessage();
+                logInstance.Log(LPREFIX, Appt_SystemAPIAvailabilityService.class.getName(), errDetails); // SO-41 END
             }
         }
 

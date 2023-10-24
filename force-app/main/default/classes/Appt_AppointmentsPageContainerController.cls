@@ -1,5 +1,7 @@
 public without sharing class Appt_AppointmentsPageContainerController {
-    public final static string lprefix = 'LOG APPT_PageCC ';
+    public final static string lprefix = 'LOG APPT_PageCC '; 
+    //Addedd for SO-41
+    public static Logger logInstance = Logger.getInstance();
 
     public class ReturnModel {
         public String status {get; set;}
@@ -69,6 +71,14 @@ public without sharing class Appt_AppointmentsPageContainerController {
             System.debug(lprefix + ' error populating Appt_CreateApptServiceModel. Error: ' + e.getMessage());
             serviceModel.status = Appt_ConstantValues.RESPONSE_STATUS_ERROR;
             serviceModel.message = 'System Error: ' + e.getMessage();
+            
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentsPageContainerController.class.getName(), errDetails); // SO-41 END
+            
             return JSON.serialize(serviceModel);
         }
         
@@ -294,10 +304,18 @@ public without sharing class Appt_AppointmentsPageContainerController {
             }
 
         } catch (Exception e) {
+            System.debug('Line number 307:>>>>>'+e.getMessage());
             Map<String, Object> errorObj = new Map<String, Object>();
             errorObj.put('lineNumber', e.getLineNumber());
             errorObj.put('message', e.getMessage());
             errorObj.put('exceptionType', e.getTypeName());
+            
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentsPageContainerController.class.getName(), errDetails); // SO-41 END
 
             throw new AuraHandledException(JSON.serialize(errorObj));
         }
@@ -359,6 +377,13 @@ public without sharing class Appt_AppointmentsPageContainerController {
             errorObj.put('lineNumber', e.getLineNumber());
             errorObj.put('message', e.getMessage());
             errorObj.put('exceptionType', e.getTypeName());
+            
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentsPageContainerController.class.getName(), errDetails); // SO-41 END
 
             throw new AuraHandledException(JSON.serialize(errorObj));
         }
@@ -406,6 +431,13 @@ public without sharing class Appt_AppointmentsPageContainerController {
             errorObj.put('lineNumber', e.getLineNumber());
             errorObj.put('message', e.getMessage());
             errorObj.put('exceptionType', e.getTypeName());
+            
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentsPageContainerController.class.getName(), errDetails); // SO-41 END
 
             throw new AuraHandledException(JSON.serialize(errorObj));
         }
@@ -456,6 +488,14 @@ public without sharing class Appt_AppointmentsPageContainerController {
 
         } catch (Exception e) {
             system.debug(lprefix + 'editCustomerDetails::exception: ' + e.getMessage());
+            
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentsPageContainerController.class.getName(), errDetails); // SO-41 END
+            
             throw new AuraHandledException(e.getMessage());
         }
     }
@@ -498,6 +538,14 @@ public without sharing class Appt_AppointmentsPageContainerController {
 
             return JSON.serialize(apptModel);
         } catch (Exception e) {
+            
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentsPageContainerController.class.getName(), errDetails); // SO-41 END
+            
             throw new AuraHandledException(e.getMessage());
         }
     }
@@ -510,6 +558,14 @@ public without sharing class Appt_AppointmentsPageContainerController {
             System.debug('Base URL: ' + sfdcBaseURL );
             return sfdcBaseURL;
         } catch (Exception e) {
+            
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentsPageContainerController.class.getName(), errDetails); // SO-41 END
+            
             throw new AuraHandledException(e.getMessage());
         }
     }

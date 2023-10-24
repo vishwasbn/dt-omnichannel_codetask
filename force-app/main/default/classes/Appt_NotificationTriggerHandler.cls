@@ -111,8 +111,8 @@ public with sharing class Appt_NotificationTriggerHandler {
                     }
 
                 } else if (notif.Notification_Type__c == Appt_ConstantValues.NOTIFICATION_APPT_NOW) {
-
-                    if(notif.Response__c == '1') {
+					// SO-891 - Start: Commenting as there was a requirement to stop sending the notification before 30 minites.
+                   /* if(notif.Response__c == '1') {
 
                         notif.Reply_PE_Notification_Type__c = Appt_ConstantValues.NOTIFICATION_APPT_LINK_RESCHEDULE;
                         notif = processStatusUpdates(notif, Appt_ConstantValues.NOTIFICATION_STATUS_SUCCESS);
@@ -122,7 +122,8 @@ public with sharing class Appt_NotificationTriggerHandler {
                         notif = processStatusUpdates(notif, Appt_ConstantValues.NOTIFICATION_STATUS_SUCCESS);
                     } else {
                         notif = processStatusUpdates(notif, Appt_ConstantValues.NOTIFICATION_STATUS_INVALID_DATA);
-                    }
+                    }*/
+                    // SO-891 - End: Commenting as there was a requirement to stop sending the notification before 30 minites.
 
                 }    
                 System.debug(lprefix+' Process Reply - End');

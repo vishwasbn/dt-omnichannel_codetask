@@ -1,7 +1,8 @@
 public without sharing class Appt_AppointmentListPageController {
     public static String lprefix = 'LOG Appt_ListPageController';
     public static final String SECOND_HEADER_LABEL = 'childrowheader';
-    
+    //Addedd for SO-41
+    public static Logger logInstance = Logger.getInstance();
     
     @AuraEnabled
     public static String getAppointmentListBySiteId(String siteId, String dateString){
@@ -20,7 +21,7 @@ public without sharing class Appt_AppointmentListPageController {
             Work_Order__r.Account.PersonEmail, Work_Order__r.Account.Email__c, Work_Order__r.Account.Phone, Work_Order__r.Account.PersonHomePhone, Work_Order__r.Cancel_Reason__c,
             Work_Order__r.Account.PersonMobilePhone, Work_Order__r.Account.ShippingStreet, Work_Order__r.Account.ShippingCity, Work_Order__r.Account.ShippingState, 
             Work_Order__r.Account.ShippingPostalCode, Work_Order__r.Account.ShippingCountry, Work_Order__r.Account.Appt_Customer_Type__c, 
-            Work_Order__r.CreatedDate, Account.PersonContactId, Site_Id__c  
+            Work_Order__r.CreatedDate, Account.PersonContactId, Site_Id__c
             FROM ServiceAppointment 
             WHERE Date_String__c = :dateString and (Status = :Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CONFIRMED OR Status = :Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED) and Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c = :siteId
             ORDER BY Date_String__c ASC, Start_Time_String__c ASC];
@@ -48,15 +49,15 @@ public without sharing class Appt_AppointmentListPageController {
             returnModel.invoiceNumber = sa.Work_Order__r.Invoice_Number__c;
             returnModel.orderDate = getOrderDate(sa);//String.valueOf(sa.Work_Order__r.Order_Date__c);
             returnModel.firstName = sa.Work_Order__r.Account.FirstName;
-            returnModel.lastName = sa.Work_Order__r.Account.LastName;
-            returnModel.workOrderId = sa.Work_Order__c;
+            returnModel.lastName = sa.Work_Order__r.Account.LastName; 
+			returnModel.workOrderId = sa.Work_Order__c;
             returnModel.mobilePhoneNumber = sa.Work_Order__r.Account.PersonMobilePhone;
             returnModel.homePhoneNumber = sa.Work_Order__r.Account.PersonHomePhone;
             returnModel.smsPhoneNumber = sa.Work_Order__r.SMS_Phone__c;
             returnModel.workPhoneNumber = sa.Work_Order__r.Account.Phone;
             returnModel.appointmentDate = Date.valueOf(sa.Date_String__c);
             returnModel.appointmentId = sa.id;
-            returnModel.siteId = siteId;
+            returnModel.siteId = siteId;               
 
             if (sa.Activity_Type__c == Appt_ConstantValues.SERVICE_APPOINTMENT_ACTIVITY_TYPE_FRONT) {
                 //Front Room appointment fields
@@ -179,6 +180,12 @@ public without sharing class Appt_AppointmentListPageController {
 
         }catch(Exception e){
             System.debug('Get On Hand Items Exception: ' + e.getMessage());
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentListPageController.class.getName(), errDetails); // SO-41 END
             return returnError;
         }
 
@@ -199,6 +206,12 @@ public without sharing class Appt_AppointmentListPageController {
             }
         } catch (exception e) {
             System.debug(lprefix+'unable to find order date: ' + e.getMessage());
+            // SO-41 START:  Added logInstance
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentListPageController.class.getName(), errDetails); // SO-41 END
         }
         return '';
         

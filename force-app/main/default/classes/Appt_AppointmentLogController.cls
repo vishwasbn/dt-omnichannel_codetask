@@ -1,6 +1,8 @@
 public without sharing class Appt_AppointmentLogController {
     public final static string lprefix = 'LOG Appt_LogController';
 
+    //Addedd for SO-41
+    public static Logger logInstance = Logger.getInstance();
 
     @AuraEnabled
     public static string getAppointments(String siteId, String startDate, String endDate, List<String> appointmentStatuses, Boolean rescheduleFilter){
@@ -27,7 +29,7 @@ public without sharing class Appt_AppointmentLogController {
             List<Appt_AppointmentLogWrapper> logWrapperList = new List<Appt_AppointmentLogWrapper>();
             if (apptList.size() > 0) {
                 for (ServiceAppointment sa : apptList) {
-                    Appt_AppointmentLogWrapper loggedAppt = new Appt_AppointmentLogWrapper(sa);
+                    Appt_AppointmentLogWrapper loggedAppt = new Appt_AppointmentLogWrapper(sa,siteId);
                     logWrapperList.add(loggedAppt);
                     //System.debug(lprefix + ' query date: ' + sa.SchedStartTime);
                 }
@@ -42,6 +44,12 @@ public without sharing class Appt_AppointmentLogController {
 
         } catch (Exception e) {
             System.debug(e.getMessage());
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentLogController.class.getName(), errDetails); // SO-41 END
             throw new AuraHandledException('Unable to populate table date: ' + e.getMessage());
         }
     }
@@ -81,13 +89,24 @@ public without sharing class Appt_AppointmentLogController {
         public string originalAppointmentDateTime { get; set; }
         public string originalAppointmentTime { get; set; }
         public Date originalAppointmentDate { get; set; }
-        
+
+        //so-349 additional parameters required to send payload to POS
+        public string orderDate { get; set; }
+        public string posCustomerId  {get; set; }
+        public string posWebOrderId {get; set; }
+        public string siteId { get; set; }
+        public string quoteNumber { get; set; }
+        public string layawayNumber { get; set; }
+
+        // SO-559: Adding Customer Type field to WRAPPER to display in UI
+        public string customerType {get; set;}
         
         public Appt_AppointmentLogWrapper() {}
 
-        public Appt_AppointmentLogWrapper(ServiceAppointment sa) {
+        public Appt_AppointmentLogWrapper(ServiceAppointment sa, String siteId) {
             //System.debug('wrapper builder 1');
             this.id = sa.Id;
+           
             this.appointmentStatus = sa.Status;
             this.source = sa.Work_Order__r?.Source__c;
             this.activityType = sa.Activity_Type__c;
@@ -117,14 +136,25 @@ public without sharing class Appt_AppointmentLogController {
             // Added logic support a dynamic form number based on the order type
             this.formNumber = Appt_AppointmentListPageController.getMappedFormNumber(sa.Work_Order__r.Order_Type__c, sa.Work_Order__r.POS_Web_Order_Id__c, sa.Work_Order__r.Layaway_Number__c, sa.Work_Order__r.Invoice_Number__c, sa.Work_Order__r.Quote_Number__c);
 
-            this.formType = sa.Work_Order__r?.Order_Type__c;
+            // changed value to use formtype field to pass back to POS. SO-349
+            //this.formType = sa.Work_Order__r.Order_Type__c;
+            this.formType = sa.Work_Order__r.Form_Type__c;
             //this.formNumber = sa.Work_Order__r?.Form_Number__c;
             this.cancelReason = sa.Work_order__r?.Cancel_Reason__c;
+               
+            //this.fullName = sa.Work_Order__r?.Contact?.Name;
 
-            // contact
-            //System.debug('wrapper builder 5');
             this.fullName = sa.Work_Order__r?.Contact?.Name;
+           
             this.mobilePhone = sa.Work_Order__r?.Contact?.MobilePhone;
+
+            //so-349 additional parameters required to send payload to POS
+            this.orderDate= Appt_AppointmentListPageController.getOrderDate(sa);
+            this.siteId= siteId;
+            this.posCustomerId = sa.Work_Order__r.Account.POS_Customer_Id__c;
+            this.posWebOrderId =sa.Work_Order__r.POS_Web_Order_Id__c;
+            this.quoteNumber =sa.Work_Order__r.Quote_Number__c;
+            this.layawayNumber = sa.Work_Order__r.Layaway_Number__c;
         }
 
         public Appt_AppointmentLogWrapper(Appt_ArchivePayloadModel apm){
@@ -172,6 +202,12 @@ public without sharing class Appt_AppointmentLogController {
             return true;
         } catch (exception e) {
             System.debug(lprefix+ 'invalid date params: ' + e.getMessage());
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_AppointmentLogController.class.getName(), errDetails); // SO-41 END
             return false;
         }
     }
@@ -209,18 +245,19 @@ public without sharing class Appt_AppointmentLogController {
         if (rescheduleFilter != null && (rescheduleFilter == true || rescheduleFilter == false)) {
             // include reschedule filter
             return [
-                SELECT Id, toLabel(Status), Activity_Type__c, Appointment_Rescheduled__c,
+                    SELECT Id, toLabel(Status), Activity_Type__c, Appointment_Rescheduled__c,
                     SchedStartTime, SchedEndTime, Start_Time_String__c, End_Time_String__c, Date_String__c,  // times
                     Original_Start_Time_String__c, Original_End_Time_String__c, Original_Date_String__c, // original times
                     Work_Order__r.Contact.FirstName, Work_Order__r.Contact.LastName, Work_Order__r.Contact.Name, // name
                     Work_Order__r.Contact.Phone, Work_Order__r.Contact.HomePhone, Work_Order__r.Contact.MobilePhone, // phone
                     Work_Order__r.Source__c, // source
                     Work_Order__r.Order_Type__c,  // order info
+                	Work_Order__r.Order_Date__c,Work_Order__r.CreatedDate,
                     Work_Order__r.Hybris_Order_Id__c, Work_Order__r.POS_Web_Order_Id__c, Work_Order__r.Layaway_Number__c, Work_Order__r.Quote_Number__c, Work_Order__r.Invoice_Number__c,
                     Work_Order__r.Form_Type__c, Work_Order__r.Form_Number__c, // form info
-                    Work_Order__r.Cancel_Reason__c
-                FROM ServiceAppointment
-                WHERE ServiceTerritory.Site_Account__r.SAP_STORE_ID__c = :siteId  
+                    Work_Order__r.Cancel_Reason__c,Work_Order__r.Account.POS_Customer_Id__c
+                    FROM ServiceAppointment
+                    WHERE ServiceTerritory.Site_Account__r.SAP_STORE_ID__c = :siteId  
                     AND Status IN :appointmentStatuses
                     AND Date_String__c <= :endDate
                     AND Date_String__c >= :startDate
@@ -237,9 +274,11 @@ public without sharing class Appt_AppointmentLogController {
                     Work_Order__r.Contact.Phone, Work_Order__r.Contact.HomePhone, Work_Order__r.Contact.MobilePhone, // phone
                     Work_Order__r.Source__c, // source
                     Work_Order__r.Order_Type__c,  // order info
+                    Work_Order__r.Order_Date__c,Work_Order__r.CreatedDate,
                     Work_Order__r.Hybris_Order_Id__c, Work_Order__r.POS_Web_Order_Id__c, Work_Order__r.Layaway_Number__c, Work_Order__r.Quote_Number__c, Work_Order__r.Invoice_Number__c,
                     Work_Order__r.Form_Type__c, Work_Order__r.Form_Number__c, // form info
-                    Work_Order__r.Cancel_Reason__c
+                    Work_Order__r.Cancel_Reason__c,
+                    Work_Order__r.Account.POS_Customer_Id__c
                 FROM ServiceAppointment
                 WHERE ServiceTerritory.Site_Account__r.SAP_STORE_ID__c = :siteId  
                     AND Status IN :appointmentStatuses
@@ -250,6 +289,7 @@ public without sharing class Appt_AppointmentLogController {
         } 
         
     }
+
 
     public static List<Appt_AppointmentLogWrapper> getArchivedServiceAppointments(String siteId, List<String> appointmentStatuses, String startDate, String endDate, Boolean rescheduleFilter) {
 

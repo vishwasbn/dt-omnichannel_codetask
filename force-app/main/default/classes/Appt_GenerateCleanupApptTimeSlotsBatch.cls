@@ -203,7 +203,7 @@ public class Appt_GenerateCleanupApptTimeSlotsBatch implements Database.Batchabl
         String dayOfWeek = storeData.maxSlotDate.formatGMT('EEEE');
 
         System.debug(LPREFIX + '+++++++++ DAY being processed, DOW='+dayOfWeek + ', Date=' + storeData.maxSlotDate + ', DetGMT='+storeData.maxSlotDate.dateGMT());
-
+		system.debug(' STORE HOUR MAP ===========***** >>>>>>>'+storeData);
         // Get store hours Slot and List of capacity Slots for the day of the week
         storeData.storeHoursSlot = storeData.storeHours.storeHoursPerWeekDayMap.get(dayOfWeek);
         storeData.capacitySlots = storeData.storeCapacitySlots.capacitySlotsPerWeekDayMap.get(dayOfWeek);

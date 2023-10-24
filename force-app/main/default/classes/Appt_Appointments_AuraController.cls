@@ -52,6 +52,13 @@ public without sharing class Appt_Appointments_AuraController {
             intMessage.Status__c = 'Error';
             intMessage.Salesforce_Error__c = e.getMessage();
             if (intMessage.Payload__c == null || intMessage.Payload__c == '' && rawIncomingParameters != null) intMessage.Payload__c = 'Raw Paramaters: ' +rawIncomingParameters;
+            // SO-41 START:  Added logInstance 
+            Logger logInstance = Logger.getInstance();
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log('Appt_Appointments_AuraController :', Appt_Appointments_AuraController.class.getName(), errDetails); // SO-41 END
         }
         return null;
     }

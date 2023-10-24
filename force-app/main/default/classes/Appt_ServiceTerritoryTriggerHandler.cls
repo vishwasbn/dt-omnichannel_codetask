@@ -4,6 +4,8 @@ public without sharing class Appt_ServiceTerritoryTriggerHandler {
     public static Map<String, id> storeIdMap =  new Map<String, id>();
     public static final String SHARE_REASON = 'Manual';
     public static final String SHARE_ACCESS = 'Read';
+    //Addedd for SO-41
+    public static Logger logInstance = Logger.getInstance();
 
 
     public static void handle(Map<Id, ServiceTerritory> oldMap, Map<Id, ServiceTerritory> newMap, System.TriggerOperation triggerEvent )
@@ -102,7 +104,13 @@ public without sharing class Appt_ServiceTerritoryTriggerHandler {
                 insert newSharedStoresList;
             }
         } catch (Exception e) {
-            System.debug(e.getMessage());
+            System.debug(e.getMessage()); 
+            // SO-41 START:  Added logInstance 
+            String errDetails = 'Cause: '+ e.getCause() +'\n';
+            errDetails = errDetails + 'LineNumber: '+ e.getLineNumber() +'\n';
+            errDetails = errDetails + 'Stack trace: '+ e.getStackTraceString()+ '\n';
+            errDetails = errDetails + 'Message: '+ e.getMessage();
+            logInstance.Log(LPREFIX, Appt_ServiceTerritoryTriggerHandler.class.getName(), errDetails); // SO-41 END
         }        
         
         

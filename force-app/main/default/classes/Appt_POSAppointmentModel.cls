@@ -204,7 +204,7 @@ public class Appt_POSAppointmentModel {
         // RT (Retail), RS (Resale), AR (A/R), MA (My Account), FL (Fleet).. 3 CHARACTERS
         // NOTE: MA is a subset of Retail
         if (customerType.equals('RT') || customerType.equalsIgnoreCase(Appt_ConstantValues.CUSTOMER_TYPE_RETAIL)) return Appt_ConstantValues.CUSTOMER_TYPE_RETAIL;
-        if (customerType.equals('FL') || customerType.equalsIgnoreCase(Appt_ConstantValues.CUSTOMER_TYPE_FLEET)) return Appt_ConstantValues.CUSTOMER_TYPE_FLEET; // DT is not currently sending 'FT' or Fleet
+        if (customerType.equals('FL') || customerType.equalsIgnoreCase(Appt_ConstantValues.CUSTOMER_TYPE_FLEET)) return Appt_ConstantValues.CUSTOMER_TYPE_FLEET; //DT is not currently sending 'FT' or Fleet
         
         return Appt_ConstantValues.CUSTOMER_TYPE_RETAIL; // default return value
     }

@@ -38,17 +38,15 @@ public class manageAccountDataTableControllerTest {
     }
     
     @IsTest static void testgetAccounts(){     
-        Account acc = [select id, name from Account where Name='TestAccount'];
-        User uid=[select id,name from user where lastname='lastname'];
-        Id accId = manageAccountDataTableController.getAccounts(uid.id);
+        Account acc = [select id, name from Account where Name='TestAccount'LIMIT 1];
+        Id accId = manageAccountDataTableController.getAccounts();
         System.assertEquals(accId, acc.id);                                 	 
     }
     
     @IsTest static void testgetAccountsException(){
       manageAccountDataTableController.throwException = true;
         try{
-             User uid=[select id,name from user where lastname='lastname'];
-            manageAccountDataTableController.getAccounts(uid.id);
+            manageAccountDataTableController.getAccounts();
             system.assert(false, 'Should have thrown an exception');
         }catch(Exception e){
             system.assert(e.getMessage().contains('Script-thrown exception'), 'Script-thrown exception');
@@ -56,7 +54,7 @@ public class manageAccountDataTableControllerTest {
     }
     
     @IsTest static void testgetContact(){                
-        User user = [select id, name, contactId  from user where lastname = 'lastname'];
+        User user = [select id, name, contactId  from user where lastname = 'lastname' limit 1];
         user u = manageAccountDataTableController.getContact(user.id);
         System.assertEquals(u.contactId, user.contactId);               	 
     }
@@ -64,7 +62,7 @@ public class manageAccountDataTableControllerTest {
      @IsTest static void testgetContactException(){
       manageAccountDataTableController.throwException = true;
         try{
-            User user = [select id, name, contactId  from user where lastname = 'lastname'];
+            User user = [select id, name, contactId  from user where lastname = 'lastname'LIMIT 1];
             manageAccountDataTableController.getContact(user.id);
             system.assert(false, 'Should have thrown an exception');
         }catch(Exception e){           
@@ -92,5 +90,4 @@ public class manageAccountDataTableControllerTest {
             system.assert(e.getMessage().contains('Script-thrown exception'), 'Script-thrown exception');
         }         	 
     }
-
 }
