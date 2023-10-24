@@ -359,6 +359,14 @@
         "childXmlNames": []
       },
       {
+        "directoryName": "processflowmigrations",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "processflowmigration",
+        "xmlName": "ProcessFlowMigration",
+        "childXmlNames": []
+      },
+      {
         "directoryName": "contentassets",
         "inFolder": false,
         "metaFile": true,
@@ -472,6 +480,7 @@
         "directoryName": "dw",
         "inFolder": false,
         "metaFile": true,
+        "suffix": "dwl",
         "xmlName": "DataWeaveResource",
         "childXmlNames": []
       },
@@ -646,11 +655,59 @@
         "childXmlNames": []
       },
       {
+        "directoryName": "skilltypes",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "skilltype",
+        "xmlName": "SkillType",
+        "childXmlNames": []
+      },
+      {
         "directoryName": "skills",
         "inFolder": false,
         "metaFile": false,
         "suffix": "skill",
         "xmlName": "Skill",
+        "childXmlNames": []
+      },
+      {
+        "directoryName": "serviceChannels",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "serviceChannel",
+        "xmlName": "ServiceChannel",
+        "childXmlNames": []
+      },
+      {
+        "directoryName": "queueRoutingConfigs",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "queueRoutingConfig",
+        "xmlName": "QueueRoutingConfig",
+        "childXmlNames": []
+      },
+      {
+        "directoryName": "servicePresenceStatuses",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "servicePresenceStatus",
+        "xmlName": "ServicePresenceStatus",
+        "childXmlNames": []
+      },
+      {
+        "directoryName": "presenceDeclineReasons",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "presenceDeclineReason",
+        "xmlName": "PresenceDeclineReason",
+        "childXmlNames": []
+      },
+      {
+        "directoryName": "presenceUserConfigs",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "presenceUserConfig",
+        "xmlName": "PresenceUserConfig",
         "childXmlNames": []
       },
       {
@@ -970,6 +1027,14 @@
         "childXmlNames": []
       },
       {
+        "directoryName": "experiencePropertyTypeBundles",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "experiencePropertyTypeBundle",
+        "xmlName": "ExperiencePropertyTypeBundle",
+        "childXmlNames": []
+      },
+      {
         "childXmlNames": [
           "DigitalExperience"
         ],
@@ -1000,6 +1065,14 @@
         "inFolder": false,
         "metaFile": false,
         "xmlName": "ExperienceBundle",
+        "childXmlNames": []
+      },
+      {
+        "directoryName": "experienceContainers",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "experienceContainer",
+        "xmlName": "ExperienceContainer",
         "childXmlNames": []
       },
       {
@@ -1322,6 +1395,14 @@
         "metaFile": false,
         "suffix": "searchCustomization",
         "xmlName": "SearchCustomization",
+        "childXmlNames": []
+      },
+      {
+        "directoryName": "omniSupervisorConfigs",
+        "inFolder": false,
+        "metaFile": false,
+        "suffix": "omniSupervisorConfig",
+        "xmlName": "OmniSupervisorConfig",
         "childXmlNames": []
       },
       {
