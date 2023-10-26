@@ -141,10 +141,17 @@ public without sharing class Appt_AppointmentLogController {
             this.formType = sa.Work_Order__r.Form_Type__c;
             //this.formNumber = sa.Work_Order__r?.Form_Number__c;
             this.cancelReason = sa.Work_order__r?.Cancel_Reason__c;
+
+            this.customerType = sa?.Customer_Type__c; //SO-559: assigning value to new column
                
             //this.fullName = sa.Work_Order__r?.Contact?.Name;
-
-            this.fullName = sa.Work_Order__r?.Contact?.Name;
+            // Start: SO-559 : Assigning Values to full name based on Fleet/Retail customer type           
+            if(sa.Work_Order__r.Account.RecordType.Name == 'B2B' && string.isNotBlank(sa.Work_Order__r.Account.ECC_Account_Number__c) && string.isNotBlank(sa.Work_Order__r.Account.name)){
+                this.fullName = sa.Work_Order__r.Account.ECC_Account_Number__c + ' ' +sa.Work_Order__r.Account.name;
+            } else {                
+                this.fullName = sa.Work_Order__r?.Contact?.Name;
+            }             
+            // End: SO-559
            
             this.mobilePhone = sa.Work_Order__r?.Contact?.MobilePhone;
 
@@ -255,7 +262,8 @@ public without sharing class Appt_AppointmentLogController {
                 	Work_Order__r.Order_Date__c,Work_Order__r.CreatedDate,
                     Work_Order__r.Hybris_Order_Id__c, Work_Order__r.POS_Web_Order_Id__c, Work_Order__r.Layaway_Number__c, Work_Order__r.Quote_Number__c, Work_Order__r.Invoice_Number__c,
                     Work_Order__r.Form_Type__c, Work_Order__r.Form_Number__c, // form info
-                    Work_Order__r.Cancel_Reason__c,Work_Order__r.Account.POS_Customer_Id__c
+                    Work_Order__r.Cancel_Reason__c,Work_Order__r.Account.POS_Customer_Id__c,
+                    Work_Order__r.Account.ECC_Account_Number__c, Work_Order__r.Account.name, Work_Order__r.Account.RecordType.Name, Customer_Type__c  // SO-559 : Adding fields
                     FROM ServiceAppointment
                     WHERE ServiceTerritory.Site_Account__r.SAP_STORE_ID__c = :siteId  
                     AND Status IN :appointmentStatuses
@@ -278,7 +286,8 @@ public without sharing class Appt_AppointmentLogController {
                     Work_Order__r.Hybris_Order_Id__c, Work_Order__r.POS_Web_Order_Id__c, Work_Order__r.Layaway_Number__c, Work_Order__r.Quote_Number__c, Work_Order__r.Invoice_Number__c,
                     Work_Order__r.Form_Type__c, Work_Order__r.Form_Number__c, // form info
                     Work_Order__r.Cancel_Reason__c,
-                    Work_Order__r.Account.POS_Customer_Id__c
+                    Work_Order__r.Account.POS_Customer_Id__c,
+                    Work_Order__r.Account.ECC_Account_Number__c, Work_Order__r.Account.name, Work_Order__r.Account.RecordType.Name,Customer_Type__c  // SO-559 : Adding fields
                 FROM ServiceAppointment
                 WHERE ServiceTerritory.Site_Account__r.SAP_STORE_ID__c = :siteId  
                     AND Status IN :appointmentStatuses

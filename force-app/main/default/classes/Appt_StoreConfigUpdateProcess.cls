@@ -80,6 +80,12 @@ public without sharing class Appt_StoreConfigUpdateProcess {
                             FROM Appt_Time_Slot_Capacity__c 
                             WHERE Service_Territory__c = :config.serviceTerritory 
                             AND Day_of_Week__c IN :selectedDays];
+        /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+        if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag() && existingSlotConfigList != null && existingSlotConfigList.size()>0)
+        {
+            existingSlotConfigList=Appt_AppointmentUtil.consolidateFleetCapacities(existingSlotConfigList);
+        }
+        /*Added as part of SO-856: Consolidate Fleet Buckets End*/                    
         System.debug(existingSlotConfigList);
         System.debug(existingSlotConfigList.size());
         System.debug('After getExistingSlotConfigs'); 
@@ -216,6 +222,12 @@ public without sharing class Appt_StoreConfigUpdateProcess {
                             WHERE Service_Territory__c = :config.serviceTerritory 
                             AND Start_Time__c >= :effectiveDate
                             ORDER BY Start_Time__c ASC];
+        /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+        if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag() && existingApptTimeSlots != null && existingApptTimeSlots.size()>0)
+        {
+            existingApptTimeSlots=Appt_AppointmentUtil.consolidateFleetCapacities(existingApptTimeSlots);
+        }
+        /*Added as part of SO-856: Consolidate Fleet Buckets End*/                    
 
         System.debug('Time Slots: ' + existingApptTimeSlots);
         System.debug('Time Slot size: ' + existingApptTimeSlots.size());

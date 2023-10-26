@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Appt_BatchApexErrorTrigger</members>
+        <members>Appt_NotificationTrigger</members>
+        <members>Appt_PrivacyRequestTrigger</members>
+        <members>Appt_ResourceAbsenceTrigger</members>
+        <members>Appt_ServiceAppointmentTrigger</members>
+        <members>CaseStatusChangeTrigger</members>
+        <members>CaseTrigger</members>
+        <members>LeadAssignmentRR</members>
+        <members>LeadAssignmentRR</members>
+        <members>LeadAssignmentRR</members>
+        <members>LeadAssignmentRR</members>
+        <members>LeadAssignmentRR</members>
+        <members>LeadAssignmentRR</members>
+        <members>LeadAssignmentRR</members>
+        <members>LeadAssignmentRR</members>
+        <members>PersonAccountAutomation</members>
+        <members>PersonAccountAutomation</members>
+        <members>communityPostForCCC</members>
+        <name>ApexTrigger</name>
+    </types>
+    <version>58.0</version>
+</Package>

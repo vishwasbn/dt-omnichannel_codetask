@@ -103,8 +103,14 @@ public without sharing class Appt_StoreConfigs {
                                     FWR_Capacity__c 
                                 FROM Appt_Time_Slot_Capacity__c 
                                 WHERE Service_Territory__c = :serviceTerritory 
-                                AND Day_of_Week__c = :selectedDay ORDER BY Start_Time__c];    
-    System.debug('Capacities' + ApptTimeSlotCapacities); 
+                                AND Day_of_Week__c = :selectedDay ORDER BY Start_Time__c];
+    /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+    if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag() && ApptTimeSlotCapacities != null && ApptTimeSlotCapacities.size()>0)
+    {
+        ApptTimeSlotCapacities=Appt_AppointmentUtil.consolidateFleetCapacities(ApptTimeSlotCapacities);
+    }
+    /*Added as part of SO-856: Consolidate Fleet Buckets End*/                                 
+    System.debug('Capacities' + ApptTimeSlotCapacities);     
     System.debug('End getApptTimeSlotCapacities');    
     }
 

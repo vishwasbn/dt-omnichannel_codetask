@@ -21,7 +21,8 @@ public without sharing class Appt_AppointmentListPageController {
             Work_Order__r.Account.PersonEmail, Work_Order__r.Account.Email__c, Work_Order__r.Account.Phone, Work_Order__r.Account.PersonHomePhone, Work_Order__r.Cancel_Reason__c,
             Work_Order__r.Account.PersonMobilePhone, Work_Order__r.Account.ShippingStreet, Work_Order__r.Account.ShippingCity, Work_Order__r.Account.ShippingState, 
             Work_Order__r.Account.ShippingPostalCode, Work_Order__r.Account.ShippingCountry, Work_Order__r.Account.Appt_Customer_Type__c, 
-            Work_Order__r.CreatedDate, Account.PersonContactId, Site_Id__c
+            Work_Order__r.CreatedDate, Account.PersonContactId, Site_Id__c,
+            Work_Order__r.Account.ECC_Account_Number__c, Work_Order__r.Account.name, Work_Order__r.Account.RecordType.Name,Customer_Type__c  // SO-559 : Adding fields
             FROM ServiceAppointment 
             WHERE Date_String__c = :dateString and (Status = :Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CONFIRMED OR Status = :Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED) and Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c = :siteId
             ORDER BY Date_String__c ASC, Start_Time_String__c ASC];
@@ -48,8 +49,8 @@ public without sharing class Appt_AppointmentListPageController {
             returnModel.quoteNumber = sa.Work_Order__r.Quote_Number__c;
             returnModel.invoiceNumber = sa.Work_Order__r.Invoice_Number__c;
             returnModel.orderDate = getOrderDate(sa);//String.valueOf(sa.Work_Order__r.Order_Date__c);
-            returnModel.firstName = sa.Work_Order__r.Account.FirstName;
-            returnModel.lastName = sa.Work_Order__r.Account.LastName; 
+            //returnModel.firstName = sa.Work_Order__r.Account.FirstName;
+            //returnModel.lastName = sa.Work_Order__r.Account.LastName; Added in SO-559 Condition below
 			returnModel.workOrderId = sa.Work_Order__c;
             returnModel.mobilePhoneNumber = sa.Work_Order__r.Account.PersonMobilePhone;
             returnModel.homePhoneNumber = sa.Work_Order__r.Account.PersonHomePhone;
@@ -57,7 +58,19 @@ public without sharing class Appt_AppointmentListPageController {
             returnModel.workPhoneNumber = sa.Work_Order__r.Account.Phone;
             returnModel.appointmentDate = Date.valueOf(sa.Date_String__c);
             returnModel.appointmentId = sa.id;
-            returnModel.siteId = siteId;               
+            returnModel.siteId = siteId;
+            
+            // START: SO-559 - Assigning values to wrapper fields
+            returnModel.customerType = sa.Customer_Type__c;
+
+            if(sa.Work_Order__r.Account.RecordType.Name == 'B2B' && string.isNotBlank(sa.Work_Order__r.Account.ECC_Account_Number__c) && string.isNotBlank(sa.Work_Order__r.Account.name)){
+                returnModel.firstName = sa.Work_Order__r.Account.ECC_Account_Number__c;
+                returnModel.lastName = sa.Work_Order__r.Account.name;
+            } else {
+                returnModel.firstName = sa.Work_Order__r.Account.FirstName;
+                returnModel.lastName = sa.Work_Order__r.Account.LastName;  
+                }
+            // END SO-559
 
             if (sa.Activity_Type__c == Appt_ConstantValues.SERVICE_APPOINTMENT_ACTIVITY_TYPE_FRONT) {
                 //Front Room appointment fields

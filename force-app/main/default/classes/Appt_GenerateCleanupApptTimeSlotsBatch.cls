@@ -203,7 +203,7 @@ public class Appt_GenerateCleanupApptTimeSlotsBatch implements Database.Batchabl
         String dayOfWeek = storeData.maxSlotDate.formatGMT('EEEE');
 
         System.debug(LPREFIX + '+++++++++ DAY being processed, DOW='+dayOfWeek + ', Date=' + storeData.maxSlotDate + ', DetGMT='+storeData.maxSlotDate.dateGMT());
-		system.debug(' STORE HOUR MAP ===========***** >>>>>>>'+storeData);
+        system.debug(' STORE HOUR MAP ===========***** >>>>>>>'+storeData);
         // Get store hours Slot and List of capacity Slots for the day of the week
         storeData.storeHoursSlot = storeData.storeHours.storeHoursPerWeekDayMap.get(dayOfWeek);
         storeData.capacitySlots = storeData.storeCapacitySlots.capacitySlotsPerWeekDayMap.get(dayOfWeek);
@@ -494,6 +494,13 @@ public class Appt_GenerateCleanupApptTimeSlotsBatch implements Database.Batchabl
             FROM Appt_Time_Slot_Capacity__c WHERE Service_Territory__c IN :storesToProcessList ORDER BY Service_Territory__c, Day_of_Week__c, Start_Time__c];
 
         if (capacityOverrides != null && capacityOverrides.size() > 0) {
+            /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+            if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag())
+            {
+                capacityOverrides=(List<Appt_Time_Slot_Capacity__c>)Appt_AppointmentUtil.consolidateFleetCapacities(capacityOverrides);
+                System.debug('capacityOverrides>>>>'+capacityOverrides);
+            }
+            /*Added as part of SO-856: Consolidate Fleet Buckets End*/
             //System.debug(LPREFIX + '   ------Capacity Override LOOP with '+capacityOverrides.size()+' items in list------');   //DEBUG
 
             Integer count = 0;

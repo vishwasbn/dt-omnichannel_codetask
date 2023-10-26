@@ -59,6 +59,13 @@ public class Appt_AvailabilityHandler {
         String storeWebChar;
         if (availModel.source == Appt_ConstantValues.APPOINTMENT_SOURCE_STORE || availModel.source == Appt_ConstantValues.APPOINTMENT_SOURCE_POS) storeWebChar = Appt_ConstantValues.APPOINTMENT_SOURCE_STORE_CHAR;
         else storeWebChar = Appt_ConstantValues.APPOINTMENT_SOURCE_WEB_CHAR;
+        /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+        if(fleetRetailChar==Appt_ConstantValues.APPOINTMENT_SOURCE_CUSTOMER_FLEET_CHAR 
+        && Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag())
+        {
+            storeWebChar=Appt_ConstantValues.APPOINTMENT_SOURCE_STORE_CHAR;
+        }
+        /*Added as part of SO-856: Consolidate Fleet Buckets End*/
 
        
         //--- Calculate the time today in Store's Timezone that will be within the "window" for making Web Slots available to the Store (Web Appointment Lead Time).  
@@ -98,6 +105,12 @@ public class Appt_AvailabilityHandler {
         //System.debug(lprefix+'       POST SOQL allTimeSlots='+allTimeSlots); //DEBUG LOG
 
         Integer foundRecords = (allTimeSlots != null) ? allTimeSlots.size() : 0;
+        if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag() && foundRecords>0)
+        {
+            /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+            allTimeSlots=(List<Appt_Time_Slot__c>)Appt_AppointmentUtil.ConsolidateFleetCapacities(allTimeSlots);
+            /*Added as part of SO-856: Consolidate Fleet Buckets End*/
+        }
         System.debug( lprefix + 'T4 SOQL: ' + Fleet_IntegrationUtil.getDuration(startTimePart, Datetime.now()) + ' ms, Found ' + foundRecords + ' records');
         Int_Values.addTiming('AvailHandler.calcAvailTimes.TimeslotSOQL',startTimePart, Datetime.now());
 
@@ -165,32 +178,8 @@ public class Appt_AvailabilityHandler {
             System.debug(lprefix+'        getAvailabilityModel() - backList: ' + backList.size() + ' records');
 
         } else {
-             List<Appt_Time_Slot__c> frontList = getAvailableSlots(allTimeSlots, Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR, storeWebChar, fleetRetailChar, webCutoffTime, timeZoneOffset, null);
-             System.debug(lprefix+'        getAvailabilityModel() - frontList: ' + frontList.size()  + ' records');
-             
-             List<Appt_Time_Slot__c> backList = getAvailableSlots(allTimeSlots, Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR, storeWebChar, fleetRetailChar, webCutoffTime, timeZoneOffset, null);
-             System.debug(lprefix+'        getAvailabilityModel() - backList: ' + backList.size() + ' records');
-
-             //---For performance, need to put the back list into a Map.  This only scans the back list once, and then allows very fast searching by the key (StartTime)
-             Map<String, Appt_Time_Slot__c> backMap = new Map<String, Appt_Time_Slot__c>();
-             
-             for (Appt_Time_Slot__c currSlot : backList)
-             {
-                 String key = '' + currSlot.Start_Time__c;   //---This creates to a String, this assumes that the date is included in the String
-                 //System.debug(lprefix+'        putting on backMap, key='+key+', currSlot:'+currSlot);
-
-                 backMap.put( key, currSlot);
-             }
-           
-            //---For each Front Appointment, check if there is a matching Back Appointment
-            for (Appt_Time_Slot__c frontSlot : frontList) 
-            {
-                String key = '' + frontSlot.End_Time__c;   //---This creates to a String, this assumes that the date is included in the String
-                //System.debug(lprefix+'        checking on backMap for cooresponding frontslot, key='+key+', currSlot:'+frontSlot);
-
-                Appt_Time_Slot__c backSlot = backMap.get(key);
-                if (backSlot != null) addTimeSlotsToModel( avModel, frontSlot, backSlot);
-            }
+             List<Appt_Time_Slot__c> bothList = getAvailableSlots(allTimeSlots, Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR+''+Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR, storeWebChar, fleetRetailChar, webCutoffTime, timeZoneOffset, avModel);
+             System.debug(lprefix+'        getAvailabilityModel() - bothList: ' + bothList.size()  + ' records');
         }
         
         System.debug( lprefix + 'M:getAvailabilityModel(): ' + Fleet_IntegrationUtil.getDuration(methodTime, Datetime.now()) + ' ms');
@@ -268,21 +257,54 @@ public class Appt_AvailabilityHandler {
         //---The current field to check
         String currentCheckField = frontBackChar + storeWebChar + fleetRetailChar + '_Available__c';
         
+        
+        /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+        //Check if the consolidate fleet flag is true, then if it is front, send the FSF_Available__c. If back, send the BSF_Available__c
+        
+        if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag() && fleetRetailChar==Appt_ConstantValues.APPOINTMENT_SOURCE_CUSTOMER_FLEET_CHAR)
+        {
+            if(frontBackChar==Appt_ConstantValues.APPOINTMENT_SOURCE_CUSTOMER_FLEET_CHAR)
+            currentCheckField='FSF_Available__c';
+            else {
+                currentCheckField='BSF_Available__c';
+            }
+            
+        }
+        /*Added as part of SO-856: Consolidate Fleet Buckets End*/
+
+        
         //---The web field to check (for the Web Cutoff)
         String webCheckField = frontBackChar + Appt_ConstantValues.APPOINTMENT_SOURCE_WEB_CHAR + fleetRetailChar + '_Available__c';
+        
+        //SO-481
+        Map<String, Appt_Time_Slot__c> backMap = new Map<String, Appt_Time_Slot__c>();
+        List<Appt_Time_Slot__c> frontList = new List<Appt_Time_Slot__c>();
         
         //---Scan for the matching availability
         for (Appt_Time_Slot__c currSlot: allTimeSlots) 
         {
             //---Only check slot if this is front type Appt_Time_Slot and we're checking for FRONT, or if this is back type Appt_Time_Slot and we're checking for BACK
+            //SO-481
             if ((currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_FRONT && frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR)
-                || (currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK && frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR)) {
-        
+                || (currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK && frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR)
+                || ((currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_FRONT || currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK) &&
+                        (frontBackChar != Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR && frontBackChar != Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR)) ) {
+        					
+                            //SO-481
+                            if(currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_FRONT){
+                                currentCheckField = Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR + storeWebChar + fleetRetailChar + '_Available__c';
+                                webCheckField = Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR + Appt_ConstantValues.APPOINTMENT_SOURCE_WEB_CHAR + fleetRetailChar + '_Available__c';
+                            }
+                            else {
+                                 currentCheckField = Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR + storeWebChar + fleetRetailChar + '_Available__c';
+                                webCheckField = Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR + Appt_ConstantValues.APPOINTMENT_SOURCE_WEB_CHAR + fleetRetailChar + '_Available__c';
+                            }
+                            
                 //---Check if it is today using current date at Store's timezone
                 Datetime now = System.now().addHours(timeZoneOffset);
                 System.debug(lprefix+'getAvailableSlots() - currSlot.Date__c='+currSlot.Date__c+', currSlot:'+currSlot); //DEBUG LOG
                 System.debug(lprefix+'System.now().addHours(timeZoneOffset)='+now); //DEBUG LOG
-                if (currSlot.Date__c == now)
+                if (currSlot.Date__c == now.date())
                 {
                     if (storeWebChar == Appt_ConstantValues.APPOINTMENT_SOURCE_STORE_CHAR)
                     {
@@ -295,7 +317,16 @@ public class Appt_AvailabilityHandler {
                             }
                             else
                             {
-                                addTimeSlotsToModel(avModel, (frontBackChar == 'F' ? currSlot : null), (frontBackChar == 'B' ? currSlot : null));
+                                if(frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR || frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR) {
+                                	addTimeSlotsToModel(avModel, (frontBackChar == 'F' ? currSlot : null), (frontBackChar == 'B' ? currSlot : null));
+                                }
+                            }
+                            //SO-481
+                            if(currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK) {
+                                backMap.put('' + currSlot.Start_Time__c, currSlot);
+                            }
+                            else {
+                                frontList.add(currSlot);
                             }
                         }
                         else
@@ -311,7 +342,17 @@ public class Appt_AvailabilityHandler {
                                     }
                                     else
                                     {
-                                        addTimeSlotsToModel(avModel, (frontBackChar == 'F' ? currSlot : null), (frontBackChar == 'B' ? currSlot : null));
+                                        if(frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR || frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR)
+                                        {
+                                            addTimeSlotsToModel(avModel, (frontBackChar == 'F' ? currSlot : null), (frontBackChar == 'B' ? currSlot : null));
+                                        }
+                                    }
+                                    //SO-481
+                                    if (currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK){
+                                        backMap.put('' + currSlot.Start_Time__c, currSlot);
+                                    }
+                                    if (currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_FRONT){
+                                        frontList.add(currSlot);
                                     }
                                 }
                             }
@@ -331,7 +372,17 @@ public class Appt_AvailabilityHandler {
                                 }
                                 else
                                 {
-                                    addTimeSlotsToModel(avModel, (frontBackChar == 'F' ? currSlot : null), (frontBackChar == 'B' ? currSlot : null));
+                                    if(frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR || frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR)
+                                    {
+                                        addTimeSlotsToModel(avModel, (frontBackChar == 'F' ? currSlot : null), (frontBackChar == 'B' ? currSlot : null));
+                                    }
+                                }
+                                //SO-481
+                                if (currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK){
+                                    backMap.put('' + currSlot.Start_Time__c, currSlot);
+                                }
+                                if (currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_FRONT){
+                                    frontList.add(currSlot);
                                 }
                             }
                         }
@@ -347,10 +398,33 @@ public class Appt_AvailabilityHandler {
                         }
                         else
                         {
-                        addTimeSlotsToModel(avModel, (frontBackChar == 'F' ? currSlot : null), (frontBackChar == 'B' ? currSlot : null));
+                            if(frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR || frontBackChar == Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR)
+                            {
+                                addTimeSlotsToModel(avModel, (frontBackChar == 'F' ? currSlot : null), (frontBackChar == 'B' ? currSlot : null));
+                            }
+                        }
+                        //SO-481
+                        if (currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK){
+                            backMap.put('' + currSlot.Start_Time__c, currSlot);
+                        }
+                        if (currSlot.Type__c == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_FRONT){
+                            frontList.add(currSlot);
                         }
                     }
                 }
+            }
+        }
+        
+        //SO-481
+        if(frontBackChar != Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR && frontBackChar != Appt_ConstantValues.APPOINTMENT_TYPE_BACK_CHAR)
+        {
+            for (Appt_Time_Slot__c frontSlot : frontList) 
+            {
+                String key = '' + frontSlot.End_Time__c;   //---This creates to a String, this assumes that the date is included in the String
+                //System.debug(lprefix+'        checking on backMap for cooresponding frontslot, key='+key+', currSlot:'+frontSlot);
+                
+                Appt_Time_Slot__c backSlot = backMap.get(key);
+                if (backSlot != null) addTimeSlotsToModel( avModel, frontSlot, backSlot);
             }
         }
 
@@ -409,7 +483,10 @@ public class Appt_AvailabilityHandler {
             WHERE Type__c = :type AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c = :appointmentDate AND Start_Time__c = :startTime LIMIT 1];
         System.debug(lprefix+'        foundSlots:'+foundSlots);
 
-        if (foundSlots != null && foundSlots.size() > 0) {
+        if (foundSlots != null && foundSlots.size() > 0 && Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag()) {
+            /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+            foundSlots=(List<Appt_Time_Slot__c>)Appt_AppointmentUtil.ConsolidateFleetCapacities(foundSlots);
+            /*Added as part of SO-856: Consolidate Fleet Buckets End*/
             returnSlot = foundSlots.get(0);
         }
 
@@ -437,14 +514,22 @@ public class Appt_AvailabilityHandler {
                           isBackUnavailable__c FROM Appt_Time_Slot__c WHERE Type__c = :type AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c = :appointmentDate AND ((Start_Time__c >= :startTime AND End_Time__c <= :endTime) OR (Start_Time__c < :endTime AND End_Time__c >= :endTime) OR (Start_Time__c <= :startTime AND End_Time__c > :startTime))];
             System.debug(returnSlots +'myreturnslots');
                 } else {
+                    /*Modified as part of SO-856: Consolidate Fleet Buckets Added fleet capacity fields*/
                     returnSlots = [SELECT Type__c, BSF_Available__c, BSR_Available__c, BWF_Available__c, BWR_Available__c, FSF_Available__c, 
-                                   FSR_Available__c, FWF_Available__c,  FWR_Available__c, Start_Time__c, End_Time__c, Date__c, IsFrontUnavailable__c, isBackUnavailable__c FROM Appt_Time_Slot__c 
+                                   FSR_Available__c, FWF_Available__c,  FWR_Available__c, Start_Time__c, End_Time__c, Date__c, IsFrontUnavailable__c, isBackUnavailable__c, 
+                                   BSF_Capacity__c, FSF_Capacity__c, FWF_Capacity__c, BWF_Capacity__c FROM Appt_Time_Slot__c 
                                    WHERE Type__c = :type AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c = :appointmentDate 
                                    AND (Start_Time__c >= :startTime AND End_Time__c <= :endTime)];
         }
-        System.debug(lprefix+'  POST SOQL returnSlots:'+returnSlots);   //TODO - DEBUG - COMMENT OUT
+        System.debug(lprefix+'  POST SOQL returnSlots:'+returnSlots);   //TODO - DEBUG - COMMENT OUT 
 
-        if (returnSlots != null) System.debug(lprefix+'getTimeSlotBySite() EXIT - number of returned Slot = '+returnSlots.size());
+        if (returnSlots != null && Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag()) 
+        {
+            /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+            returnSlots=(List<Appt_Time_Slot__c>)Appt_AppointmentUtil.ConsolidateFleetCapacities(returnSlots);
+            /*Added as part of SO-856: Consolidate Fleet Buckets End*/
+        System.debug(lprefix+'getTimeSlotBySite() EXIT - number of returned Slot = '+returnSlots.size());
+        }
         else System.debug(lprefix+'getTimeSlotBySite() EXIT - number of returned Slot = 0');
 
         Int_Values.addTiming('AvailHandler.getSlotsFromStartToEndTime',startTimeAll, Datetime.now());
@@ -469,8 +554,7 @@ public class Appt_AvailabilityHandler {
                                                                     WHERE Order_Type__c = :availModel.orderType AND Source__c = :availModel.source];
         System.debug(lprefix+'       Retrieved Work Type Calculation metadata, workTypeInfo:'+workTypeCalcs);
         //SO-495
-        //SO-811 - revert front room related changes
-        //Boolean  setWorkTypeasBoth = false;
+        Boolean  setWorkTypeasBoth = false;
         if (workTypeCalcs != null && workTypeCalcs.size() == 1) {
 
             returnWorkType.type = workTypeCalcs.get(0).Type__c;
@@ -492,17 +576,17 @@ public class Appt_AvailabilityHandler {
                         // if the articeId/productId is a match, then put it's cooresponding type on the temporary storage list
                         if (availModel.isProductInItemList(articleId)) {
                             types.add(type);
-                           /* //if type is both  then set the work type as Both below using this flag
+                           //if type is both  then set the work type as Both below using this flag
                             if(type == Appt_ConstantValues.WORK_TYPE_TYPE_BOTH) {
                                 setWorkTypeasBoth = true;
-                            } */
+                            }
                        }
 
                     }
 
                     // Scan through list of types and set largest on model IF AND ONLY IF all items/articles are matches.
                     //  If there are items/articles in the list that do not match, meaning non-product items, then do not use product item type.
-                    if (productList.size() == availModel.numberOfItems() ) {
+                    if (productList.size() == availModel.numberOfItems() || setWorkTypeasBoth) {
                         if (types.contains(Appt_ConstantValues.WORK_TYPE_TYPE_BOTH) || (types.contains(Appt_ConstantValues.WORK_TYPE_TYPE_FRONT) && types.contains(Appt_ConstantValues.WORK_TYPE_TYPE_BACK))) {
                             returnWorkType.type = Appt_ConstantValues.WORK_TYPE_TYPE_BOTH;
                         } else {
@@ -562,6 +646,10 @@ public class Appt_AvailabilityHandler {
                                                 WHERE Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c >= :startdate AND Date__c <= :endDate ORDER BY Start_Time__c];
 
         System.debug(lprefix+'getTimeSlotsBySite() EXIT - returnSlots:' + returnSlots);
+        /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+        if(returnSlots!=null && returnSlots.size()>0 && Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag())
+        returnSlots=(List<Appt_Time_Slot__c>)Appt_AppointmentUtil.ConsolidateFleetCapacities(returnSlots);
+        /*Added as part of SO-856: Consolidate Fleet Buckets End*/
         return returnSlots;
     }
 

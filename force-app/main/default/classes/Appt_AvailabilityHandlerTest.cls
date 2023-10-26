@@ -234,6 +234,51 @@ public with sharing class  Appt_AvailabilityHandlerTest {
         System.assertEquals('Success', results.status, 'Check for sucess');  
 
     }
+    
+    @isTest static void calculateAvailableTimesForBothSlotsTest(){
+        Appt_GetAvailabilityServiceModel availModel = new Appt_GetAvailabilityServiceModel();
+        availModel.siteId='1235';
+        availModel.startDate = Date.today().addDays(1);
+        availModel.endDate = Date.today().addDays(1);
+        availModel.orderType='ServiceAppointment';
+        availModel.source='WEB';
+        availModel.consultStartTime ='1500';
+        availModel.consultEndTime ='1520';
+        availModel.backOfficeStartTime ='1520';
+        availModel.backOfficeEndTime ='1540'; 
+		Appt_GetAvailabilityServiceModel.Items article = new Appt_GetAvailabilityServiceModel.Items();
+        article.articleId = '84802';
+        List<Appt_GetAvailabilityServiceModel.Items> articles = new List<Appt_GetAvailabilityServiceModel.Items>();
+        articles.add(article); 
+        availModel.items = articles;
+        Test.startTest();        
+        Appt_SiteAvailabilityModel returnModel = Appt_AvailabilityHandler.calculateAvailableTimes(availModel);            
+        Test.stopTest();
+        system.debug('@@@@'+returnModel);
+        Assert.areEqual(Appt_ConstantValues.RESPONSE_STATUS_SUCCESS, returnModel.status);
+        Assert.isNotNull(returnModel.days);
+        Assert.isNotNull(returnModel.daysMap);
+        Assert.isNotNull(returnModel.timeZone);
+    }
+    
+    @isTest static void calculateAvailableTimesForPOSBackSlotsTest(){
+        Appt_GetAvailabilityServiceModel availModel = new Appt_GetAvailabilityServiceModel();
+        availModel.siteId='1235';
+        availModel.startDate = Date.today();
+        availModel.endDate = Date.today();
+        availModel.orderType='Layaway';
+        availModel.source='POS';
+        availModel.backOfficeStartTime ='1520';
+        availModel.backOfficeEndTime ='1540'; 
+        Test.startTest();        
+        Appt_SiteAvailabilityModel returnModel = Appt_AvailabilityHandler.calculateAvailableTimes(availModel);            
+        Test.stopTest();
+        Assert.areEqual(Appt_ConstantValues.RESPONSE_STATUS_SUCCESS, returnModel.status);
+        Assert.isNotNull(returnModel.days);
+        Assert.isNotNull(returnModel.daysMap);
+        Assert.isNotNull(returnModel.timeZone);
+    }
+    
     //Apt 3 start
      @isTest static void getSlotsFromStartToEndTimeTest() {  
         
@@ -371,7 +416,7 @@ public with sharing class  Appt_AvailabilityHandlerTest {
         slotBack.Type__c = Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK;
         slotBack.Start_Time__c =  DateTime.now().addDays(2);     
         
-        List<Appt_Time_Slot__c> backSlots = new List<Appt_Time_Slot__c>();
+        List<Appt_Time_Slot__c> backSlots = new List<Appt_Time_Slot__c>(); 
         backSlots.add(slotBack);        
         
         Test.startTest();

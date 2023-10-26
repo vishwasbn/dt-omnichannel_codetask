@@ -7,17 +7,17 @@ public class Appt_AppointmentCanceledHoldBatch implements Database.Batchable<SOb
 {
 
     final static string LPREFIX = 'Appt_AppointmentCanceledHoldBatch: ';
-    public final String QUERY;
+    public final String batchQuery;
     public Appt_AppointmentCanceledHoldBatch()
     {
         System.debug('Start Appt_AppointmentCanceledHoldBatch default Constructor');
-        QUERY = 'SELECT Id, Status FROM ServiceAppointment WHERE Appt_Pending_Expired__c = true';
+        batchQuery = 'SELECT Id, Status FROM ServiceAppointment WHERE Appt_Pending_Expired__c = true';
     }
 
     public Database.QueryLocator start(Database.BatchableContext bc) 
     {
         System.debug('Start Appt_AppointmentCanceledHoldBatch start');
-        return Database.getQueryLocator(QUERY);
+        return Database.getQueryLocator(batchQuery);
     }
 
     public void execute(Database.BatchableContext bc, List<ServiceAppointment> scope){

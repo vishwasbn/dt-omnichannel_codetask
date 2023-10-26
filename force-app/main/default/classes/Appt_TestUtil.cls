@@ -834,43 +834,50 @@ public without sharing class Appt_TestUtil
     */
     public static Account getCustomerAccount(Id ownerId, String FirstName, String LastName) 
     {
-        Id apptRecType = Schema.getGlobalDescribe().get('Account').getDescribe().getRecordTypeInfosByName().get('Person Account').getRecordTypeId();
-        System.debug(lprefix + 'Person Account RecType: ' + apptRecType);
-
-        Account acc = new Account(
+        Id apptRecType;
+        if(LastName == 'FLEET'){
+            apptRecType = Schema.getGlobalDescribe().get('Account').getDescribe().getRecordTypeInfosByName().get('B2B').getRecordTypeId();
+            account acc = new account();
+            acc.Name = 'KELLER SERVICES';
+            acc.ECC_Account_Number__c = '240492';
+            acc.RecordTypeId = apptRecType;
+            acc.Country__c = 'United States';
+            acc.Selected_State__c = 'Alabama';
+            acc.Fleet_AR_App_Status__c = 'Approved';
+            insert acc;
+            return acc;
+        } else {
+            apptRecType = Schema.getGlobalDescribe().get('Account').getDescribe().getRecordTypeInfosByName().get('Person Account').getRecordTypeId();
+            Account acc = new Account(
             OwnerId = ownerId,
             FirstName = FirstName,
-            LastName = LastName == 'FLEET'? LastName : LastName+'R',
+            LastName = LastName,
             RecordTypeId = apptRecType,
             Phone = '5555555555',
-            ShippingCity = LastName == 'FLEET'?'Any Fleet City':'Any Retail City',
-            ShippingState = LastName == 'FLEET'?'Arizona':'California',
+            ShippingCity = 'Any Retail City',
+            ShippingState = 'Arizona',
             ShippingStreet = 'Any Street',
             ShippingPostalCode = '47040',
-            PersonMobilePhone = LastName == 'FLEET'?'5555555555':'6666666666',
-            PersonEmail = LastName == 'FLEET'?'testFleet@test.com':'testRetail@test.com',
-            BillingCity = LastName == 'FLEET'?'Any Fleet City':'Any Retail City',
-            BillingStreet = LastName == 'FLEET'?'Any Fleet Street': 'Any Retail Street',
-            BillingState = LastName == 'FLEET'?'Arizona':'California',
+            PersonMobilePhone = '5555555555',
+            PersonEmail = 'testRetail@test.com',
+            BillingCity = 'Any Retail City',
+            BillingStreet = 'Any Retail Street',
+            BillingState = 'Arizona',
             PersonLeadSource = 'Online Inquiry Form',
             AccountSource = 'Online Inquiry Form',
             Fleet_AR_App_Status__c = Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_PENDING,
             Fleet_Account_Status__c = 'Prospect',
-            Appt_Customer_Type__c = LastName == 'FLEET'?'Fleet':'Retail',
-            POS_Customer_Id__c = LastName == 'FLEET'?'15645564':'15645565',
-            Hybris_Customer_Id__c = LastName == 'FLEET'?'15641654d':'15641655',
+            Appt_Customer_Type__c = 'Retail',
+            POS_Customer_Id__c = '15645565',
+            Hybris_Customer_Id__c ='15641655',
             Appt_Email_Opt_In__pc = true,
-            Appt_SMS_Opt_In__pc = true,
-            Appt3_Fleet_Number__c = LastName == 'FLEET'?'123456':'',
-            Appt3_Company_Name__c = LastName == 'FLEET'?'TEST INC':''
-            
+            Appt_SMS_Opt_In__pc = true            
         );
-
-        insert acc;
-
-        System.debug(lprefix + 'Person Account: ' + acc.Id + ' recType: ' + acc.RecordTypeId);
-
-        return acc;
+            insert acc;
+            System.debug(lprefix + 'Person Account RecType: ' + apptRecType);
+        	System.debug(lprefix + 'Person Account: ' + acc.Id + ' recType: ' + acc.RecordTypeId);
+            return acc;
+        }        
     } // End of getCustomerAccount()
 
 
@@ -1428,17 +1435,24 @@ public without sharing class Appt_TestUtil
 
         ServiceTerritoryMember servTerritoryMember = Appt_TestUtil.getServiceTerritoryMember(servTerr.Id, servResource.Id, 'P', Datetime.now().addMonths(-2));
 
-        Account custAccount = Appt_TestUtil.getCustomerAccount( sysUser.Id, 'Sam', 'FLEET');
-
-        List<Contact> custContacts = [SELECT Id FROM Contact WHERE AccountId =: custAccount.Id];
+        Account fleetAccount = Appt_TestUtil.getCustomerAccount( sysUser.Id, 'Sam', 'FLEET');
+        Id apptRecType = Schema.getGlobalDescribe().get('Contact').getDescribe().getRecordTypeInfosByName().get('B2B Driver').getRecordTypeId();
+		Contact cnt = new Contact();
+        cnt.RecordTypeId = apptRecType;
+        cnt.AccountId = fleetAccount.Id;
+        cnt.FirstName = 'FNAME';
+        cnt.LastName = 'LNAME';
+        insert cnt;
+        
+        List<Contact> custContacts = [SELECT Id FROM Contact WHERE AccountId =: fleetAccount.Id];
         
         System.assertEquals(1, custContacts.size(), 'No Contact was created by the Person Account creation');
 
-        Asset vehicleAsset = Appt_TestUtil.getVehicle_Asset( sysUser.Id, custAccount.Id, custContacts[0].Id);
+        Asset vehicleAsset = Appt_TestUtil.getVehicle_Asset( sysUser.Id, fleetAccount.Id, custContacts[0].Id);
 
         WorkType orderWorkType = Appt_TestUtil.getWorkOrderType('20 Minute Appointment', sysUser.Id, 20, 4320);
 
-        WorkOrder customerWrkOrder = Appt_TestUtil.getWorkOrder( sysUser.Id, custAccount.Id, custContacts[0].Id, 'Two tire change', orderWorkType.Id, servTerr.Id, 'ROPIS', 'WEB', Date.valueOf('2021-01-14'), Date.valueOf('2021-01-14'), vehicleAsset.Id);
+        WorkOrder customerWrkOrder = Appt_TestUtil.getWorkOrder( sysUser.Id, fleetAccount.Id, custContacts[0].Id, 'Two tire change', orderWorkType.Id, servTerr.Id, 'ROPIS', 'WEB', Date.valueOf('2021-01-14'), Date.valueOf('2021-01-14'), vehicleAsset.Id);
 
         FSL__Scheduling_Policy__c schedulePolicy = Appt_TestUtil.getSchedulingPolicy(sysUser.Id, 'Appointment Policy');
 
@@ -1450,8 +1464,8 @@ public without sharing class Appt_TestUtil
         Integer localTimeZoneOffset = -7;
         Integer appointmentDuration = 20;
         
-        ServiceAppointment fntServiceAppt = Appt_TestUtil.getServiceAppointment( sysUser.Id, customerWrkOrder.Id, custAccount.Id, orderWorkType.Id, custContacts[0].Id, servTerr.Id, acctObj.SAP_STORE_ID__c, apptStartDateTime, apptEndDateTime, localTimeZoneOffset, appointmentDuration, 'Front Room', schedulePolicy.Id);
-        ServiceAppointment bckServiceAppt = Appt_TestUtil.getServiceAppointment( sysUser.Id, customerWrkOrder.Id, custAccount.Id, orderWorkType.Id, custContacts[0].Id, servTerr.Id, acctObj.SAP_STORE_ID__c, apptStartDateTime.addMinutes(20), apptEndDateTime.addMinutes(20), localTimeZoneOffset, appointmentDuration, 'Back Room', schedulePolicy.Id);
+        ServiceAppointment fntServiceAppt = Appt_TestUtil.getServiceAppointment( sysUser.Id, customerWrkOrder.Id, fleetAccount.Id, orderWorkType.Id, custContacts[0].Id, servTerr.Id, acctObj.SAP_STORE_ID__c, apptStartDateTime, apptEndDateTime, localTimeZoneOffset, appointmentDuration, 'Front Room', schedulePolicy.Id);
+        ServiceAppointment bckServiceAppt = Appt_TestUtil.getServiceAppointment( sysUser.Id, customerWrkOrder.Id, fleetAccount.Id, orderWorkType.Id, custContacts[0].Id, servTerr.Id, acctObj.SAP_STORE_ID__c, apptStartDateTime.addMinutes(20), apptEndDateTime.addMinutes(20), localTimeZoneOffset, appointmentDuration, 'Back Room', schedulePolicy.Id);
         
         List<ServiceAppointment> servAppts = [SELECT Id, Status, ParentRecordId FROM ServiceAppointment];
 

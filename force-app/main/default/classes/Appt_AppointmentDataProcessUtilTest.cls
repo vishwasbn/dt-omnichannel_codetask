@@ -353,4 +353,73 @@ System.debug('***************End Test************');
         System.assertEquals('TestCompany2', testAccount1.LastName, 'TestCompany2'); 
         Test.stopTest(); 
      }
+    
+    //SO-559 
+    @isTest static void processAcountFleetTestCoverage(){   
+    	Appt_CreateAppointmentServiceModel crtServiceMdl = new Appt_CreateAppointmentServiceModel();
+        crtServiceMdl.customerType = 'Fleet';
+        crtServiceMdl.fleetNumber = '0000065629';
+        crtServiceMdl.companyName = 'Keller Services';
+		crtServiceMdl.emailAddress = 'test@test.com';
+        crtServiceMdl.firstName = 'Test B2B';
+        crtServiceMdl.lastName = 'Driver Contact';
+        crtServiceMdl.mobilePhoneNumber = '8888888888';
+        Account acnt = new Account();
+        acnt.recordtypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('B2B').getRecordTypeId();
+        acnt.Name = 'Keller Service';
+        //acnt.LastName = 'test';
+        acnt.ECC_Account_Number__c = '65629';
+        acnt.Fleet_AR_App_Status__c = 'Approved';
+        acnt.Country__c = 'United States';
+        acnt.Selected_State__c = 'Alabama';
+        insert acnt;
+        Appt_AppointmentDataProcessUtil.processAccountData(crtServiceMdl);
+        
+        Id b2bDriverContactRecordTypeId =  Schema.SObjectType.Contact.getRecordTypeInfosByDeveloperName().get('B2B_Driver').getRecordTypeId();
+        Contact cnct = new Contact(RecordTypeId = b2bDriverContactRecordTypeId);
+        cnct.AccountId = acnt.Id;
+        cnct.FirstName = crtServiceMdl.firstName+'Test'.trim();
+        cnct.LastName = crtServiceMdl.lastName+'TestLName'.trim();
+        cnct.Email = 'test123@test.com';
+        cnct.Phone = '7878787878';
+        
+        insert cnct;
+        Appt_AppointmentDataProcessUtil.processAccountData(crtServiceMdl);
+        
+        
+    }
+    
+    @isTest static void processAcountRetailTestCoverage(){  
+        Appt_CreateAppointmentServiceModel crtServiceMdl = new Appt_CreateAppointmentServiceModel();
+        crtServiceMdl.customerType = 'Retail';
+        crtServiceMdl.fleetNumber = '0000065629';
+        crtServiceMdl.companyName = 'Keller Services';
+		crtServiceMdl.emailAddress = 'test@test.com';
+        crtServiceMdl.firstName = 'Test B2B';
+        crtServiceMdl.lastName = 'Driver Contact';
+        crtServiceMdl.mobilePhoneNumber = '8888888888';
+        Appt_AppointmentDataProcessUtil.processAccountData(crtServiceMdl);
+        
+        Account acnt = new Account();
+        acnt.recordtypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('PersonAccount').getRecordTypeId();
+        acnt.FirstName = 'Keller';
+        acnt.LastName = 'Service';
+        acnt.ECC_Account_Number__c = '65629';
+        acnt.Fleet_AR_App_Status__c = 'Approved';
+        acnt.Country__c = 'United States';
+        acnt.Selected_State__c = 'Alabama';
+        insert acnt;
+        
+        Appt_UpdateAppointmentServiceModel updtServiceMdl = new Appt_UpdateAppointmentServiceModel();
+        
+        updtServiceMdl.accountId = acnt.Id;
+        updtServiceMdl.contactId = acnt.PersonContactId;
+        updtServiceMdl.posCustomerId = '123456';
+        updtServiceMdl.customerGuid = '1234454';
+        updtServiceMdl.hybrisCustomerId = '654321';
+        
+        Appt_AppointmentDataProcessUtil.processAccountData(updtServiceMdl);
+    }
+	
+	// SO-559 END 
 }

@@ -1,10 +1,10 @@
 /**
- * This is a trigger sample for using CaseTriggerHandler
+ * This is a trigger sample for using CaseStatusChangeTriggerHandler
  * Ideally, only one trigger on each Object, if in your org, there is
- * already a Case trigger, please use the CaseTriggerHandler in it directly
+ * already a Case trigger, please use the CaseStatusChangeTriggerHandler in it directly
  * to avoid multiple triggers on the same object
  */
-trigger CaseTrigger on Case (after insert, after update,before insert) {
+trigger CaseStatusChangeTrigger on Case (after insert, after update,before insert) {
 
     if(Trigger.isInsert && Trigger.isAfter){
         CaseTriggerHandler.OnAfterInsert(Trigger.new);

@@ -95,7 +95,7 @@ public class Appt_ScheduleModel {
 
         this.fsrAvailable = timeSlot.FSR_Available__c;
         this.fsrCapacity = timeSlot.FSR_Capacity__c;
-
+    
         this.fsfAvailable = timeSlot.FSF_Available__c;
         this.fsfCapacity = timeSlot.FSF_Capacity__c;
 
@@ -122,6 +122,20 @@ public class Appt_ScheduleModel {
         // Back Room Web Retail
         this.bwrAvailable = timeSlot.BWR_Available__c;
         this.bwrCapacity = timeSlot.BWR_Capacity__c;
+        /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+        if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag())
+        {
+        this.fsfAvailable = timeSlot.FSF_Available__c + timeSlot.FWF_Available__c;
+        this.fsfCapacity = timeSlot.FSF_Capacity__c + timeSlot.FWF_Capacity__c;
+        this.fwfAvailable = 0;
+        this.fwfCapacity = 0;
+        this.bsfAvailable = timeSlot.BSF_Available__c + timeSlot.BWF_Available__c;
+        this.bsfCapacity = timeSlot.BSF_Capacity__c + timeSlot.BWF_Capacity__c;
+        this.bwfAvailable = 0;
+        this.bwfCapacity = 0;
+        }
+        /*Added as part of SO-856: Consolidate Fleet Buckets End*/
+        
 
         // Adjusting availability if within 2 hours
         Datetime now = Datetime.now();

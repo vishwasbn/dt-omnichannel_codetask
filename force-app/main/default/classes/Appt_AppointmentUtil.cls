@@ -390,4 +390,51 @@ public class Appt_AppointmentUtil {
         else if (formType.trim() == Appt_ConstantValues.IMPORT_APPOINTMENT_FORMTYPE_INV) return Appt_ConstantValues.IMPORT_APPOINTMENT_FORMTYPE_TO_ORDERTYPE_MAP_INV;
         else return null;
     }
+    /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
+    public static List<SObject> consolidateFleetCapacities(List<SObject> sObjectLst) {
+        for (SObject eachsObj : sObjectLst) { 
+            if (eachsObj instanceof Appt_Time_Slot__c) {
+                
+                Appt_Time_Slot__c timeSlot = (Appt_Time_Slot__c) eachsObj;				       
+                timeSlot.BSF_Capacity__c=timeSlot.BSF_Capacity__c != null ? timeSlot.BSF_Capacity__c : 0.0;
+                timeSlot.BWF_Capacity__c=timeSlot.BWF_Capacity__c != null ? timeSlot.BWF_Capacity__c : 0.0;
+                timeSlot.BSF_Capacity__c += timeSlot.BWF_Capacity__c;
+                timeSlot.BWF_Capacity__c = 0;
+                timeSlot.FSF_Capacity__c=timeSlot.FSF_Capacity__c != null ? timeSlot.FSF_Capacity__c : 0.0;
+                timeSlot.FWF_Capacity__c=timeSlot.FWF_Capacity__c != null ? timeSlot.FWF_Capacity__c : 0.0;
+                timeSlot.FSF_Capacity__c += timeSlot.FWF_Capacity__c;
+                timeSlot.FWF_Capacity__c = 0;
+            } else if (eachsObj instanceof Appt_Time_Slot_Capacity__c) {
+                Appt_Time_Slot_Capacity__c timeSlotCap = (Appt_Time_Slot_Capacity__c) eachsObj;
+				timeSlotCap.BSF_Capacity__c=timeSlotCap.BSF_Capacity__c != null ? timeSlotCap.BSF_Capacity__c : 0;
+                timeSlotCap.BWF_Capacity__c=timeSlotCap.BWF_Capacity__c != null ? timeSlotCap.BWF_Capacity__c : 0;                
+                timeSlotCap.BSF_Capacity__c += timeSlotCap.BWF_Capacity__c;
+                timeSlotCap.BWF_Capacity__c = 0;
+                timeSlotCap.FSF_Capacity__c=timeSlotCap.FSF_Capacity__c != null ? timeSlotCap.FSF_Capacity__c : 0;
+                timeSlotCap.FWF_Capacity__c=timeSlotCap.FWF_Capacity__c != null ? timeSlotCap.FWF_Capacity__c : 0;
+                timeSlotCap.FSF_Capacity__c += timeSlotCap.FWF_Capacity__c;
+                timeSlotCap.FWF_Capacity__c = 0;
+            } else if (eachsObj instanceof Appt_Time_Slot_Capacity_Default__mdt) {
+                Appt_Time_Slot_Capacity_Default__mdt timeSlotCapCMDT = (Appt_Time_Slot_Capacity_Default__mdt) eachsObj;
+                timeSlotCapCMDT.BSF_Capacity__c=timeSlotCapCMDT.BSF_Capacity__c != null ? timeSlotCapCMDT.BSF_Capacity__c : 0;
+                timeSlotCapCMDT.BWF_Capacity__c=timeSlotCapCMDT.BWF_Capacity__c != null ? timeSlotCapCMDT.BWF_Capacity__c : 0;
+                timeSlotCapCMDT.BSF_Capacity__c += timeSlotCapCMDT.BWF_Capacity__c;
+                timeSlotCapCMDT.BWF_Capacity__c = 0;
+                timeSlotCapCMDT.FSF_Capacity__c=timeSlotCapCMDT.FSF_Capacity__c != null ? timeSlotCapCMDT.FSF_Capacity__c : 0;
+                timeSlotCapCMDT.FWF_Capacity__c=timeSlotCapCMDT.FWF_Capacity__c != null ? timeSlotCapCMDT.FWF_Capacity__c : 0;
+                timeSlotCapCMDT.FSF_Capacity__c += timeSlotCapCMDT.FWF_Capacity__c;
+                timeSlotCapCMDT.FWF_Capacity__c = 0;
+            }
+        }
+        return sObjectLst;
+    }
+    @AuraEnabled(cacheable=true)
+    public static boolean checkConsolidateFleetCapacityFlag()
+    {
+        Appt_Appointment_Setting__mdt consolidateFCapFlag =[SELECT Id, Value__c, DeveloperName FROM Appt_Appointment_Setting__mdt where DeveloperName=:Appt_ConstantValues.Consolidate_Fleet_Capacity];
+        System.debug('consolidateFCapFlag>>>>>>>>>>>'+consolidateFCapFlag);
+        return Boolean.valueOf(consolidateFCapFlag.Value__c);
+
+    }
+    /*Added as part of SO-856: Consolidate Fleet Buckets End*/
 }
