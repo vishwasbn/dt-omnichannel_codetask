@@ -2,7 +2,7 @@ declare module "@salesforce/apex/manageAccountDataTableController.getRecordTypeI
   export default function getRecordTypeId(): Promise<any>;
 }
 declare module "@salesforce/apex/manageAccountDataTableController.getAccounts" {
-  export default function getAccounts(param: {userId: any}): Promise<any>;
+  export default function getAccounts(): Promise<any>;
 }
 declare module "@salesforce/apex/manageAccountDataTableController.getContact" {
   export default function getContact(param: {userId: any}): Promise<any>;
