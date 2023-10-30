@@ -105,9 +105,9 @@ public without sharing class Appt_StoreConfigs {
                                 WHERE Service_Territory__c = :serviceTerritory 
                                 AND Day_of_Week__c = :selectedDay ORDER BY Start_Time__c];
     /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
-    if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag() && ApptTimeSlotCapacities != null && ApptTimeSlotCapacities.size()>0)
+    if(Appt_AppointmentUtil.isFleetCapacityConsolidated() && ApptTimeSlotCapacities != null && ApptTimeSlotCapacities.size()>0)
     {
-        ApptTimeSlotCapacities=Appt_AppointmentUtil.consolidateFleetCapacities(ApptTimeSlotCapacities);
+        ApptTimeSlotCapacities=(List<Appt_Time_Slot_Capacity__c>)Appt_AppointmentUtil.consolidateFleetCapacities(ApptTimeSlotCapacities);
     }
     /*Added as part of SO-856: Consolidate Fleet Buckets End*/                                 
     System.debug('Capacities' + ApptTimeSlotCapacities);     

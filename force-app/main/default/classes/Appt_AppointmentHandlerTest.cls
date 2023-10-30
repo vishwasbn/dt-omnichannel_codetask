@@ -9,7 +9,7 @@ Version     Date                     Updated By              TestCoverage       
 */
 @isTest
 public class Appt_AppointmentHandlerTest {
-    final static string lprefix = 'LOG Appt_AppointmentHandlerTest: ';
+    final static string LPREFIX = 'LOG Appt_AppointmentHandlerTest: ';
     @testSetup
     static void setupData() 
     {
@@ -28,11 +28,11 @@ public class Appt_AppointmentHandlerTest {
         BWR_Capacity__c, BWR_Available__c, FSF_Capacity__c, FSF_Available__c, FSR_Capacity__c, FSR_Available__c, 
         FWF_Capacity__c, FWF_Available__c, FWR_Capacity__c, FWR_Available__c, Start_Time__c, End_Time__c, Date__c,
         Service_Territory__r.Site_Account__r.SAP_STORE_ID__c, IsFrontUnavailable__c, isBackUnavailable__c, Type__c FROM Appt_Time_Slot__c 
-        WHERE Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = '1235'];
+        WHERE Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = '1236'];
 
-        System.debug( lprefix + ' TimeSlots: ' + returnSlots.size());
-        System.debug( lprefix + ' TimeSlot: ' + returnSlots[0]);
-        System.debug( lprefix + ' TimeSlot: ' + returnSlots[ (returnSlots.size() - 1) ]);
+        System.debug( LPREFIX + ' TimeSlots: ' + returnSlots.size());
+        System.debug( LPREFIX + ' TimeSlot: ' + returnSlots[0]);
+        System.debug( LPREFIX + ' TimeSlot: ' + returnSlots[ (returnSlots.size() - 1) ]);
                 
     } // End of setupData()
 
@@ -40,10 +40,10 @@ public class Appt_AppointmentHandlerTest {
     @isTest static void createAppointmentTest()
     {   
         //List<ServiceAppointments> appts = [SELECT id, Work_Order__c, Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c FROM ServiceAppointment];
-        System.debug( lprefix + '***********START createAppointmentTest Setup***************');
+        System.debug( LPREFIX + '***********START createAppointmentTest Setup***************');
         List<WorkOrder> workOrders = [SELECT id FROM WorkOrder LIMIT 1];
         String apptId = workOrders[0].id;
-        System.debug( lprefix + apptId);
+        System.debug( LPREFIX + apptId);
 
         Date startdate = system.today().addDays(7);
         Date starteOfWeek = startdate.toStartOfWeek();
@@ -52,17 +52,17 @@ public class Appt_AppointmentHandlerTest {
         RestRequest req = new RestRequest(); 
         RestResponse res = new RestResponse();
         
-        String JSONMsg = '{"appointmentStatus":"Confirmed", "cancelReason":null, "cancelReasonText":null, "appointmentId":null, "checkAvailabilityFirst":false, "posCustomerId": null, "hybrisCustomerId":null, "siteId":"1235", "source":"WEB", "orderType":"ROPIS", "appointmentDate":"'+apptDate+'", "consultStartTime":"1640", "consultEndTime":"1700", "backOfficeStartTime":"1700", "backOfficeEndTime":"1720", "formType": null, "formNumber": null, "formDate": null,  "hybrisOrderId": null, "posWebOrderId": null, "layawayNumber": null, "quoteNumber": null, "invoiceNumber": null, "orderDate": null, "customerGuid": null, "customerType": null,  "firstName": "Sam", "lastName": "Spade",  "emailAddress": null, "mobilePhoneNumber": null, "homePhoneNumber": null, "workPhoneNumber": null, "address1": "123 Right Here", "address2": null, "zipCode": "85028", "city": "Phoenix", "state": "Arizona", "country": "United States",  "textOptIn": null,  "emailAddressOptIn": null,  "posCustomerVehicleId": null, "hybrisCustomerVehicleId": null, "vehicleClass": null, "year": null, "make": null, "model": null, "vehicleId": null, "trimId": null, "assemblyId": null, "articles":[ ],  "recipientFirstName": "Sam", "recipientLastName": "Spade", "recipientEmail": null, "recipientPhone": "5555555555",  "comments": null}';
+        String jsonMsg = '{"appointmentStatus":"Confirmed", "cancelReason":null, "cancelReasonText":null, "appointmentId":null, "checkAvailabilityFirst":false, "posCustomerId": null, "hybrisCustomerId":null, "siteId":"1236", "source":"WEB", "orderType":"ROPIS", "appointmentDate":"'+apptDate+'", "consultStartTime":"1640", "consultEndTime":"1700", "backOfficeStartTime":"1700", "backOfficeEndTime":"1720", "formType": null, "formNumber": null, "formDate": null,  "hybrisOrderId": null, "posWebOrderId": null, "layawayNumber": null, "quoteNumber": null, "invoiceNumber": null, "orderDate": null, "customerGuid": null, "customerType": null,  "firstName": "Sam", "lastName": "Spade",  "emailAddress": null, "mobilePhoneNumber": null, "homePhoneNumber": null, "workPhoneNumber": null, "address1": "123 Right Here", "address2": null, "zipCode": "85028", "city": "Phoenix", "state": "Arizona", "country": "United States",  "textOptIn": null,  "emailAddressOptIn": null,  "posCustomerVehicleId": null, "hybrisCustomerVehicleId": null, "vehicleClass": null, "year": null, "make": null, "model": null, "vehicleId": null, "trimId": null, "assemblyId": null, "articles":[ ],  "recipientFirstName": "Sam", "recipientLastName": "Spade", "recipientEmail": null, "recipientPhone": "5555555555",  "comments": null}';
         
-        System.debug(lprefix + ': ' + JSONMsg);
+        System.debug(LPREFIX + ': ' + jsonMsg);
 
         req.requestURI = '/services/apexrest/AppointmentService/';  
         req.httpMethod = 'POST';        
-        req.requestBody = Blob.valueof(JSONMsg);
+        req.requestBody = Blob.valueof(jsonMsg);
 
         RestContext.request = req;
         RestContext.response = res;
-        System.debug( lprefix + '***********START createAppointmentTest***************');
+        System.debug( LPREFIX + '***********START createAppointmentTest***************');
         Test.startTest();
         Appt_CreateAppointmentResponse results = new Appt_CreateAppointmentResponse();
         results = Appt_SystemAPIService.createAppointment();
@@ -70,15 +70,15 @@ public class Appt_AppointmentHandlerTest {
 
         System.assertEquals('1700', results.backOfficeStartTime, 'Check for schedule create');
 
-        System.debug( lprefix + '***********END createAppointmentTest***************');
-        System.debug( lprefix + results);
+        System.debug( LPREFIX + '***********END createAppointmentTest***************');
+        System.debug( LPREFIX + results);
 
     } // End of createAppointmentTest()
 
 
     @isTest static void createAppointmentWithoutAccountTest()
     {   
-        System.debug( lprefix + '***********START createAppointmentWithoutAccountTest Setup***************');
+        System.debug( LPREFIX + '***********START createAppointmentWithoutAccountTest Setup***************');
 
         Appt_CreateAppointmentServiceModel model1 = Appt_TestUtil.getCreateAppointmentServiceModel();
        
@@ -87,14 +87,14 @@ public class Appt_AppointmentHandlerTest {
         Test.stopTest();  
 
         System.assertNotEquals(null, custAccount, 'Account is null from getAccount without account');
-        System.debug( lprefix + '***********END createAppointmentWithoutAccountTest***************');
+        System.debug( LPREFIX + '***********END createAppointmentWithoutAccountTest***************');
 
     } // End of createAppointmentWithoutAccountTest()
     
     
     @isTest static void createAppointmentWithAccountTest()
     {   
-        System.debug( lprefix + '***********START createAppointmentWithAccountTest Setup***************');
+        System.debug( LPREFIX + '***********START createAppointmentWithAccountTest Setup***************');
 
         Appt_CreateAppointmentServiceModel model1 = Appt_TestUtil.getCreateAppointmentServiceModel();
                     
@@ -118,18 +118,18 @@ public class Appt_AppointmentHandlerTest {
         Test.stopTest();  
 
         System.assertNotEquals(null, custAccount, 'Account is null from getAccount with account');
-        System.debug( lprefix + '***********END createAppointmentWithAccountTest***************');
+        System.debug( LPREFIX + '***********END createAppointmentWithAccountTest***************');
 
     } // End of createAppointmentWithAccountTest()
     
     @isTest static void createAppointmentWithTzErrorTest()
     {   
-        System.debug( lprefix + '***********START createAppointmentWithTzErrorTest Setup***************');
+        System.debug( LPREFIX + '***********START createAppointmentWithTzErrorTest Setup***************');
 
-        List<ServiceTerritory> servTerr = [ SELECT Id, OperatingHoursId, OperatingHours.TimeZone, Site_Account__c FROM ServiceTerritory WHERE Site_Account__r.SAP_STORE_ID__c = '1235'];
-        // System.debug( lprefix + 'createAppointmentWithTzErrorTest::ServiceTerritories: ' + servTerr.size());
+        List<ServiceTerritory> servTerr = [ SELECT Id, OperatingHoursId, OperatingHours.TimeZone, Site_Account__c FROM ServiceTerritory WHERE Site_Account__r.SAP_STORE_ID__c = '1236'];
+        // System.debug( LPREFIX + 'createAppointmentWithTzErrorTest::ServiceTerritories: ' + servTerr.size());
         
-        System.debug( lprefix + 'createAppointmentWithTzErrorTest::TimeZone: ' + servTerr[0].OperatingHours.TimeZone);
+        System.debug( LPREFIX + 'createAppointmentWithTzErrorTest::TimeZone: ' + servTerr[0].OperatingHours.TimeZone);
         List<OperatingHours> ohList = [SELECT Id, IsDeleted, Name, Description, TimeZone, Type__c FROM OperatingHours WHERE Id =: servTerr[0].OperatingHoursId];
         String tz = ohList[0].TimeZone;
         // change the timezone to make the check fail
@@ -137,7 +137,7 @@ public class Appt_AppointmentHandlerTest {
         update ohList[0];
 
         ohList = [SELECT Id, IsDeleted, Name, Description, TimeZone, Type__c FROM OperatingHours WHERE Id =: servTerr[0].OperatingHoursId];
-        System.debug( lprefix + 'createAppointmentWithTzErrorTest::OperatingHours after: ' + ohList[0]);
+        System.debug( LPREFIX + 'createAppointmentWithTzErrorTest::OperatingHours after: ' + ohList[0]);
 
         Appt_CreateAppointmentServiceModel model1 = Appt_TestUtil.getCreateAppointmentServiceModel();
 
@@ -161,14 +161,14 @@ public class Appt_AppointmentHandlerTest {
         System.assertEquals(true, apptServMdl.isError(), 'Should be a timezone error');
         System.assertEquals('Unable to retrieve the ServiceTerritory as well as timezone offset with siteId=1235', apptServMdl.message, 'Error message for timezone incorrect');
 
-        System.debug( lprefix + '***********END createAppointmentWithTzErrorTest***************');
+        System.debug( LPREFIX + '***********END createAppointmentWithTzErrorTest***************');
 
     } // End of createAppointmentWithTzErrorTest()
 
 
     @isTest static void createAppointmentWithMissingModelErrorTest()
     {   
-        System.debug( lprefix + '***********START createAppointmentWithMissingModelErrorTest Setup***************');
+        System.debug( LPREFIX + '***********START createAppointmentWithMissingModelErrorTest Setup***************');
 
         Test.startTest();
         Appt_CreateAppointmentServiceModel apptServMdl = Appt_AppointmentHandler.createAppointment(null);
@@ -177,14 +177,14 @@ public class Appt_AppointmentHandlerTest {
         System.assertEquals(true, apptServMdl.isError(), 'Should be a null apptModel error');
         System.assertEquals('apptModel parameter is null', apptServMdl.message, 'Error message for null apptModel incorrect');
 
-        System.debug( lprefix + '***********END createAppointmentWithMissingModelErrorTest***************');
+        System.debug( LPREFIX + '***********END createAppointmentWithMissingModelErrorTest***************');
 
     } // End of createAppointmentWithMissingModelErrorTest()
 
 
     @isTest static void createAppointmentWithMissingErrorTest()
     {   
-        System.debug( lprefix + '***********START createAppointmentWithMissingErrorTest Setup***************');
+        System.debug( LPREFIX + '***********START createAppointmentWithMissingErrorTest Setup***************');
 
         Appt_CreateAppointmentServiceModel model1 = Appt_TestUtil.getCreateAppointmentServiceModel();
 
@@ -217,14 +217,14 @@ public class Appt_AppointmentHandlerTest {
 
         model1.source = localSource;
         Test.stopTest();  
-        System.debug( lprefix + '***********END createAppointmentWithMissingErrorTest***************');
+        System.debug( LPREFIX + '***********END createAppointmentWithMissingErrorTest***************');
 
     } // End of createAppointmentWithMissingErrorTest()
 
 
     @isTest static void createAppointmentWithBlankErrorTest()
     {   
-        System.debug( lprefix + '***********START createAppointmentWithBlankErrorTest Setup***************');
+        System.debug( LPREFIX + '***********START createAppointmentWithBlankErrorTest Setup***************');
 
         Appt_CreateAppointmentServiceModel model1 = Appt_TestUtil.getCreateAppointmentServiceModel();
 
@@ -243,14 +243,14 @@ public class Appt_AppointmentHandlerTest {
         model1.backOfficeStartTime = localEStart;
 
         Test.stopTest();  
-        System.debug( lprefix + '***********END createAppointmentWithBlankErrorTest***************');
+        System.debug( LPREFIX + '***********END createAppointmentWithBlankErrorTest***************');
 
     } // End of createAppointmentWithBlankErrorTest()
 
 
     @isTest static void createAppointmentWithLessThanErrorTest()
     {   
-        System.debug( lprefix + '***********START createAppointmentWithLessThanErrorTest Setup***************');
+        System.debug( LPREFIX + '***********START createAppointmentWithLessThanErrorTest Setup***************');
 
         Appt_CreateAppointmentServiceModel model1 = Appt_TestUtil.getCreateAppointmentServiceModel();
 
@@ -271,14 +271,14 @@ public class Appt_AppointmentHandlerTest {
         Test.stopTest();  
 
 
-        System.debug( lprefix + '***********END createAppointmentWithLessThanErrorTest***************');
+        System.debug( LPREFIX + '***********END createAppointmentWithLessThanErrorTest***************');
 
     } // End of createAppointmentWithLessThanErrorTest()
 
 
     @isTest static void createAppointmentWithBackLessThanErrorTest()
     {   
-        System.debug( lprefix + '***********START createAppointmentWithBackLessThanErrorTest Setup***************');
+        System.debug( LPREFIX + '***********START createAppointmentWithBackLessThanErrorTest Setup***************');
 
         Appt_CreateAppointmentServiceModel model1 = Appt_TestUtil.getCreateAppointmentServiceModel();
 
@@ -298,7 +298,7 @@ public class Appt_AppointmentHandlerTest {
         model1.backOfficeEndTime = localBEnd;
 
         Test.stopTest();  
-        System.debug( lprefix + '***********END createAppointmentWithBackLessThanErrorTest***************');
+        System.debug( LPREFIX + '***********END createAppointmentWithBackLessThanErrorTest***************');
 
     } // End of createAppointmentWithBackLessThanErrorTest()
 

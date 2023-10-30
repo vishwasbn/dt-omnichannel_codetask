@@ -43,7 +43,7 @@ public without sharing class Appt3_AppointmentListPageController {
                                               FROM ServiceAppointment 
                                               WHERE Date_String__c = :dateString AND 
                                               (Status = :Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_CONFIRMED OR Status = :Appt_ConstantValues.SERVICE_APPOINTMENT_STATUS_SCHEDULED) 
-                                              AND Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c = :siteId
+                                              AND Work_Order__r.ServiceTerritory.Site_Account__r.SAP_STORE_ID__c = :siteId WITH SECURITY_ENFORCED
                                               ORDER BY Start_Time_String__c ASC];
             System.debug(lPrefix+'Retrieved Service Appointment/Work Order records:'+appts); 
             

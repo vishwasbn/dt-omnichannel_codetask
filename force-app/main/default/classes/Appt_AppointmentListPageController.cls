@@ -63,7 +63,7 @@ public without sharing class Appt_AppointmentListPageController {
             // START: SO-559 - Assigning values to wrapper fields
             returnModel.customerType = sa.Customer_Type__c;
 
-            if(sa.Work_Order__r.Account.RecordType.Name == 'B2B' && string.isNotBlank(sa.Work_Order__r.Account.ECC_Account_Number__c) && string.isNotBlank(sa.Work_Order__r.Account.name)){
+            if(sa.Work_Order__r.Account.RecordType.Name == Appt_ConstantValues.B2B_ACCOUNT && string.isNotBlank(sa.Work_Order__r.Account.ECC_Account_Number__c) && string.isNotBlank(sa.Work_Order__r.Account.name)){
                 returnModel.firstName = sa.Work_Order__r.Account.ECC_Account_Number__c;
                 returnModel.lastName = sa.Work_Order__r.Account.name;
             } else {

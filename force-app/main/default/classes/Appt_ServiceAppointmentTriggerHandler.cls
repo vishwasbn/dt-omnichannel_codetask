@@ -10,17 +10,12 @@ public class Appt_ServiceAppointmentTriggerHandler {
         switch on triggerEvent 
         {
             when AFTER_INSERT {
-                
                 createApptTimeSpotAfterCreateAppointment(oldMap, newMap);
-                                //APPT3-449
-                //to serialize parameters and pass into future method which is used to add woli and then send Platform events.
-                
-                serializeParams(oldMap, newMap, triggerEvent, Appt_AppointmentHandler.articlesList, Appt_AppointmentHandler.woid);
-                
                 //APPT3-449
-                
+                //to serialize parameters and pass into future method which is used to add woli and then send Platform events.
+                serializeParams(oldMap, newMap, triggerEvent, Appt_AppointmentHandler.articlesList, Appt_AppointmentHandler.woid);
+                //APPT3-449
                 createAppointmentNotifications(oldMap, newMap);
-                
             }
             when BEFORE_UPDATE {
                 updateApptReminderFlagIfReschedule(oldMap, newMap);
@@ -329,6 +324,10 @@ public class Appt_ServiceAppointmentTriggerHandler {
              sourceChar = Appt_ConstantValues.APPOINTMENT_SOURCE_WEB_CHAR;
         }
         else {
+            sourceChar = Appt_ConstantValues.APPOINTMENT_SOURCE_STORE_CHAR;
+        }
+        if(Appt_AppointmentUtil.isFleetCapacityConsolidated() && sourceChar==Appt_ConstantValues.APPOINTMENT_SOURCE_WEB_CHAR 
+        && appt.Customer_Type__c == Appt_ConstantValues.CUSTOMER_TYPE_FLEET){
             sourceChar = Appt_ConstantValues.APPOINTMENT_SOURCE_STORE_CHAR;
         }
 

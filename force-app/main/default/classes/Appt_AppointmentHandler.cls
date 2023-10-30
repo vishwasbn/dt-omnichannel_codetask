@@ -415,7 +415,7 @@ public without sharing class Appt_AppointmentHandler {
         ', posCustomerId=' +
         apptModel.posCustomerId +
         ', GUID=' +
-        apptModel.customerGuid
+        apptModel.customerGuid + 'CUSTOMER TYPE :: >> ' +apptModel.customerType
     );
 
     DateTime startTimeAll = Datetime.now();
@@ -437,13 +437,14 @@ public without sharing class Appt_AppointmentHandler {
         accountId = woList[0].AccountId;
       }
     }
-
+         
+      
     // Only query for Accounts if at least one of the where clause params is populated
     if (
-      !String.isBlank(apptModel.hybrisCustomerId) ||
+      (!String.isBlank(apptModel.hybrisCustomerId) ||
       !String.isBlank(apptModel.posCustomerId) ||
       !String.isBlank(apptModel.customerGuid) ||
-      !String.isBlank(accountId)
+      !String.isBlank(accountId)) && apptModel.customerType != Appt_ConstantValues.CUSTOMER_TYPE_FLEET // SO-559
     ) {
       String soql =
         'SELECT Id, PersonContactId, IsPersonAccount,  RecordTypeId, POS_Customer_Id__c, Hybris_Customer_Id__c, GUID__c, Appt_Customer_Type__c,  FirstName, LastName, Email__c, Appt_Email_Opt_In__pc, ' +
@@ -499,6 +500,8 @@ public without sharing class Appt_AppointmentHandler {
         startTimePart,
         Datetime.now()
       );
+    } else if(apptModel.customerType == Appt_ConstantValues.CUSTOMER_TYPE_FLEET && !String.isBlank(accountId)){
+        system.debug('ReACHED HERE ?>> ');           
     }
 
     Account custAccount;
@@ -627,6 +630,8 @@ public without sharing class Appt_AppointmentHandler {
     );
     return custAccount;
   }
+    
+    
 
   //-- lookup or create Alternative Contact for the appointment
   public static void getRecipientAltContact(

@@ -123,7 +123,7 @@ public class Appt_ScheduleModel {
         this.bwrAvailable = timeSlot.BWR_Available__c;
         this.bwrCapacity = timeSlot.BWR_Capacity__c;
         /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
-        if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag())
+        if(Appt_AppointmentUtil.isFleetCapacityConsolidated())
         {
         this.fsfAvailable = timeSlot.FSF_Available__c + timeSlot.FWF_Available__c;
         this.fsfCapacity = timeSlot.FSF_Capacity__c + timeSlot.FWF_Capacity__c;

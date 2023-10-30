@@ -146,7 +146,7 @@ public without sharing class Appt_AppointmentLogController {
                
             //this.fullName = sa.Work_Order__r?.Contact?.Name;
             // Start: SO-559 : Assigning Values to full name based on Fleet/Retail customer type           
-            if(sa.Work_Order__r.Account.RecordType.Name == 'B2B' && string.isNotBlank(sa.Work_Order__r.Account.ECC_Account_Number__c) && string.isNotBlank(sa.Work_Order__r.Account.name)){
+            if(sa.Work_Order__r.Account.RecordType.Name == Appt_ConstantValues.B2B_ACCOUNT && string.isNotBlank(sa.Work_Order__r.Account.ECC_Account_Number__c) && string.isNotBlank(sa.Work_Order__r.Account.name)){
                 this.fullName = sa.Work_Order__r.Account.ECC_Account_Number__c + ' ' +sa.Work_Order__r.Account.name;
             } else {                
                 this.fullName = sa.Work_Order__r?.Contact?.Name;

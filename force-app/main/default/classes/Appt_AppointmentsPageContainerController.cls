@@ -219,16 +219,27 @@ public without sharing class Appt_AppointmentsPageContainerController {
         // lookup against the work order for the SMS phone number
         if(serviceModel.workOrderId != null && serviceModel.workOrderId != '' && serviceModel.workOrderId != 'null' ){
             
-            WorkOrder appt =  [SELECT id, AccountId, SMS_Phone__c FROM WorkOrder WHERE id = :serviceModel.workOrderId];
+            WorkOrder appt =  [SELECT id, AccountId,contactId, SMS_Phone__c FROM WorkOrder WHERE id = :serviceModel.workOrderId];
 
             
             if(appt != null){
-                List<Account> a = [SELECT id, Appt_Email_Opt_In__pc, Appt_SMS_Opt_In__pc FROM Account WHERE Id=:appt.AccountId];
+                List<Account> a = [SELECT id, Appt_Email_Opt_In__pc, Appt_SMS_Opt_In__pc, recordtype.name FROM Account WHERE Id=:appt.AccountId];
                 System.debug('getCustomerEditableFields(), found account on work order: ' +a);
                 
                 if(a.size() > 0){
-                    serviceModel.emailAddressOptIn = serviceModel.emailAddressOptIn == null ? a[0].Appt_Email_Opt_In__pc : serviceModel.emailAddressOptIn;
-                    serviceModel.textOptIn = serviceModel.textOptIn == null ? a[0].Appt_SMS_Opt_In__pc : serviceModel.textOptIn;   
+                    if(a[0].recordtype.name != Appt_ConstantValues.B2B_ACCOUNT){ // SO-559 : Go here if it is not a FLEET APPT
+                        serviceModel.emailAddressOptIn = serviceModel.emailAddressOptIn == null ? a[0].Appt_Email_Opt_In__pc : serviceModel.emailAddressOptIn;
+                        serviceModel.textOptIn = serviceModel.textOptIn == null ? a[0].Appt_SMS_Opt_In__pc : serviceModel.textOptIn;  
+                    } else { //SO-559: Fetching related contact to assign EMAIL & SMS optin for a FLEET APPT
+                        
+                        if(appt.ContactId != null){
+                            Contact cnt = [SELECT id, Appt_Email_Opt_In__c, Appt_SMS_Opt_In__c FROM Contact where Id =: appt.ContactId AND accountId =: a[0].Id];
+                            serviceModel.emailAddressOptIn = serviceModel.emailAddressOptIn == null ? cnt?.Appt_Email_Opt_In__c : serviceModel.emailAddressOptIn;
+                        	serviceModel.textOptIn = serviceModel.textOptIn == null ? cnt?.Appt_SMS_Opt_In__c : serviceModel.textOptIn;
+                        } 
+                        
+                    }
+                    
                 }
                 
 

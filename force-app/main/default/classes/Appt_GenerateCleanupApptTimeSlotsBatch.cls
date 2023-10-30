@@ -495,7 +495,7 @@ public class Appt_GenerateCleanupApptTimeSlotsBatch implements Database.Batchabl
 
         if (capacityOverrides != null && capacityOverrides.size() > 0) {
             /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
-            if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag())
+            if(Appt_AppointmentUtil.isFleetCapacityConsolidated())
             {
                 capacityOverrides=(List<Appt_Time_Slot_Capacity__c>)Appt_AppointmentUtil.consolidateFleetCapacities(capacityOverrides);
                 System.debug('capacityOverrides>>>>'+capacityOverrides);

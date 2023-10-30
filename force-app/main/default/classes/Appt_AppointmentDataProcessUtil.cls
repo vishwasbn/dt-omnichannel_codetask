@@ -547,12 +547,12 @@ public without sharing class Appt_AppointmentDataProcessUtil {
     processRecord = serviceModel;
     // START SO-559 : Checking Customer Type as FLEET
     if (
-      processRecord.customerType == 'Fleet' &&
+      processRecord.customerType == Appt_ConstantValues.CUSTOMER_TYPE_FLEET &&
       String.isNotBlank(processRecord.companyName) &&
       String.isNotBlank(processRecord.fleetNumber)
     ) {
       createFleetAccountContact(); // Creating a B2B Account & Contact == 2 SOQL & 1DML
-    } else if (processRecord.customerType != 'Fleet') {
+    } else if (processRecord.customerType != Appt_ConstantValues.CUSTOMER_TYPE_FLEET) {
       runAccountProccess();
     }
     // END SO-559
@@ -597,7 +597,6 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         AND Fleet_AR_App_Status__c = 'Approved'
       LIMIT 1
     ];
-    system.debug('lstB2BAcnt.size() >>>> ' + lstB2BAcnt[0].Id);
     if (lstB2BAcnt.size() > 0) {
       processRecord.accountId = lstB2BAcnt[0].Id;
       // Search for an existing contact
@@ -606,8 +605,7 @@ public without sharing class Appt_AppointmentDataProcessUtil {
         String.isNotBlank(processRecord.mobilePhoneNumber)
       ) {
         List<Contact> lstCnt = [
-          SELECT id
-          FROM Contact
+          SELECT id, Appt_Email_Opt_In__c,Appt_SMS_Opt_In__c, MailingStreet, MailingCity, MailingState, MailingCountry, MailingPostalCode FROM Contact
           WHERE
             (Email = :processRecord.emailAddress
             OR Phone = :processRecord.mobilePhoneNumber)
@@ -615,31 +613,68 @@ public without sharing class Appt_AppointmentDataProcessUtil {
           LIMIT 1
         ];
         system.debug('lstCnt.size() >>>> ' + lstCnt.size());
-        if (lstCnt.size() > 0) {
+          if (lstCnt.size() > 0) {
+              if (processRecord.emailAddressOptIn) {
+                  lstCnt[0].Appt_Email_Opt_In__c = processRecord.emailAddressOptIn;
+              }
+              if (processRecord.textOptIn) {
+                  lstCnt[0].Appt_SMS_Opt_In__c = processRecord.emailAddressOptIn;
+              }
+              if (String.isNotBlank(processRecord.city)) {
+                  lstCnt[0].MailingCity = processRecord.city;
+              }
+              if (String.isNotBlank(processRecord.state)) {
+                  lstCnt[0].MailingState = processRecord.state;
+              }
+              if (String.isNotBlank(processRecord.country)) {
+                  lstCnt[0].MailingCountry = Appt_AppointmentUtil.getCountryByState(processRecord.state.trim());
+              }
+              if (String.isNotBlank(processRecord.zipCode)) {
+                  lstCnt[0].MailingPostalCode = processRecord.zipCode;
+              }
+            
           processRecord.contactId = lstCnt[0].Id;
-        } else {
-          System.debug(
-            'NEW B2B DRIVER CONTACT CONDI.... :::: >>>>>>>>>>>>> ********'
-          );
-          Id b2bDriverContactRecordTypeId = Schema.SObjectType.Contact.getRecordTypeInfosByDeveloperName()
-            .get('B2B_Driver')
-            .getRecordTypeId();
-          Contact cnct = new Contact(
-            RecordTypeId = b2bDriverContactRecordTypeId
-          );
-          cnct.AccountId = lstB2BAcnt[0].Id;
-          if (String.isNotBlank(processRecord.firstName)) {
-            cnct.FirstName = processRecord.firstName.trim();
-          }
-          if (String.isNotBlank(processRecord.lastName)) {
-            cnct.LastName = processRecord.lastName.trim();
-          }
-          if (String.isNotBlank(processRecord.emailAddress)) {
-            cnct.Email = processRecord.emailAddress.trim();
-          }
-          if (String.isNotBlank(processRecord.mobilePhoneNumber)) {
-            cnct.Phone = processRecord.mobilePhoneNumber.trim();
-          }
+          } else {
+              System.debug(
+                  'NEW B2B DRIVER CONTACT CONDI.... :::: >>>>>>>>>>>>> ********'
+              );
+              Id b2bDriverContactRecordTypeId = Schema.SObjectType.Contact.getRecordTypeInfosByDeveloperName()
+                  .get(Appt_ConstantValues.B2B_DRIVER_CONTACTRECORDTYPE)
+                  .getRecordTypeId();
+              Contact cnct = new Contact(
+                  RecordTypeId = b2bDriverContactRecordTypeId
+              );
+              cnct.AccountId = lstB2BAcnt[0].Id;
+              if (String.isNotBlank(processRecord.firstName)) {
+                  cnct.FirstName = processRecord.firstName.trim();
+              }
+              if (String.isNotBlank(processRecord.lastName)) {
+                  cnct.LastName = processRecord.lastName.trim();
+              }
+              if (String.isNotBlank(processRecord.emailAddress)) {
+                  cnct.Email = processRecord.emailAddress.trim();
+              }
+              if (String.isNotBlank(processRecord.mobilePhoneNumber)) {
+                  cnct.Phone = processRecord.mobilePhoneNumber.trim();
+              }
+              if (processRecord.emailAddressOptIn) {
+                  cnct.Appt_Email_Opt_In__c = processRecord.emailAddressOptIn;
+              }
+              if (processRecord.textOptIn) {
+                  cnct.Appt_SMS_Opt_In__c = processRecord.emailAddressOptIn;
+              }
+              if (String.isNotBlank(processRecord.city)) {
+                  cnct.MailingCity = processRecord.city;
+              }
+              if (String.isNotBlank(processRecord.state)) {
+                  cnct.MailingState = processRecord.state;
+              }
+              if (String.isNotBlank(processRecord.country)) {
+                  cnct.MailingCountry = Appt_AppointmentUtil.getCountryByState(processRecord.state.trim());
+              }
+              if (String.isNotBlank(processRecord.zipCode)) {
+                  cnct.MailingPostalCode = processRecord.zipCode;
+              }
 
           insert cnct;
 

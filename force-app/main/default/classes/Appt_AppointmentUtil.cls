@@ -429,10 +429,9 @@ public class Appt_AppointmentUtil {
         return sObjectLst;
     }
     @AuraEnabled(cacheable=true)
-    public static boolean checkConsolidateFleetCapacityFlag()
+    public static boolean isFleetCapacityConsolidated()
     {
         Appt_Appointment_Setting__mdt consolidateFCapFlag =[SELECT Id, Value__c, DeveloperName FROM Appt_Appointment_Setting__mdt where DeveloperName=:Appt_ConstantValues.Consolidate_Fleet_Capacity];
-        System.debug('consolidateFCapFlag>>>>>>>>>>>'+consolidateFCapFlag);
         return Boolean.valueOf(consolidateFCapFlag.Value__c);
 
     }

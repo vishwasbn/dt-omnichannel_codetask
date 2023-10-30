@@ -1,3 +1,3 @@
-declare module "@salesforce/apex/Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag" {
-  export default function checkConsolidateFleetCapacityFlag(): Promise<any>;
+declare module "@salesforce/apex/Appt_AppointmentUtil.isFleetCapacityConsolidated" {
+  export default function isFleetCapacityConsolidated(): Promise<any>;
 }

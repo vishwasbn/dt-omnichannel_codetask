@@ -60,8 +60,7 @@ public class Appt_AvailabilityHandler {
         if (availModel.source == Appt_ConstantValues.APPOINTMENT_SOURCE_STORE || availModel.source == Appt_ConstantValues.APPOINTMENT_SOURCE_POS) storeWebChar = Appt_ConstantValues.APPOINTMENT_SOURCE_STORE_CHAR;
         else storeWebChar = Appt_ConstantValues.APPOINTMENT_SOURCE_WEB_CHAR;
         /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
-        if(fleetRetailChar==Appt_ConstantValues.APPOINTMENT_SOURCE_CUSTOMER_FLEET_CHAR 
-        && Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag())
+        if(fleetRetailChar==Appt_ConstantValues.APPOINTMENT_SOURCE_CUSTOMER_FLEET_CHAR && Appt_AppointmentUtil.isFleetCapacityConsolidated())
         {
             storeWebChar=Appt_ConstantValues.APPOINTMENT_SOURCE_STORE_CHAR;
         }
@@ -83,9 +82,10 @@ public class Appt_AvailabilityHandler {
         //Int_Values.addTiming('AvailHandler.CalcGetSettings',startTimePart, Datetime.now());
 
         //--- 3. Get all availble time slots for the site and dates in future
-        startTimePart = Datetime.now(); 
+        startTimePart = Datetime.now();
+        /*Modified as part of SO-856: Added Fleet Capacity Fields to Query */
         String soql = 'SELECT Type__c, IsFrontUnavailable__c, isBackUnavailable__c, BSF_Available__c, BSR_Available__c, BWF_Available__c, BWR_Available__c, '+
-                    'FSF_Available__c, FSR_Available__c, FWF_Available__c,  FWR_Available__c, Start_Time__c, End_Time__c, Date__c FROM Appt_Time_Slot__c '+
+                    'FSF_Available__c, FSR_Available__c, FWF_Available__c,  FWR_Available__c, Start_Time__c, End_Time__c, Date__c,BSF_Capacity__c, FSF_Capacity__c, FWF_Capacity__c, BWF_Capacity__c FROM Appt_Time_Slot__c '+
                     'WHERE Service_Territory__r.IsActive = true AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = \'' + availModel.siteId + '\' AND Date__c >= '+ String.valueOf(availModel.startDate) +
                     ' AND Date__c <= ' + String.valueOf(availModel.endDate) + ' AND Start_Time__c >= ' + todayCutoffTime.formatGmt('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
         String orderBySOQL = ' ORDER BY Start_Time__c ASC LIMIT '+ maxSlotsToQuery;
@@ -105,7 +105,7 @@ public class Appt_AvailabilityHandler {
         //System.debug(lprefix+'       POST SOQL allTimeSlots='+allTimeSlots); //DEBUG LOG
 
         Integer foundRecords = (allTimeSlots != null) ? allTimeSlots.size() : 0;
-        if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag() && foundRecords>0)
+        if(Appt_AppointmentUtil.isFleetCapacityConsolidated() && foundRecords>0)
         {
             /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
             allTimeSlots=(List<Appt_Time_Slot__c>)Appt_AppointmentUtil.ConsolidateFleetCapacities(allTimeSlots);
@@ -261,12 +261,14 @@ public class Appt_AvailabilityHandler {
         /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
         //Check if the consolidate fleet flag is true, then if it is front, send the FSF_Available__c. If back, send the BSF_Available__c
         
-        if(Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag() && fleetRetailChar==Appt_ConstantValues.APPOINTMENT_SOURCE_CUSTOMER_FLEET_CHAR)
+        if(Appt_AppointmentUtil.isFleetCapacityConsolidated() && fleetRetailChar==Appt_ConstantValues.APPOINTMENT_SOURCE_CUSTOMER_FLEET_CHAR)
         {
-            if(frontBackChar==Appt_ConstantValues.APPOINTMENT_SOURCE_CUSTOMER_FLEET_CHAR)
-            currentCheckField='FSF_Available__c';
+            if(frontBackChar==Appt_ConstantValues.APPOINTMENT_TYPE_FRONT_CHAR)
+            {
+            currentCheckField=Appt_ConstantValues.FRONT_STORE_FLEET_AVAILABLE_STRING;//change to constant
+            }
             else {
-                currentCheckField='BSF_Available__c';
+                currentCheckField=Appt_ConstantValues.BACK_STORE_FLEET_AVAILABLE_STRING;////change to constant
             }
             
         }
@@ -477,13 +479,14 @@ public class Appt_AvailabilityHandler {
         Appt_Time_Slot__c returnSlot;
 
         DateTime startTimeAll = Datetime.now(); 
-
+/*Modified as part of SO-856: Consolidate Fleet Buckets Added fleet capacity fields*/
         List<Appt_Time_Slot__c> foundSlots = [SELECT Type__c, BSF_Available__c, BSR_Available__c, BWF_Available__c, BWR_Available__c, FSF_Available__c, 
-            FSR_Available__c, FWF_Available__c,  FWR_Available__c, Start_Time__c, End_Time__c, Date__c, IsFrontUnavailable__c, isBackUnavailable__c FROM Appt_Time_Slot__c 
+            FSR_Available__c, FWF_Available__c,  FWR_Available__c, Start_Time__c, End_Time__c, Date__c, IsFrontUnavailable__c, isBackUnavailable__c,
+            BSF_Capacity__c, FSF_Capacity__c, FWF_Capacity__c, BWF_Capacity__c FROM Appt_Time_Slot__c 
             WHERE Type__c = :type AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c = :appointmentDate AND Start_Time__c = :startTime LIMIT 1];
         System.debug(lprefix+'        foundSlots:'+foundSlots);
 
-        if (foundSlots != null && foundSlots.size() > 0 && Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag()) {
+        if (foundSlots != null && foundSlots.size() > 0 && Appt_AppointmentUtil.isFleetCapacityConsolidated()) {
             /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
             foundSlots=(List<Appt_Time_Slot__c>)Appt_AppointmentUtil.ConsolidateFleetCapacities(foundSlots);
             /*Added as part of SO-856: Consolidate Fleet Buckets End*/
@@ -503,7 +506,9 @@ public class Appt_AvailabilityHandler {
         DateTime startTimeAll = Datetime.now(); 
         //Appt 3.0 - Added Query to consume time slots based on custom time extension.
         List<Appt_Time_Slot__c> returnSlots;
+/*Modified as part of SO-856: Consolidate Fleet Buckets Added fleet capacity fields*/
         if (Appt_ConstantValues.isVisionFeature && type == Appt_ConstantValues.APPT_TIME_SLOT_TYPE_BACK) {
+            /*Modified as part of SO-856: Added Fleet Capacity Fields to Query */
             returnSlots =[SELECT Type__c, BSF_Available__c, BSR_Available__c, 
                           BWF_Available__c, BWR_Available__c, 
                           FSF_Available__c, FSR_Available__c, 
@@ -511,7 +516,7 @@ public class Appt_AvailabilityHandler {
                           Start_Time__c, 
                           End_Time__c, 
                           Date__c, IsFrontUnavailable__c, 
-                          isBackUnavailable__c FROM Appt_Time_Slot__c WHERE Type__c = :type AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c = :appointmentDate AND ((Start_Time__c >= :startTime AND End_Time__c <= :endTime) OR (Start_Time__c < :endTime AND End_Time__c >= :endTime) OR (Start_Time__c <= :startTime AND End_Time__c > :startTime))];
+                          isBackUnavailable__c,BSF_Capacity__c, FSF_Capacity__c, FWF_Capacity__c, BWF_Capacity__c FROM Appt_Time_Slot__c WHERE Type__c = :type AND Service_Territory__r.Site_Account__r.SAP_STORE_ID__c = :siteId AND Date__c = :appointmentDate AND ((Start_Time__c >= :startTime AND End_Time__c <= :endTime) OR (Start_Time__c < :endTime AND End_Time__c >= :endTime) OR (Start_Time__c <= :startTime AND End_Time__c > :startTime))];
             System.debug(returnSlots +'myreturnslots');
                 } else {
                     /*Modified as part of SO-856: Consolidate Fleet Buckets Added fleet capacity fields*/
@@ -523,7 +528,7 @@ public class Appt_AvailabilityHandler {
         }
         System.debug(lprefix+'  POST SOQL returnSlots:'+returnSlots);   //TODO - DEBUG - COMMENT OUT 
 
-        if (returnSlots != null && Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag()) 
+        if (returnSlots != null && Appt_AppointmentUtil.isFleetCapacityConsolidated()) 
         {
             /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
             returnSlots=(List<Appt_Time_Slot__c>)Appt_AppointmentUtil.ConsolidateFleetCapacities(returnSlots);
@@ -647,7 +652,7 @@ public class Appt_AvailabilityHandler {
 
         System.debug(lprefix+'getTimeSlotsBySite() EXIT - returnSlots:' + returnSlots);
         /*Added as part of SO-856: Consolidate Fleet Buckets Start*/
-        if(returnSlots!=null && returnSlots.size()>0 && Appt_AppointmentUtil.checkConsolidateFleetCapacityFlag())
+        if(returnSlots!=null && returnSlots.size()>0 && Appt_AppointmentUtil.isFleetCapacityConsolidated())
         returnSlots=(List<Appt_Time_Slot__c>)Appt_AppointmentUtil.ConsolidateFleetCapacities(returnSlots);
         /*Added as part of SO-856: Consolidate Fleet Buckets End*/
         return returnSlots;
