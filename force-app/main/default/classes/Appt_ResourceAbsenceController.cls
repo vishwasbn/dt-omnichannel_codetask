@@ -48,6 +48,7 @@ public with sharing class Appt_ResourceAbsenceController {
             List<ResourceAbsence> absenceListToUpsert = new List<ResourceAbsence>();
             for(RAToCreateWrapper obj : resourceAbsenceDataList){
                 serviceTerritoryId.add(obj.id); //holds the Store name 
+                System.debug('Service Territory id '+ obj.id);
                 resourceAbsenceDataMap.put(obj.id,obj); //map of territorry id and the resource absence data
             }
             //get the service territorry member from the service territorry id
@@ -55,6 +56,7 @@ public with sharing class Appt_ResourceAbsenceController {
             Set<Id> serviceResourceId = New Set<Id>();
             for(ServiceTerritoryMember obj : serviceMember){
                 serviceResourceId.add(obj.id); //holds the service resource ids
+                System.debug('Service resource id '+ obj.id);
             }
             //String query = 'SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences where Start <= Today and End <= Today)  FROM ServiceResource WHERE IsActive = true and ServiceTerritoryId in :serviceTerritoryId';
             List<ServiceResource> serviceResourceList = [SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences where Start <= Today and End <= Today)  FROM ServiceResource WHERE IsActive = true and id in :serviceResourceId];
@@ -69,9 +71,11 @@ public with sharing class Appt_ResourceAbsenceController {
                     Map<String,Id> absenceDateMap = new Map<String,Id>();
                     set<string> absenceDateSet = new set<string>();
                     for(ResourceAbsence absence : sr.ResourceAbsences){
-                        absenceDateMap.put(getLocalDate(absence.Start),absence.id);
+                        absenceDateMap.put(getLocalDate(absence.Start),absence.id);                       
                         absenceDateSet.add(getLocalDate(absence.Start));
                     }
+
+                    System.debug('Absence date list : '+ absenceDateSet);
                     
                     if(!absenceDateSet.contains(resourceAbsenceDataMap.get(stId).StoreDate)){
                         ResourceAbsence absenceInsert = createResourceAbsence(resourceAbsenceDataMap.get(stId), sr);
@@ -151,6 +155,7 @@ return rw;*/ // commented as part of SO-862
             Type= Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY,
             RecordtypeId = Schema.SObjectType.ResourceAbsence.getRecordTypeInfosByDeveloperName().get('Non_Availability').getRecordTypeId()
         );
+        System.debug(String.valueOf(rAbsence));
         return rAbsence;
     }
     
@@ -163,6 +168,7 @@ return rw;*/ // commented as part of SO-862
             Type=Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY,
             RecordtypeId = Schema.SObjectType.ResourceAbsence.getRecordTypeInfosByDeveloperName().get('Non_Availability').getRecordTypeId()
         );
+        System.debug(String.valueOf(rAbsence));
         return rAbsence;
     }
     
