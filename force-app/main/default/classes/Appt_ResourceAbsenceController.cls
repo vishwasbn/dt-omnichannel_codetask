@@ -48,34 +48,41 @@ public with sharing class Appt_ResourceAbsenceController {
             List<ResourceAbsence> absenceListToUpsert = new List<ResourceAbsence>();
             for(RAToCreateWrapper obj : resourceAbsenceDataList){
                 serviceTerritoryId.add(obj.id); //holds the Store name 
-                System.debug('Service Territory id '+ obj.id);
+                System.debug('Service Territory id '+ obj.id+' serTerName '+ obj.Name);
                 resourceAbsenceDataMap.put(obj.id,obj); //map of territorry id and the resource absence data
             }
             //get the service territorry member from the service territorry id
             List<ServiceTerritoryMember> serviceMember = [SELECT ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Id in : serviceTerritoryId AND ServiceResource.IsActive = true AND ServiceResource.Type__c = 'Back Room'];
-            Set<Id> serviceResourceId = New Set<Id>();
+            
+            System.debug('Service member count '+ serviceMember.size());
+            
+            Set<Id> serviceResourceId = new Set<Id>();
             for(ServiceTerritoryMember obj : serviceMember){
-                serviceResourceId.add(obj.id); //holds the service resource ids
-                System.debug('Service resource id '+ obj.id);
+                serviceResourceId.add(obj.ServiceResourceId); //holds the service resource ids
+                System.debug('Service resource id '+ obj.ServiceResourceId);
             }
             //String query = 'SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences where Start <= Today and End <= Today)  FROM ServiceResource WHERE IsActive = true and ServiceTerritoryId in :serviceTerritoryId';
-            List<ServiceResource> serviceResourceList = [SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences where Start <= Today and End <= Today)  FROM ServiceResource WHERE IsActive = true and id in :serviceResourceId];
+            List<ServiceResource> serviceResourceList = [SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences where Start >= Today and End >= Today)  FROM ServiceResource WHERE IsActive = true and id in :serviceResourceId];
             
             //iterating the service resource records from the chunk to create absence records
+
+            System.debug(' sericeResourceList '+ serviceResourceList.size());
             
             
             for(ServiceResource sr: serviceResourceList){
                 String stId = sr.ServiceTerritories[0].ServiceTerritory.id;
+                System.debug(' Line 71 stId : '+ sr.ServiceTerritories[0].ServiceTerritory.Name);
                 if(sr.ResourceAbsences != null && sr.ResourceAbsences.size()>0){
                     
                     Map<String,Id> absenceDateMap = new Map<String,Id>();
                     set<string> absenceDateSet = new set<string>();
                     for(ResourceAbsence absence : sr.ResourceAbsences){
+                        System.debug(' Line 77 : '+ absence.Start);
                         absenceDateMap.put(getLocalDate(absence.Start),absence.id);                       
                         absenceDateSet.add(getLocalDate(absence.Start));
                     }
 
-                    System.debug('Absence date list : '+ absenceDateSet);
+                    System.debug('Absence date list : '+ absenceDateSet.size());
                     
                     if(!absenceDateSet.contains(resourceAbsenceDataMap.get(stId).StoreDate)){
                         ResourceAbsence absenceInsert = createResourceAbsence(resourceAbsenceDataMap.get(stId), sr);
@@ -95,6 +102,8 @@ public with sharing class Appt_ResourceAbsenceController {
                 }
                 
             }
+
+            System.debug(' absenceListToUpsert size '+absenceListToUpsert.size());
             
             //here finally we are checking the size of the absenceListToUpsert and doing insert
             if(absenceListToUpsert.size()>0){
@@ -139,8 +148,9 @@ return rw;*/ // commented as part of SO-862
             
             
         }catch(Exception e){
-            logInstance.log('CreateAbsenceRecords', Appt_ResourceAbsenceController.class.getName(), e.getmessage());
             System.debug('Exception occured during absence creation'+e.getMessage()+' '+e.getStackTraceString());
+            logInstance.log('CreateAbsenceRecords', Appt_ResourceAbsenceController.class.getName(), e.getmessage());
+            
             rw.isError = true;
             rw.messsage = e.getMessage() + ' - ' + e.getStackTraceString(); 
             return rw;
@@ -183,11 +193,25 @@ return rw;*/ // commented as part of SO-862
     }
     
     public static String getLocalDate(DateTime dt){
-        String dateString = dt.format('yyyy-MM-dd HH:mm:ss');
-        Datetime dateInCurrentUserTimeZone = date.parse(dateString);
-        Date dateValue = date.newinstance(dateInCurrentUserTimeZone.year(), dateInCurrentUserTimeZone.month(), dateInCurrentUserTimeZone.day());
-        String dateString_value = String.valueOf(dateValue);
-        return dateString_value;
+        System.debug(' line 196 gmt '+dt);
+        DateTime dateInCurrentUserTimeZone = dt.date();
+        System.debug(' line 198 local date string '+dateInCurrentUserTimeZone);
+        Date dateValue = Date.newInstance(dateInCurrentUserTimeZone.year(), dateInCurrentUserTimeZone.month(), dateInCurrentUserTimeZone.day());
+        System.debug(' line 202 datevalue '+dateValue);
+        String dateString = String.valueOf(dateValue);
+        System.debug(' line 204 datevalue string '+dateString);
+
+
+        // System.debug(' line 196 getLocalDate '+dt);
+        // String dateString = dt.format();
+        // System.debug(' line 198 local date string '+dateString);
+        // Datetime dateInCurrentUserTimeZone = date.parse(dateString);
+        // System.debug(' line 200 local date  '+dateInCurrentUserTimeZone);
+        // Date dateValue = date.newinstance(dateInCurrentUserTimeZone.year(), dateInCurrentUserTimeZone.month(), dateInCurrentUserTimeZone.day());
+        // System.debug(' line 202 datevalue '+dateValue);
+        // String dateString_value = String.valueOf(dateValue);
+        // System.debug(' line 204 datevalue string '+dateString_value);
+        return dateString;
     }
     
     // This method is used to retrived the operating hour record as picklist for the lwc component
