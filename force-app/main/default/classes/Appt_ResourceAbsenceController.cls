@@ -74,21 +74,28 @@ public with sharing class Appt_ResourceAbsenceController {
                 System.debug(' Line 71 stId : '+ sr.ServiceTerritories[0].ServiceTerritory.Name);
                 if(sr.ResourceAbsences != null && sr.ResourceAbsences.size()>0){
                     
-                    Map<String,Id> absenceDateMap = new Map<String,Id>();
+                    Map<String,String> absenceDateMap = new Map<String,String>();
                     set<string> absenceDateSet = new set<string>();
                     for(ResourceAbsence absence : sr.ResourceAbsences){
-                        System.debug(' Line 77 : '+ absence.Start);
+                        //System.debug(' Line 77 : '+ absence.Start);
+                        System.debug('Line 81 Start : '+getLocalDate(absence.Start)+' id : '+absence.id);
                         absenceDateMap.put(getLocalDate(absence.Start),absence.id);                       
                         absenceDateSet.add(getLocalDate(absence.Start));
                     }
 
+                    System.debug('RA list : '+String.valueOf(absenceDateMap.keySet()) );
+
                     System.debug('Absence date list : '+ absenceDateSet.size());
                     
-                    if(!absenceDateSet.contains(resourceAbsenceDataMap.get(stId).StoreDate)){
+                    if(!absenceDateSet.contains(resourceAbsenceDataMap.get(stId).StoreDate)){                         
+                        System.debug(resourceAbsenceDataMap.get(stId).StoreDate + ' rA not found for '+sr.Name);                        
                         ResourceAbsence absenceInsert = createResourceAbsence(resourceAbsenceDataMap.get(stId), sr);
                         absenceListToUpsert.add(absenceInsert);
+                        
                     }
                     else{
+                        System.debug(resourceAbsenceDataMap.get(stId).StoreDate + ' rA found for '+sr.Name);
+                        System.debug('Existing Date : '+resourceAbsenceDataMap.get(stId).StoreDate+' RA date : '+absenceDateMap.get(resourceAbsenceDataMap.get(stId).StoreDate));
                         ResourceAbsence absenceUpdate = updateResourceAbsence(resourceAbsenceDataMap.get(stId), sr,absenceDateMap.get(resourceAbsenceDataMap.get(stId).StoreDate));
                         absenceListToUpsert.add(absenceUpdate);
                     }
@@ -97,7 +104,7 @@ public with sharing class Appt_ResourceAbsenceController {
                     
                 }
                 else{
-                    
+                    System.debug(resourceAbsenceDataMap.get(stId).StoreDate + ' rA not found for '+sr.Name);
                     absenceListToUpsert.add(createResourceAbsence(resourceAbsenceDataMap.get(stId), sr));
                 }
                 
@@ -169,7 +176,7 @@ return rw;*/ // commented as part of SO-862
         return rAbsence;
     }
     
-    public static ResourceAbsence updateResourceAbsence( RAToCreateWrapper rw, ServiceResource resource, Id resourceAbsenceId){
+    public static ResourceAbsence updateResourceAbsence( RAToCreateWrapper rw, ServiceResource resource, String resourceAbsenceId){
         ResourceAbsence rAbsence = new ResourceAbsence(
             Id = resourceAbsenceId,
             ResourceId = resource.id,
@@ -193,13 +200,16 @@ return rw;*/ // commented as part of SO-862
     }
     
     public static String getLocalDate(DateTime dt){
-        System.debug(' line 196 gmt '+dt);
-        DateTime dateInCurrentUserTimeZone = dt.date();
-        System.debug(' line 198 local date string '+dateInCurrentUserTimeZone);
-        Date dateValue = Date.newInstance(dateInCurrentUserTimeZone.year(), dateInCurrentUserTimeZone.month(), dateInCurrentUserTimeZone.day());
-        System.debug(' line 202 datevalue '+dateValue);
-        String dateString = String.valueOf(dateValue);
-        System.debug(' line 204 datevalue string '+dateString);
+        String localDateString = dt.format('yyyy-MM-dd');
+        return localDateString;
+
+        //System.debug(' line 196 gmt '+dt);
+        //DateTime dateInCurrentUserTimeZone = dt.date();
+        //System.debug(' line 198 local date string '+dateInCurrentUserTimeZone);
+        //Date dateValue = Date.newInstance(dateInCurrentUserTimeZone.year(), dateInCurrentUserTimeZone.month(), dateInCurrentUserTimeZone.day());
+        //System.debug(' line 202 datevalue '+dateValue);
+        //String dateString = String.valueOf(dateValue);
+        //System.debug(' line 204 datevalue string '+dateString);
 
 
         // System.debug(' line 196 getLocalDate '+dt);
@@ -211,7 +221,7 @@ return rw;*/ // commented as part of SO-862
         // System.debug(' line 202 datevalue '+dateValue);
         // String dateString_value = String.valueOf(dateValue);
         // System.debug(' line 204 datevalue string '+dateString_value);
-        return dateString;
+        //return dateString;
     }
     
     // This method is used to retrived the operating hour record as picklist for the lwc component
