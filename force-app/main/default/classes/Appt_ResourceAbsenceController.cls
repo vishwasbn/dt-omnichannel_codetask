@@ -12,10 +12,10 @@ Vishwas        S0-385       25-08-2023          Added methods to list Operating 
 ========================================================================================================== */
 
 public with sharing class Appt_ResourceAbsenceController {
-
-public static Logger logInstance = Logger.getInstance();
-
-// This method will get list of stores on component and filter store based on region and search key
+    
+    public static Logger logInstance = Logger.getInstance();
+    
+    // This method will get list of stores on component and filter store based on region and search key
     @AuraEnabled(cacheable=true)
     public static List<ServiceTerritory> getAllStores(String operatingHourId , String region, String searchKey){
         List<ServiceTerritory> storeList = new List<ServiceTerritory>();
@@ -35,7 +35,7 @@ public static Logger logInstance = Logger.getInstance();
         return storeList;
     }
     
-
+    
     // This method is used to create the resource absence records
     @AuraEnabled
     public static ResponseWrapper createAbsenceRecords(String requestData){
@@ -45,24 +45,95 @@ public static Logger logInstance = Logger.getInstance();
             Set<String> serviceTerritoryId = New Set<String>();
             Map<String,RAToCreateWrapper> resourceAbsenceDataMap = new Map<String,RAToCreateWrapper>();
             List<ResourceAbsence> raToInsert = new List<ResourceAbsence>();
+            List<ResourceAbsence> absenceListToUpsert = new List<ResourceAbsence>();
             for(RAToCreateWrapper obj : resourceAbsenceDataList){
                 serviceTerritoryId.add(obj.id); //holds the Store name 
                 resourceAbsenceDataMap.put(obj.id,obj); //map of territorry id and the resource absence data
             }
-            for(ServiceTerritoryMember memberObj : [SELECT Id, ServiceTerritoryId,ServiceTerritory.Name, ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Id in : serviceTerritoryId AND ServiceResource.IsActive = true AND ServiceResource.Type__c = 'Back Room']){
-                ResourceAbsence ra = new ResourceAbsence();
-                ra.Type = Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY;
-                ra.Start = getDateTimeValue(resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StartTime,resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StoreDate);//sets start time in the datetime in logged in user time locale
-                ra.End = getDateTimeValue(resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).EndTime,resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StoreDate);//sets end time in the datetime in logged in user time locale
-                ra.ResourceId = memberObj.ServiceResourceId;
-                raToInsert.add(ra);
+            //get the service territorry member from the service territorry id
+            List<ServiceTerritoryMember> serviceMember = [SELECT ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Id in : serviceTerritoryId AND ServiceResource.IsActive = true AND ServiceResource.Type__c = 'Back Room'];
+            Set<Id> serviceResourceId = New Set<Id>();
+            for(ServiceTerritoryMember obj : serviceMember){
+                serviceResourceId.add(obj.id); //holds the service resource ids
             }
-            insert raToInsert; // create the resource absence record
-
+            //String query = 'SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences where Start <= Today and End <= Today)  FROM ServiceResource WHERE IsActive = true and ServiceTerritoryId in :serviceTerritoryId';
+            List<ServiceResource> serviceResourceList = [SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences where Start <= Today and End <= Today)  FROM ServiceResource WHERE IsActive = true and id in :serviceResourceId];
+            
+            //iterating the service resource records from the chunk to create absence records
+            
+            
+            for(ServiceResource sr: serviceResourceList){
+                String stId = sr.ServiceTerritories[0].ServiceTerritory.id;
+                if(sr.ResourceAbsences != null && sr.ResourceAbsences.size()>0){
+                    
+                    Map<String,Id> absenceDateMap = new Map<String,Id>();
+                    set<string> absenceDateSet = new set<string>();
+                    for(ResourceAbsence absence : sr.ResourceAbsences){
+                        absenceDateMap.put(getLocalDate(absence.Start),absence.id);
+                        absenceDateSet.add(getLocalDate(absence.Start));
+                    }
+                    
+                    if(!absenceDateSet.contains(resourceAbsenceDataMap.get(stId).StoreDate)){
+                        ResourceAbsence absenceInsert = createResourceAbsence(resourceAbsenceDataMap.get(stId), sr);
+                        absenceListToUpsert.add(absenceInsert);
+                    }
+                    else{
+                        ResourceAbsence absenceUpdate = updateResourceAbsence(resourceAbsenceDataMap.get(stId), sr,absenceDateMap.get(resourceAbsenceDataMap.get(stId).StoreDate));
+                        absenceListToUpsert.add(absenceUpdate);
+                    }
+                    
+                    
+                    
+                }
+                else{
+                    
+                    absenceListToUpsert.add(createResourceAbsence(resourceAbsenceDataMap.get(stId), sr));
+                }
+                
+            }
+            
+            //here finally we are checking the size of the absenceListToUpsert and doing insert
+            if(absenceListToUpsert.size()>0){
+                System.debug('Resource Absence record created : so-862 '+absenceListToUpsert.size());
+                //insert absenceListToUpsert;
+            }
+            
             rw.isError = false;
-            rw.messsage = JSON.serialize(raToInsert); 
+            rw.messsage = JSON.serialize(absenceListToUpsert); 
             return rw;
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            /*
+for(ServiceTerritoryMember memberObj : [SELECT Id, ServiceTerritoryId,ServiceTerritory.Name, ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Id in : serviceTerritoryId AND ServiceResource.IsActive = true AND ServiceResource.Type__c = 'Back Room']){
+ResourceAbsence ra = new ResourceAbsence();
+ra.Type = Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY;
+ra.Start = getDateTimeValue(resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StartTime,resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StoreDate);//sets start time in the datetime in logged in user time locale
+ra.End = getDateTimeValue(resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).EndTime,resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StoreDate);//sets end time in the datetime in logged in user time locale
+ra.ResourceId = memberObj.ServiceResourceId;
+raToInsert.add(ra);
+}
+insert raToInsert; // create the resource absence record
 
+rw.isError = false;
+rw.messsage = JSON.serialize(raToInsert); 
+return rw;*/ // commented as part of SO-862
+            
+            
         }catch(Exception e){
             logInstance.log('CreateAbsenceRecords', Appt_ResourceAbsenceController.class.getName(), e.getmessage());
             System.debug('Exception occured during absence creation'+e.getMessage()+' '+e.getStackTraceString());
@@ -71,7 +142,30 @@ public static Logger logInstance = Logger.getInstance();
             return rw;
         }
     }  
-
+    
+    public static ResourceAbsence createResourceAbsence( RAToCreateWrapper rw, ServiceResource resource){
+        ResourceAbsence rAbsence = new ResourceAbsence(
+            ResourceId = resource.id,
+            start = getDateTimeValue(rw.StartTime, rw.StoreDate),
+            end =  getDateTimeValue(rw.EndTime, rw.StoreDate),
+            Type= Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY,
+            RecordtypeId = Schema.SObjectType.ResourceAbsence.getRecordTypeInfosByDeveloperName().get('Non_Availability').getRecordTypeId()
+        );
+        return rAbsence;
+    }
+    
+    public static ResourceAbsence updateResourceAbsence( RAToCreateWrapper rw, ServiceResource resource, Id resourceAbsenceId){
+        ResourceAbsence rAbsence = new ResourceAbsence(
+            Id = resourceAbsenceId,
+            ResourceId = resource.id,
+            start = getDateTimeValue(rw.StartTime, rw.StoreDate),
+            end =  getDateTimeValue(rw.EndTime, rw.StoreDate),
+            Type=Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY,
+            RecordtypeId = Schema.SObjectType.ResourceAbsence.getRecordTypeInfosByDeveloperName().get('Non_Availability').getRecordTypeId()
+        );
+        return rAbsence;
+    }
+    
     //This method is used to convert the date and time string value to datetime in the loggedin timezone
     public static DateTime getDateTimeValue(String timeString,String dateString){
         Date dateValue = Date.valueOf(dateString);//Returns a Date that contains the value of the specified String
@@ -81,7 +175,15 @@ public static Logger logInstance = Logger.getInstance();
         DateTime dt = DateTime.newInstance(dateValue, timeValue);//DateTime from the specified date and time in the local time zone 
         return dt;
     }
-
+    
+    public static String getLocalDate(DateTime dt){
+        String dateString = dt.format('yyyy-MM-dd HH:mm:ss');
+        Datetime dateInCurrentUserTimeZone = date.parse(dateString);
+        Date dateValue = date.newinstance(dateInCurrentUserTimeZone.year(), dateInCurrentUserTimeZone.month(), dateInCurrentUserTimeZone.day());
+        String dateString_value = String.valueOf(dateValue);
+        return dateString_value;
+    }
+    
     // This method is used to retrived the operating hour record as picklist for the lwc component
     @AuraEnabled(cacheable=true)
     public static List<Option> getOperatingHourOptions() {
@@ -96,7 +198,7 @@ public static Logger logInstance = Logger.getInstance();
         
         return options;
     }
-
+    
     //This method used to retrived the Store regions based on the store Operating hour
     @AuraEnabled(cacheable=true)
     public static List<Option> getSiteRegions(String operatingHourId) {
@@ -112,7 +214,7 @@ public static Logger logInstance = Logger.getInstance();
         return options;
     }   
     
-
+    
     //This method is used to retrive logged in user timezone.
     @AuraEnabled(cacheable=true)
     public static String getUserAccountTimezone() {
@@ -122,11 +224,11 @@ public static Logger logInstance = Logger.getInstance();
         User currentUser = [SELECT AccountId, TimeZoneSidKey FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
         
         if (currentUser != null && currentUser.TimezoneSidKey != null) {
-                userTimeZone = currentUser.TimezoneSidKey;
-            }
+            userTimeZone = currentUser.TimezoneSidKey;
+        }
         return userTimeZone;
     }
-
+    
     //wrapper class to hold the resource absence details to be created, data from lwc
     public Class RAToCreateWrapper{
         public String ServiceTeritoryId;
@@ -137,7 +239,7 @@ public static Logger logInstance = Logger.getInstance();
         public String EndTime; 
         public String StoreDate;           
     }
-
+    
     //this is the wrapper class to hold the resource absence creation method response
     public class ResponseWrapper{
         @auraEnabled
@@ -145,7 +247,7 @@ public static Logger logInstance = Logger.getInstance();
         @auraEnabled
         public Boolean isError{get;set;}
     }
-
+    
     //wrapper class to construct the dropdown value options for lwc
     public class Option {
         @AuraEnabled
