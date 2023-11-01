@@ -22,6 +22,19 @@ private class Appt_ResourceAbsenceController_Test {
         // create first Resource Absence for the second ServiceResource (front)
         ResourceAbsence resAbs = Appt_TestUtil.getResourceAbsence(servResource.Id, startDatetime, endDatetime);
 
+        /** New code to verify the service related details are there */
+        List<ServiceTerritory> stL = [SELECT Id, Name FROM ServiceTerritory];
+        System.debug('ServiceTerritory data : '+stL.size());
+        List<OperatingHours> oh = [SELECT id,Name FROM OperatingHours];
+        System.debug('OperatingHours  data : '+oh.size());
+        List<ServiceTerritoryMember> stm = [SELECT id FROM ServiceTerritoryMember];
+        System.debug('ServiceTerritoryMember  data : '+stm.size());
+        List<ServiceResource> sr = [SELECT id FROM ServiceResource];
+        System.debug('ServiceResource  data : '+sr.size());
+        List<ResourceAbsence> ra = [SELECT id FROM ResourceAbsence];
+        System.debug('ResourceAbsence  data : '+ra.size());
+
+
     }
 
     @isTest
@@ -40,6 +53,135 @@ private class Appt_ResourceAbsenceController_Test {
 
         Test.startTest();
         String requestDataJSON = JSON.serialize(raDataList);
+        Appt_ResourceAbsenceController.createAbsenceRecords(requestDataJSON);
+        Test.stopTest();
+
+        
+        List<ServiceResource> createdServiceResources = [SELECT Id, Name, ResourceType, Type__c, RelatedRecordId, IsActive FROM ServiceResource];
+        System.assertEquals(2, createdServiceResources.size()); 
+
+       
+        System.assertEquals('Resource Back', createdServiceResources[0].Name);
+        System.assertEquals('T', createdServiceResources[0].ResourceType);
+        System.assertEquals('Back Room', createdServiceResources[0].Type__c);
+        System.assertEquals(true, createdServiceResources[0].IsActive);
+    }
+
+    @isTest
+    static void testCreateAbsenceRecords2() {
+        Appt_ResourceAbsenceController_Test.setupData();
+        List<Appt_ResourceAbsenceController.RAToCreateWrapper> raDataList = new List<Appt_ResourceAbsenceController.RAToCreateWrapper>();
+        Appt_ResourceAbsenceController.RAToCreateWrapper raData = new Appt_ResourceAbsenceController.RAToCreateWrapper();
+        raData.ServiceTeritoryId = [SELECT Id, Name FROM ServiceTerritory][0].Id; // Add the relevant ServiceTerritory Id here
+        raData.id = [SELECT Id, Name FROM ServiceTerritory][0].Id;
+        raData.Name = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData.StoreId = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData.StartTime = '11:30:00.000Z';
+        raData.EndTime = '18:30:00.000Z';
+        raData.StoreDate = '2023-08-03T08:09:56.529Z';
+        raDataList.add(raData);
+
+
+        Test.startTest();
+        String requestDataJSON = JSON.serialize(raDataList);
+        Appt_ResourceAbsenceController.createAbsenceRecords(requestDataJSON);
+        Test.stopTest();
+
+        
+        List<ServiceResource> createdServiceResources = [SELECT Id, Name, ResourceType, Type__c, RelatedRecordId, IsActive FROM ServiceResource];
+        System.assertEquals(2, createdServiceResources.size()); 
+
+       
+        System.assertEquals('Resource Back', createdServiceResources[0].Name);
+        System.assertEquals('T', createdServiceResources[0].ResourceType);
+        System.assertEquals('Back Room', createdServiceResources[0].Type__c);
+        System.assertEquals(true, createdServiceResources[0].IsActive);
+    }
+
+    @isTest
+    static void testCreateAbsenceRecords3() {
+        Appt_ResourceAbsenceController_Test.setupData();
+        List<Appt_ResourceAbsenceController.RAToCreateWrapper> raDataList = new List<Appt_ResourceAbsenceController.RAToCreateWrapper>();
+        Appt_ResourceAbsenceController.RAToCreateWrapper raData = new Appt_ResourceAbsenceController.RAToCreateWrapper();
+        raData.ServiceTeritoryId = [SELECT Id, Name FROM ServiceTerritory][0].Id; // Add the relevant ServiceTerritory Id here
+        raData.id = [SELECT Id, Name FROM ServiceTerritory][0].Id;
+        raData.Name = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData.StoreId = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData.StartTime = '11:30:00.000';
+        raData.EndTime = '18:30:00.000';
+        raData.StoreDate = System.now().addDays(2).format('yyyy-MM-dd');
+        System.debug('1st Date : '+raData.StoreDate);
+        raDataList.add(raData);
+        String requestDataJSON = JSON.serialize(raDataList);
+        Appt_ResourceAbsenceController.createAbsenceRecords(requestDataJSON);
+
+
+
+        //update the existing date
+        List<Appt_ResourceAbsenceController.RAToCreateWrapper> raDataList2 = new List<Appt_ResourceAbsenceController.RAToCreateWrapper>();
+        Appt_ResourceAbsenceController.RAToCreateWrapper raData2 = new Appt_ResourceAbsenceController.RAToCreateWrapper();
+        raData2.ServiceTeritoryId = [SELECT Id, Name FROM ServiceTerritory][0].Id; // Add the relevant ServiceTerritory Id here
+        raData2.id = [SELECT Id, Name FROM ServiceTerritory][0].Id;
+        raData2.Name = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData2.StoreId = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData2.StartTime = '11:30:00.000';
+        raData2.EndTime = '19:30:00.000';
+        raData2.StoreDate = System.now().addDays(5).format('yyyy-MM-dd');
+        System.debug('2nd Date : '+raData2.StoreDate);
+        raDataList2.add(raData2);
+        
+
+
+        Test.startTest();
+        requestDataJSON = JSON.serialize(raDataList2);
+        Appt_ResourceAbsenceController.createAbsenceRecords(requestDataJSON);
+        Test.stopTest();
+
+        
+        List<ServiceResource> createdServiceResources = [SELECT Id, Name, ResourceType, Type__c, RelatedRecordId, IsActive FROM ServiceResource];
+        System.assertEquals(3, createdServiceResources.size()); 
+
+       
+        System.assertEquals('Resource Back', createdServiceResources[0].Name);
+        System.assertEquals('T', createdServiceResources[0].ResourceType);
+        System.assertEquals('Back Room', createdServiceResources[0].Type__c);
+        System.assertEquals(true, createdServiceResources[0].IsActive);
+    }
+
+    @isTest
+    static void testCreateAbsenceRecords4() {
+        Appt_ResourceAbsenceController_Test.setupData();
+        List<Appt_ResourceAbsenceController.RAToCreateWrapper> raDataList = new List<Appt_ResourceAbsenceController.RAToCreateWrapper>();
+        Appt_ResourceAbsenceController.RAToCreateWrapper raData = new Appt_ResourceAbsenceController.RAToCreateWrapper();
+        raData.ServiceTeritoryId = [SELECT Id, Name FROM ServiceTerritory][0].Id; // Add the relevant ServiceTerritory Id here
+        raData.id = [SELECT Id, Name FROM ServiceTerritory][0].Id;
+        raData.Name = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData.StoreId = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData.StartTime = '11:30:00.000';
+        raData.EndTime = '18:30:00.000';
+        raData.StoreDate = System.now().addDays(2).format('yyyy-MM-dd');
+        raDataList.add(raData);
+        String requestDataJSON = JSON.serialize(raDataList);
+        Appt_ResourceAbsenceController.createAbsenceRecords(requestDataJSON);
+
+
+
+        //update the existing date
+        List<Appt_ResourceAbsenceController.RAToCreateWrapper> raDataList2 = new List<Appt_ResourceAbsenceController.RAToCreateWrapper>();
+        Appt_ResourceAbsenceController.RAToCreateWrapper raData2 = new Appt_ResourceAbsenceController.RAToCreateWrapper();
+        raData2.ServiceTeritoryId = [SELECT Id, Name FROM ServiceTerritory][0].Id; // Add the relevant ServiceTerritory Id here
+        raData2.id = [SELECT Id, Name FROM ServiceTerritory][0].Id;
+        raData2.Name = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData2.StoreId = [SELECT Id, Name FROM ServiceTerritory][0].Name;
+        raData2.StartTime = '11:30:00.000';
+        raData2.EndTime = '19:30:00.000';
+        raData2.StoreDate = System.now().addDays(2).format('yyyy-MM-dd');
+        raDataList2.add(raData2);
+        
+
+
+        Test.startTest();
+        requestDataJSON = JSON.serialize(raDataList2);
         Appt_ResourceAbsenceController.createAbsenceRecords(requestDataJSON);
         Test.stopTest();
 
