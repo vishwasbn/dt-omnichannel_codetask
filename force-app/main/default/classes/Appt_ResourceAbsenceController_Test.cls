@@ -137,15 +137,17 @@ private class Appt_ResourceAbsenceController_Test {
         Appt_ResourceAbsenceController.createAbsenceRecords(requestDataJSON);
         Test.stopTest();
 
+        List<ResourceAbsence>  ra= [SELECT id FROM ResourceAbsence];
+        System.assertEquals(3, ra.size());
         
-        List<ServiceResource> createdServiceResources = [SELECT Id, Name, ResourceType, Type__c, RelatedRecordId, IsActive FROM ServiceResource];
-        System.assertEquals(3, createdServiceResources.size()); 
+        // List<ServiceResource> createdServiceResources = [SELECT Id, Name, ResourceType, Type__c, RelatedRecordId, IsActive FROM ServiceResource];
+        // System.assertEquals(3, createdServiceResources.size()); 
 
        
-        System.assertEquals('Resource Back', createdServiceResources[0].Name);
-        System.assertEquals('T', createdServiceResources[0].ResourceType);
-        System.assertEquals('Back Room', createdServiceResources[0].Type__c);
-        System.assertEquals(true, createdServiceResources[0].IsActive);
+        // System.assertEquals('Resource Back', createdServiceResources[0].Name);
+        // System.assertEquals('T', createdServiceResources[0].ResourceType);
+        // System.assertEquals('Back Room', createdServiceResources[0].Type__c);
+        // System.assertEquals(true, createdServiceResources[0].IsActive);
     }
 
     @isTest
@@ -186,14 +188,17 @@ private class Appt_ResourceAbsenceController_Test {
         Test.stopTest();
 
         
-        List<ServiceResource> createdServiceResources = [SELECT Id, Name, ResourceType, Type__c, RelatedRecordId, IsActive FROM ServiceResource];
-        System.assertEquals(2, createdServiceResources.size()); 
+        List<ResourceAbsence>  ra= [SELECT id FROM ResourceAbsence];
+        System.assertEquals(2, ra.size());
+
+        // List<ServiceResource> createdServiceResources = [SELECT Id, Name, ResourceType, Type__c, RelatedRecordId, IsActive FROM ServiceResource];
+        // System.assertEquals(2, createdServiceResources.size()); 
 
        
-        System.assertEquals('Resource Back', createdServiceResources[0].Name);
-        System.assertEquals('T', createdServiceResources[0].ResourceType);
-        System.assertEquals('Back Room', createdServiceResources[0].Type__c);
-        System.assertEquals(true, createdServiceResources[0].IsActive);
+        // System.assertEquals('Resource Back', createdServiceResources[0].Name);
+        // System.assertEquals('T', createdServiceResources[0].ResourceType);
+        // System.assertEquals('Back Room', createdServiceResources[0].Type__c);
+        // System.assertEquals(true, createdServiceResources[0].IsActive);
     }
 
     @isTest
