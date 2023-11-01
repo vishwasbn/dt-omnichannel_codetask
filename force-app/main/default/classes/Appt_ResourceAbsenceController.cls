@@ -9,6 +9,7 @@ Developer     Jira Number   Date                Description
 ------------------------------------------------------------------------------------
 Ayna           SO-385       07th Aug '23        Created to accommodate all the controller method. 
 Vishwas        S0-385       25-08-2023          Added methods to list Operating Hours, Store Region and get logged in user timezone.
+Vishwas        SO-862       01-11-2023          logic to update the existing RA if absence created with same date, Timezone change steps in UI as help msg
 ========================================================================================================== */
 
 public with sharing class Appt_ResourceAbsenceController {
@@ -44,125 +45,72 @@ public with sharing class Appt_ResourceAbsenceController {
             List<RAToCreateWrapper> resourceAbsenceDataList = (List<RAToCreateWrapper>) JSON.deserialize(requestData,List<RAToCreateWrapper>.class);
             Set<String> serviceTerritoryId = New Set<String>();
             Map<String,RAToCreateWrapper> resourceAbsenceDataMap = new Map<String,RAToCreateWrapper>();
-            List<ResourceAbsence> raToInsert = new List<ResourceAbsence>();
+            //final absence list to insert/update records
             List<ResourceAbsence> absenceListToUpsert = new List<ResourceAbsence>();
             for(RAToCreateWrapper obj : resourceAbsenceDataList){
                 serviceTerritoryId.add(obj.id); //holds the Store name 
-                System.debug('Service Territory id '+ obj.id+' serTerName '+ obj.Name);
-                resourceAbsenceDataMap.put(obj.id,obj); //map of territorry id and the resource absence data
+                resourceAbsenceDataMap.put(obj.id,obj); //map of territorry id and the resource absence data from the lwc screen
             }
-            //get the service territorry member from the service territorry id
+            //get the service territorry member for the service territorry
             List<ServiceTerritoryMember> serviceMember = [SELECT ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Id in : serviceTerritoryId AND ServiceResource.IsActive = true AND ServiceResource.Type__c = 'Back Room'];
-            
-            System.debug('Service member count '+ serviceMember.size());
-            
+            //holds the service resource id of the service territorry
             Set<Id> serviceResourceId = new Set<Id>();
             for(ServiceTerritoryMember obj : serviceMember){
                 serviceResourceId.add(obj.ServiceResourceId); //holds the service resource ids
-                System.debug('Service resource id '+ obj.ServiceResourceId);
             }
-            //String query = 'SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences where Start <= Today and End <= Today)  FROM ServiceResource WHERE IsActive = true and ServiceTerritoryId in :serviceTerritoryId';
+            //get the future resource absence records for the service resource of the ServiceTerritory of interest
             List<ServiceResource> serviceResourceList = [SELECT id, Name, CreatedDate, (SELECT id, ServiceTerritoryId, ServiceTerritory.Name, ServiceTerritory.OperatingHours.TimeZone  FROM ServiceTerritories),(SELECT id, ResourceId, Start, End, Type FROM ResourceAbsences where Start >= Today and End >= Today)  FROM ServiceResource WHERE IsActive = true and id in :serviceResourceId];
-            
             //iterating the service resource records from the chunk to create absence records
-
-            System.debug(' sericeResourceList '+ serviceResourceList.size());
-            
-            
             for(ServiceResource sr: serviceResourceList){
                 String stId = sr.ServiceTerritories[0].ServiceTerritory.id;
-                System.debug(' Line 71 stId : '+ sr.ServiceTerritories[0].ServiceTerritory.Name);
-                if(sr.ResourceAbsences != null && sr.ResourceAbsences.size()>0){
-                    
+                //validate if there any existing resource absence records for each service resource record.
+                //If resource absence record exists, we need to check if there any resource absence record with same date
+                if(sr.ResourceAbsences != null && sr.ResourceAbsences.size()>0){                    
+                    //creating a map to hold holiday date and resource absence id(if the RA created fror the existing date)
                     Map<String,String> absenceDateMap = new Map<String,String>();
                     set<string> absenceDateSet = new set<string>();
                     for(ResourceAbsence absence : sr.ResourceAbsences){
-                        //System.debug(' Line 77 : '+ absence.Start);
-                        System.debug('Line 81 Start : '+getLocalDateString(absence.Start)+' id : '+absence.id);
                         absenceDateMap.put(getLocalDateString(absence.Start),absence.id);                       
                         absenceDateSet.add(getLocalDateString(absence.Start));
                     }
-
-                    System.debug('RA list : '+String.valueOf(absenceDateMap.keySet()) );
-
-                    System.debug('Absence date list : '+ absenceDateSet.size());
-                    
+                    //if the RA with same date not found for service resource then create Resource Absence
                     if(!absenceDateSet.contains(resourceAbsenceDataMap.get(stId).StoreDate)){                         
-                        System.debug(resourceAbsenceDataMap.get(stId).StoreDate + ' rA not found for '+sr.Name);                        
                         ResourceAbsence absenceInsert = createResourceAbsence(resourceAbsenceDataMap.get(stId), sr);
                         absenceListToUpsert.add(absenceInsert);
                         
                     }
+                    //if the RA is already created with same date then the record need to be updated with new start and end time
                     else{
-                        System.debug(resourceAbsenceDataMap.get(stId).StoreDate + ' rA found for '+sr.Name);
-                        System.debug('Existing Date : '+resourceAbsenceDataMap.get(stId).StoreDate+' RA date : '+absenceDateMap.get(resourceAbsenceDataMap.get(stId).StoreDate));
                         ResourceAbsence absenceUpdate = updateResourceAbsence(resourceAbsenceDataMap.get(stId), sr,absenceDateMap.get(resourceAbsenceDataMap.get(stId).StoreDate));
                         absenceListToUpsert.add(absenceUpdate);
                     }
                     
-                    
-                    
                 }
                 else{
-                    System.debug(resourceAbsenceDataMap.get(stId).StoreDate + ' rA not found for '+sr.Name);
                     absenceListToUpsert.add(createResourceAbsence(resourceAbsenceDataMap.get(stId), sr));
                 }
                 
             }
-
-            System.debug(' absenceListToUpsert size '+absenceListToUpsert.size());
             
             //here finally we are checking the size of the absenceListToUpsert and doing insert
             if(absenceListToUpsert.size()>0){
-                System.debug('Resource Absence record created : so-862 '+absenceListToUpsert.size());
                 upsert absenceListToUpsert;
             }
             
             rw.isError = false;
             rw.messsage = JSON.serialize(absenceListToUpsert); 
             return rw;
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            /*
-for(ServiceTerritoryMember memberObj : [SELECT Id, ServiceTerritoryId,ServiceTerritory.Name, ServiceResourceId FROM ServiceTerritoryMember where ServiceTerritory.Id in : serviceTerritoryId AND ServiceResource.IsActive = true AND ServiceResource.Type__c = 'Back Room']){
-ResourceAbsence ra = new ResourceAbsence();
-ra.Type = Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY;
-ra.Start = getDateTimeValue(resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StartTime,resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StoreDate);//sets start time in the datetime in logged in user time locale
-ra.End = getDateTimeValue(resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).EndTime,resourceAbsenceDataMap.get(memberObj.ServiceTerritoryId).StoreDate);//sets end time in the datetime in logged in user time locale
-ra.ResourceId = memberObj.ServiceResourceId;
-raToInsert.add(ra);
-}
-insert raToInsert; // create the resource absence record
-
-rw.isError = false;
-rw.messsage = JSON.serialize(raToInsert); 
-return rw;*/ // commented as part of SO-862
-            
-            
+              
         }catch(Exception e){
-            System.debug('Exception occured during absence creation'+e.getMessage()+' '+e.getStackTraceString());
             logInstance.log('CreateAbsenceRecords', Appt_ResourceAbsenceController.class.getName(), e.getmessage());            
+            System.debug('Exception occured during absence creation'+e.getMessage()+' '+e.getStackTraceString());
             rw.isError = true;
             rw.messsage = e.getMessage() + ' - ' + e.getStackTraceString(); 
             return rw;
         }
     }  
     
+    //create resource absence object and return for insert
     public static ResourceAbsence createResourceAbsence( RAToCreateWrapper rw, ServiceResource resource){
         ResourceAbsence rAbsence = new ResourceAbsence(
             ResourceId = resource.id,
@@ -171,10 +119,9 @@ return rw;*/ // commented as part of SO-862
             Type= Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY,
             RecordtypeId = Schema.SObjectType.ResourceAbsence.getRecordTypeInfosByDeveloperName().get('Non_Availability').getRecordTypeId()
         );
-        System.debug(String.valueOf(rAbsence));
         return rAbsence;
     }
-    
+    //create resource absence object and return for the update
     public static ResourceAbsence updateResourceAbsence( RAToCreateWrapper rw, ServiceResource resource, String resourceAbsenceId){
         ResourceAbsence rAbsence = new ResourceAbsence(
             Id = resourceAbsenceId,
@@ -184,7 +131,6 @@ return rw;*/ // commented as part of SO-862
             Type=Appt_ConstantValues.ABSENCE_TYPE_HOLIDAY,
             RecordtypeId = Schema.SObjectType.ResourceAbsence.getRecordTypeInfosByDeveloperName().get('Non_Availability').getRecordTypeId()
         );
-        System.debug(String.valueOf(rAbsence));
         return rAbsence;
     }
     
@@ -198,29 +144,9 @@ return rw;*/ // commented as part of SO-862
         return dt;
     }
     
+    //This method extract date string value from the datetime
     public static String getLocalDateString(DateTime dt){
-        String localDateString = dt.format('yyyy-MM-dd');
-        return localDateString;
-
-        //System.debug(' line 196 gmt '+dt);
-        //DateTime dateInCurrentUserTimeZone = dt.date();
-        //System.debug(' line 198 local date string '+dateInCurrentUserTimeZone);
-        //Date dateValue = Date.newInstance(dateInCurrentUserTimeZone.year(), dateInCurrentUserTimeZone.month(), dateInCurrentUserTimeZone.day());
-        //System.debug(' line 202 datevalue '+dateValue);
-        //String dateString = String.valueOf(dateValue);
-        //System.debug(' line 204 datevalue string '+dateString);
-
-
-        // System.debug(' line 196 getLocalDate '+dt);
-        // String dateString = dt.format();
-        // System.debug(' line 198 local date string '+dateString);
-        // Datetime dateInCurrentUserTimeZone = date.parse(dateString);
-        // System.debug(' line 200 local date  '+dateInCurrentUserTimeZone);
-        // Date dateValue = date.newinstance(dateInCurrentUserTimeZone.year(), dateInCurrentUserTimeZone.month(), dateInCurrentUserTimeZone.day());
-        // System.debug(' line 202 datevalue '+dateValue);
-        // String dateString_value = String.valueOf(dateValue);
-        // System.debug(' line 204 datevalue string '+dateString_value);
-        //return dateString;
+        return dt.format('yyyy-MM-dd');
     }
     
     // This method is used to retrived the operating hour record as picklist for the lwc component
