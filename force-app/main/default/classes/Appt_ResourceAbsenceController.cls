@@ -78,9 +78,9 @@ public with sharing class Appt_ResourceAbsenceController {
                     set<string> absenceDateSet = new set<string>();
                     for(ResourceAbsence absence : sr.ResourceAbsences){
                         //System.debug(' Line 77 : '+ absence.Start);
-                        System.debug('Line 81 Start : '+getLocalDate(absence.Start)+' id : '+absence.id);
-                        absenceDateMap.put(getLocalDate(absence.Start),absence.id);                       
-                        absenceDateSet.add(getLocalDate(absence.Start));
+                        System.debug('Line 81 Start : '+getLocalDateString(absence.Start)+' id : '+absence.id);
+                        absenceDateMap.put(getLocalDateString(absence.Start),absence.id);                       
+                        absenceDateSet.add(getLocalDateString(absence.Start));
                     }
 
                     System.debug('RA list : '+String.valueOf(absenceDateMap.keySet()) );
@@ -115,7 +115,7 @@ public with sharing class Appt_ResourceAbsenceController {
             //here finally we are checking the size of the absenceListToUpsert and doing insert
             if(absenceListToUpsert.size()>0){
                 System.debug('Resource Absence record created : so-862 '+absenceListToUpsert.size());
-                //insert absenceListToUpsert;
+                upsert absenceListToUpsert;
             }
             
             rw.isError = false;
@@ -156,8 +156,7 @@ return rw;*/ // commented as part of SO-862
             
         }catch(Exception e){
             System.debug('Exception occured during absence creation'+e.getMessage()+' '+e.getStackTraceString());
-            logInstance.log('CreateAbsenceRecords', Appt_ResourceAbsenceController.class.getName(), e.getmessage());
-            
+            logInstance.log('CreateAbsenceRecords', Appt_ResourceAbsenceController.class.getName(), e.getmessage());            
             rw.isError = true;
             rw.messsage = e.getMessage() + ' - ' + e.getStackTraceString(); 
             return rw;
@@ -199,7 +198,7 @@ return rw;*/ // commented as part of SO-862
         return dt;
     }
     
-    public static String getLocalDate(DateTime dt){
+    public static String getLocalDateString(DateTime dt){
         String localDateString = dt.format('yyyy-MM-dd');
         return localDateString;
 
